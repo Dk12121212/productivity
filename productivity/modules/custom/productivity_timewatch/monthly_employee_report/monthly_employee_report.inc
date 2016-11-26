@@ -482,6 +482,9 @@ function productivity_timewatch_create_summary_table($summaries) {
   if ($time_off < 0) {
     $label = t('Extra time (Included in Total)');
     $time_off *= -1;
+    if (isset($summaries['1.Attendance'])) {
+      $summaries['1.Attendance']['total_minutes'] -= $time_off;
+    }
   }
   // Undeclared days, this are hours not marked as anything.
   $summaries['2.time off'] = array(

@@ -179,7 +179,7 @@ function productivity_timewatch_build_report($account, $year, $month){
   $variables_report['year'] = $year;
   $variables_report['month']= $month;
   $wrapper = entity_metadata_wrapper('user', $account);
-  $variables_report['fullname'] = $wrapper->field_full_name->label() ? $wrapper->field_full_name->label() : $account->name;
+  $variables_report['fullname'] = $wrapper->field_full_name->value() ? $wrapper->field_full_name->value() : $account->name;
   $variables_report['date'] = date("F Y", strtotime("$year-$month-01"));
   if (!variable_get('productivity_bypass_retro', TRUE)) {
     // Print today's date,

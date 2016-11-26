@@ -308,7 +308,7 @@ function productivity_timewatch_create_sessions_table($node_keys, &$summary, &$m
     $day_name = $wrapper->field_session_type->label();
     // Fallback for non defined days.
     if ($day_name == NULL) {
-      $day_name = 'Regular';
+      $day_name = 'Attendance';
     }
 
     $madaan_project = FALSE;
@@ -441,6 +441,7 @@ function productivity_timewatch_create_summary_maddan_table($summaries_madaan, $
     t('Total'),
     t('%'),
   );
+
   // The totoal on madaan project is the larger number btw total and potential.
   $total = $summaries['5.potential']['total_minutes'] > $summaries['4.total']['total_minutes'] ? $summaries['5.potential']['total_minutes'] : $summaries['4.total']['total_minutes'];
 
@@ -473,11 +474,13 @@ function productivity_timewatch_create_summary_table($summaries) {
     t('%'),
   );
 
+
   $time_off = $summaries['5.potential']['total_minutes'] - $summaries['4.total']['total_minutes'];
+
   // Extra time.
-  $label =t('Time off');
+  $label = t('Time off');
   if ($time_off < 0) {
-    $label = t('Extra time (Included in Regular time)');
+    $label = t('Extra time (Included in Total)');
     $time_off *= -1;
   }
   // Undeclared days, this are hours not marked as anything.
@@ -486,7 +489,6 @@ function productivity_timewatch_create_summary_table($summaries) {
     'total_minutes' => $time_off,
     'actual' => '100%',
   );
-
 
   $total = $summaries['5.potential']['total_minutes'];
   // Calc actual %

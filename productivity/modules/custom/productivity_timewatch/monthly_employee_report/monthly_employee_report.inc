@@ -186,7 +186,7 @@ function productivity_timewatch_build_report($account, $year, $month){
     $date_sign = time();
   }
   else {
-    // Print random date, for testind.
+    // Print random date, for testing.
     $month_sign = $month + 1;
     $day_sign = rand(1, 20);
     $date_sign = strtotime("$year-$month_sign-$day_sign");

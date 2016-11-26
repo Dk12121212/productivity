@@ -84,7 +84,6 @@ function productivity_time_tracking_issue_table($node = FALSE, $year = FALSE, $m
   // Get all issues for the project.
   if ($nodes) {
     $issues_table = productivity_time_tracking_create_issues_table($nodes);
-    dpm($issues_table);
   }
   else {
     $variables['no_result'] = TRUE;

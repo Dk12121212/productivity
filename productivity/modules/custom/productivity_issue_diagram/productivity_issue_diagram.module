@@ -39,108 +39,27 @@ function productivity_issue_diagram_menu_callback($project_nid) {
  */
 function productivity_issue_diagram_graph($project_nid) {
   $graph = array();
-  $entity_refs = array();
-  $connections = productivity_issue_diagram_graph_connections($project_nid);
-  // Here.
-  if ($single_entity_type) {
-    $entities = array($single_entity_type => entity_get_info($single_entity_type));
-  }
-  else {
-    $entities = entity_get_info();
-  }
+  $issues = productivity_issue_diagram_graph_connections($project_nid);
 
-  foreach ($entities as $entity_type => $entity_info) {
-    // Exclude non important entities.
-    if (in_array($entity_type, array('message_type', 'restful_token_auth',))) {
-      continue;
-    }
-    $node_info = array();
-    $node_info['title'] = $entity_info['label'];
+  $graph['nodes']['group_issue']['label'] = 'Issues';
+  $graph['nodes']['group_issue']['group'] = TRUE;
+  $graph['nodes']['group_pull_request']['label'] = 'PR';
+  $graph['nodes']['group_pull_request']['group'] = TRUE;
+  foreach ($issues as $issue) {
+    $graph['nodes']['group_' . $issue['type']][$issue['nid']] = array(
+//      'title' => $issue['title'],
+      'title' => $issue['issue_id'],
+      'issue_id' => $issue['issue_id'],
+    );
 
-    if (!empty($entity_info['base table'])) {
-      $table_schema = drupal_get_schema($entity_info['base table']);
-      $table_schema += array('fields' => array(), 'foreign keys' => array());
+    if ($issue['related_issue']) {
+      $edge_info = array(
+        'arrowhead' => 'Normal',
+        'taillabel' => '1',
+        'headlabel' => '2',
+      );
 
-      if ($include_fields) {
-        foreach ($table_schema['fields'] as $field_name => $field_info) {
-          $node_info['properties'][$field_name] = array(
-            'type' => $field_info['type'],
-          );
-        }
-      }
-
-
-      // Generate the bundles.
-      $has_bundles = !empty($entity_info['entity keys']['bundle']) && count($entity_info['bundles']) > 0;
-      if ($has_bundles) {
-        foreach ($entity_info['bundles'] as $bundle_name => $bundle_info) {
-          $graph['nodes']['cluster_entity_group_' . $entity_type]['entity_' . $entity_type . '__bundle_' . str_replace('-', '_', $bundle_name)] = array(
-            'title' => $bundle_info['label'],
-          );
-        }
-      }
-
-      // Traverse the instances.
-      if ($include_fields) {
-
-        $fields = array();
-        foreach (field_info_instances($entity_type) as $bundle => $instances) {
-          foreach ($instances as $field_name => $instance_info) {
-            $fields[$field_name][] = $bundle;
-          }
-        }
-
-        foreach ($fields as $field_name => $bundles) {
-          $field_info = field_info_field($field_name);
-          $field_property_info = array(
-            'label' => $field_name,
-            'type' => $field_info['type'],
-          );
-          if ($field_info['cardinality'] <> 1) {
-            $field_property_info['type'] = 'list<' . $field_property_info['type'] . '>';
-          }
-
-          // Build the relationships.
-          $relationships = array();
-          foreach ($field_info['foreign keys'] as $foreign_key_name => $foreign_key_info) {
-            if (count($foreign_key_info['columns']) != 1) {
-              // We cannot process multiple key foreign keys.
-              continue;
-            }
-            // Remote column.
-            reset($foreign_key_info['columns']);
-            // Local column.
-            key($foreign_key_info['columns']);
-
-            $foreign_entity_type = productivity_issue_diagram_graph_get_entity_by_table($foreign_key_info['table']);
-            if ($foreign_entity_type) {
-              $relationships[] = $foreign_entity_type;
-            }
-          }
-
-          foreach ($bundles as $bundle_name) {
-            $graph['nodes']['cluster_entity_group_' . $entity_type]['entity_' . $entity_type . '__bundle_' . $bundle_name]['fields'][$field_name] = $field_property_info;
-          }
-        }
-      }
-    }
-
-    if ($has_bundles) {
-      $group = &$graph['nodes']['cluster_entity_group_' . $entity_type];
-      $group['label'] = $entity_info['label'];
-      $group['group'] = TRUE;
-    }
-
-    // Entity reference edges.
-    if (isset($entity_refs[$entity_type])) {
-      foreach ($entity_refs[$entity_type] as $bundle_name => $field_ref_info) {
-        foreach ($field_ref_info as $field_name => $target) {
-          foreach ($target as $target_type => $target_info) {
-            $relationship = 'entity_' . $target_type . '__bundle_' . $target_info['bundle']; //
-            productivity_issue_diagram_graph_relationship($graph, 'entity_' . $entity_type . '__bundle_' . $bundle_name, $relationship, $target_info['required'], $target_info['cardinality'], $target_info['fieldname']);
-          }
-        }
-      }
+      $graph['edges'][$issue['issue_id']][$issue['related_issue']] = $edge_info;
     }
   }
 
@@ -178,10 +97,10 @@ function productivity_issue_diagram_graph_connections($project_nid) {
   $result = $query->execute();
 
   // Create an associative array:
-  // $ar[source_type][source_bundle][field_name][target_type][target_bundle].
   $issues = array();
   while($record = $result->fetchAssoc()) {
     $issues[$record['nid']] = array(
+      'nid' => $record['nid'],
       'title' => $record['title'],
       'estimate' => $record['field_time_estimate_value'],
       'issue_id' => $record['field_issue_id_value'],
@@ -190,97 +109,9 @@ function productivity_issue_diagram_graph_connections($project_nid) {
     );
   }
   dpm($issues);
+  return $issues;
 }
 
-
-
-/**
- * Get term and node reference connections.
- */
-function productivity_issue_diagram_graph_core_reference_connections(&$entity_refs) {
-  // Get node and term refs.
-  $field_types = array(
-    'taxonomy_term' => 'taxonomy_term_reference',
-    'node' => 'node_reference',
-    'user' => 'user_reference',
-  );
-  foreach ($field_types as $source_type => $field_type) {
-    $fields = field_read_fields(array('type' => $field_type));
-    // Create an associative array:
-    // $ar[source_type][source_bundle][field_name][target_type][target_bundle]
-    foreach ($fields as $field_name => $taxonomy_field) {
-      $field_info = field_info_field($field_name);
-      foreach ($field_info['bundles'] as $type => $bundles) {
-        foreach ($bundles as $bundle) {
-          $targets = array();
-          // Build list of target bundle.
-          if ($source_type == 'taxonomy_term') {
-            foreach ($field_info['settings']['allowed_values'] as $target) {
-              $targets[] = $target['vocabulary'];
-            }
-          }
-          elseif ($source_type == 'node') {
-            foreach ($field_info['settings']['referenceable_types'] as $target) {
-              if ($target) {
-                $targets[] = $target;
-              }
-            }
-          }
-          elseif ($source_type == 'user') {
-            $targets[] = 'user';
-          }
-
-          foreach ($targets as $target) {
-            $instance_info = field_info_instance($type, $field_name, $bundle);
-            $entity_refs[$type][$bundle][$field_name][$source_type] = array(
-              'bundle' => $target,
-              'cardinality' => $field_info['cardinality'],
-              'required' => $instance_info['required'],
-              'fieldname' => $field_name,
-            );
-          }
-        }
-      }
-    }
-  }
-}
-
-/**
- * Get entity name by table.
- */
-function productivity_issue_diagram_graph_get_entity_by_table($table) {
-  foreach (entity_get_info() as $entity_type => $entity_info) {
-    if (!empty($entity_info['base table']) && $entity_info['base table'] == $table) {
-      return $entity_type;
-    }
-  }
-}
-
-/**
- * Create an Edge connection.
- *
- * @param $graph
- *  Graph array to update.
- */
-function productivity_issue_diagram_graph_relationship(&$graph, $source, $target, $required, $cardinality, $fieldname) {
-  $edge_info = array(
-    'arrowhead' => 'normal',
-  );
-  if ($cardinality >= 1) {
-    $min_cardinality = $required ? $cardinality : 0;
-    $max_cardinality = $cardinality;
-  }
-  else {
-    $min_cardinality = $required ? 1 : 0;
-    $max_cardinality = '*';
-  }
-  $edge_info['taillabel'] = $min_cardinality . '..' . $max_cardinality;
-
-  $edge_info['headlabel'] = '1..*';
-  $edge_info['fieldname'] = $fieldname;
-
-  $graph['edges'][$source][$target] = $edge_info;
-}
 
 /**
  * Render graph into digraph format.

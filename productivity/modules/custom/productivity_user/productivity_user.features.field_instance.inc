@@ -71,7 +71,7 @@ function productivity_user_field_default_field_instances() {
     'entity_type' => 'multifield',
     'field_name' => 'field_project',
     'label' => 'Project',
-    'required' => 1,
+    'required' => 0,
     'settings' => array(
       'behaviors' => array(
         'autofill' => array(

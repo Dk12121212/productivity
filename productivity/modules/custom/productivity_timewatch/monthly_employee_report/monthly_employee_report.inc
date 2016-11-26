@@ -181,6 +181,17 @@ function productivity_timewatch_build_report($account, $year, $month){
   $wrapper = entity_metadata_wrapper('user', $account);
   $variables_report['fullname'] = $wrapper->field_full_name->label() ? $wrapper->field_full_name->label() : $account->name;
   $variables_report['date'] = date("F Y", strtotime("$year-$month-01"));
+  if (!variable_get('productivity_bypass_retro', TRUE)) {
+    // Print today's date,
+    $date_sign = time();
+  }
+  else {
+    // Print random date, for testind.
+    $month_sign = $month + 1;
+    $day_sign = rand(1, 20);
+    $date_sign = strtotime("$year-$month_sign-$day_sign");
+  }
+  $variables_report['date_sign'] =   date("F, d Y", $date_sign);
 
   // Main table headers.
   $header = array(

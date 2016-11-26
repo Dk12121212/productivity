@@ -148,7 +148,7 @@ function productivity_timewatch_build_report($account, $year, $month){
 
   $summary =  array();
   // Get the skeleton of the full month.
-  $summary['5.potential'] = array(
+  $summary['6.potential'] = array(
     'name' => t('Potential'),
     'total_minutes' => 0,
     'actual' => '100%',
@@ -161,16 +161,16 @@ function productivity_timewatch_build_report($account, $year, $month){
   if ($account->field_date['und'][0]['value'] != $account->field_date['und'][0]['value2']
     && "$month-$year" == date('n-Y', strtotime($account->field_date['und'][0]['value2']))) {
     $endday = date('j', strtotime($account->field_date['und'][0]['value2']));
-    $summary['5.potential']['name'] = t('Potential (For partial month)');
+    $summary['6.potential']['name'] = t('Potential (For partial month)');
   }
   // Case we are in the middle of current month, or if employee is leaving in
   // the current month but todays date id before that.
   if ("$month-$year" == date('n-Y') && (!$endday || $endday > date('j'))) {
     $endday = date('j');
-    $summary['5.potential']['name'] = t('Potential (until today)');
+    $summary['6.potential']['name'] = t('Potential (until today)');
   }
 
-  $month_array = productivity_timewatch_build_month_skeleton($month, $year, $summary['5.potential']['total_minutes'], $endday);
+  $month_array = productivity_timewatch_build_month_skeleton($month, $year, $summary['6.potential']['total_minutes'], $endday);
   // Get all sessions for the project.
   $madaan = array();
   $month_array = productivity_timewatch_create_sessions_table($node_keys, $summary, $madaan, $month_array, $endday);
@@ -179,8 +179,19 @@ function productivity_timewatch_build_report($account, $year, $month){
   $variables_report['year'] = $year;
   $variables_report['month']= $month;
   $wrapper = entity_metadata_wrapper('user', $account);
-  $variables_report['fullname'] = $wrapper->field_full_name->label() ? $wrapper->field_full_name->label() : $account->name;
+  $variables_report['fullname'] = $wrapper->field_full_name->value() ? $wrapper->field_full_name->value() : $account->name;
   $variables_report['date'] = date("F Y", strtotime("$year-$month-01"));
+  if (!variable_get('productivity_bypass_retro', TRUE)) {
+    // Print today's date,
+    $date_sign = time();
+  }
+  else {
+    // Print random date, for testing.
+    $month_sign = $month + 1;
+    $day_sign = rand(1, 20);
+    $date_sign = strtotime("$year-$month_sign-$day_sign");
+  }
+  $variables_report['date_sign'] =   date("F, d Y", $date_sign);
 
   // Main table headers.
   $header = array(
@@ -382,20 +393,18 @@ function productivity_timewatch_create_sessions_table($node_keys, &$summary, &$m
       ksort($month_array[$day_key]);
 
       // Create stub for summary.
-      if (!$madaan_project) {
-        $day_key_summary = "1.$day_name";
+      $day_key_summary = "1.$day_name";
 
-        if (!isset($summary[$day_key_summary])) {
-          $summary[$day_key_summary] = array(
-            'name' => $day_name,
-            'total_minutes' => 0,
-            'actual' => 0,
-          );
-        }
-        $summary[$day_key_summary]['total_minutes'] += $total_minutes;
+      if (!isset($summary[$day_key_summary])) {
+        $summary[$day_key_summary] = array(
+          'name' => $day_name,
+          'total_minutes' => 0,
+          'actual' => 0,
+        );
       }
+      $summary[$day_key_summary]['total_minutes'] += $total_minutes;
       // Madaan project summary.
-      else {
+      if ($madaan_project) {
         $project_key = "1.$pid";
         if (!isset($madaan[$project_key])) {
           $madaan[$project_key] = array(
@@ -441,10 +450,11 @@ function productivity_timewatch_create_summary_maddan_table($summaries_madaan, $
     t('Total'),
     t('%'),
   );
-  // The totoal on madaan project is the larger number btw total and potential.
-  $total = $summaries['5.potential']['total_minutes'] > $summaries['4.total']['total_minutes'] ? $summaries['5.potential']['total_minutes'] : $summaries['4.total']['total_minutes'];
 
-  $summaries_madaan['5.potential_maddan'] = array(
+  // The totoal on madaan project is the larger number btw total and potential.
+  $total = $summaries['6.potential']['total_minutes'] > $summaries['4.total']['total_minutes'] ? $summaries['6.potential']['total_minutes'] : $summaries['4.total']['total_minutes'];
+
+  $summaries_madaan['6.potential_maddan'] = array(
     'name' => t('Potential (maddan)'),
     'total_minutes' => $total,
     'actual' => '100%',
@@ -473,27 +483,39 @@ function productivity_timewatch_create_summary_table($summaries) {
     t('%'),
   );
 
-  $time_off = $summaries['5.potential']['total_minutes'] - $summaries['4.total']['total_minutes'];
+
+  $time_off = $summaries['6.potential']['total_minutes'] - $summaries['4.total']['total_minutes'];
+
   // Extra time.
-  $label =t('Time off');
+
   if ($time_off < 0) {
-    $label = t('Extra time (Included in Regular time)');
-    $time_off *= -1;
+    $summaries['2.ExtraTime'] = array(
+      'name' => t('Extra time (Included in Total)'),
+      'total_minutes' => $time_off * -1,
+      'actual' => '100%',
+    );
+    if (isset($summaries['1.Regular'])) {
+      $summaries['1.Regular']['total_minutes'] += $time_off;
+    }
   }
-  // Undeclared days, this are hours not marked as anything.
-  $summaries['2.time off'] = array(
-    'name' => $label,
-    'total_minutes' => $time_off,
-    'actual' => '100%',
-  );
+  else {
+    // Undeclared days, this are hours not marked as anything.
+    $summaries['5.time off'] = array(
+      'name' => t('Time off - (Missing without cause)'),
+      'total_minutes' => $time_off,
+      'actual' => '100%',
+    );
+  }
 
-
-  $total = $summaries['5.potential']['total_minutes'];
+  $total = $summaries['6.potential']['total_minutes'];
   // Calc actual %
   foreach($summaries as &$summary) {
     $summary['actual'] = number_format(100 / $total * $summary['total_minutes'], 2) . '%';
     $summary['total_minutes'] = productivity_timewatch_format_total($summary['total_minutes'], TRUE);
   }
+
+  $summaries['1.Regular']['name'] = t('Attendance');
+
 
   ksort($summaries);
   return theme('table', array(

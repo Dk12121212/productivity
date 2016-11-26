@@ -1081,6 +1081,7 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['filters']['title']['table'] = 'node';
   $handler->display->display_options['filters']['title']['field'] = 'title';
   $handler->display->display_options['filters']['title']['operator'] = 'contains';
+  $handler->display->display_options['filters']['title']['group'] = 1;
   $handler->display->display_options['filters']['title']['exposed'] = TRUE;
   $handler->display->display_options['filters']['title']['expose']['operator_id'] = 'title_op';
   $handler->display->display_options['filters']['title']['expose']['label'] = 'Title';
@@ -1094,6 +1095,7 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['filters']['type']['value'] = array(
     'project' => 'project',
   );
+  $handler->display->display_options['filters']['type']['group'] = 1;
   $handler->display->display_options['filters']['type']['expose']['operator_id'] = 'type_op';
   $handler->display->display_options['filters']['type']['expose']['label'] = 'Type';
   $handler->display->display_options['filters']['type']['expose']['operator'] = 'type_op';
@@ -1105,6 +1107,7 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['filters']['uid']['field'] = 'uid';
   $handler->display->display_options['filters']['uid']['relationship'] = 'uid';
   $handler->display->display_options['filters']['uid']['value'] = '';
+  $handler->display->display_options['filters']['uid']['group'] = 1;
   $handler->display->display_options['filters']['uid']['exposed'] = TRUE;
   $handler->display->display_options['filters']['uid']['expose']['operator_id'] = 'uid_op';
   $handler->display->display_options['filters']['uid']['expose']['label'] = 'Author';
@@ -1116,6 +1119,7 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['filters']['status']['table'] = 'node';
   $handler->display->display_options['filters']['status']['field'] = 'status';
   $handler->display->display_options['filters']['status']['value'] = 'All';
+  $handler->display->display_options['filters']['status']['group'] = 1;
   $handler->display->display_options['filters']['status']['exposed'] = TRUE;
   $handler->display->display_options['filters']['status']['expose']['operator_id'] = '';
   $handler->display->display_options['filters']['status']['expose']['label'] = 'Published';
@@ -1127,6 +1131,7 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['filters']['vid']['table'] = 'taxonomy_term_data';
   $handler->display->display_options['filters']['vid']['field'] = 'vid';
   $handler->display->display_options['filters']['vid']['relationship'] = 'term_node_tid';
+  $handler->display->display_options['filters']['vid']['group'] = 1;
   $handler->display->display_options['filters']['vid']['exposed'] = TRUE;
   $handler->display->display_options['filters']['vid']['expose']['operator_id'] = 'vid_op';
   $handler->display->display_options['filters']['vid']['expose']['label'] = 'Vocabulary';
@@ -1290,6 +1295,10 @@ function productivity_admin_views_default_views() {
     'forums' => 0,
     'tags' => 0,
   );
+  /* Relationship: Entity Reference: Referenced Entity */
+  $handler->display->display_options['relationships']['field_employee_target_id']['id'] = 'field_employee_target_id';
+  $handler->display->display_options['relationships']['field_employee_target_id']['table'] = 'field_data_field_employee';
+  $handler->display->display_options['relationships']['field_employee_target_id']['field'] = 'field_employee_target_id';
   /* Field: Bulk operations: Content */
   $handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
   $handler->display->display_options['fields']['views_bulk_operations']['table'] = 'node';
@@ -1437,6 +1446,12 @@ function productivity_admin_views_default_views() {
     'scale' => '2',
     'prefix_suffix' => 1,
   );
+  /* Field: User: Name */
+  $handler->display->display_options['fields']['name']['id'] = 'name';
+  $handler->display->display_options['fields']['name']['table'] = 'users';
+  $handler->display->display_options['fields']['name']['field'] = 'name';
+  $handler->display->display_options['fields']['name']['relationship'] = 'field_employee_target_id';
+  $handler->display->display_options['fields']['name']['label'] = 'Employee';
   /* Filter criterion: Content: Title */
   $handler->display->display_options['filters']['title']['id'] = 'title';
   $handler->display->display_options['filters']['title']['table'] = 'node';
@@ -1570,6 +1585,39 @@ function productivity_admin_views_default_views() {
   );
   $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['reference_display'] = 'entity_ref_list:entityreference_1';
   $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['reference_arguments'] = 'project';
+  /* Filter criterion: Content: Issues logs (field_issues_logs:field_issue_label_value) */
+  $handler->display->display_options['filters']['field_issues_logs_field_issue_label_value']['id'] = 'field_issues_logs_field_issue_label_value';
+  $handler->display->display_options['filters']['field_issues_logs_field_issue_label_value']['table'] = 'field_data_field_issues_logs';
+  $handler->display->display_options['filters']['field_issues_logs_field_issue_label_value']['field'] = 'field_issues_logs_field_issue_label_value';
+  $handler->display->display_options['filters']['field_issues_logs_field_issue_label_value']['operator'] = 'contains';
+  $handler->display->display_options['filters']['field_issues_logs_field_issue_label_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_issues_logs_field_issue_label_value']['expose']['operator_id'] = 'field_issues_logs_field_issue_label_value_op';
+  $handler->display->display_options['filters']['field_issues_logs_field_issue_label_value']['expose']['label'] = 'Issues logs (field_issues_logs:field_issue_label_value)';
+  $handler->display->display_options['filters']['field_issues_logs_field_issue_label_value']['expose']['operator'] = 'field_issues_logs_field_issue_label_value_op';
+  $handler->display->display_options['filters']['field_issues_logs_field_issue_label_value']['expose']['identifier'] = 'field_issues_logs_field_issue_label_value';
+  $handler->display->display_options['filters']['field_issues_logs_field_issue_label_value']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
+  /* Filter criterion: User: Name */
+  $handler->display->display_options['filters']['uid']['id'] = 'uid';
+  $handler->display->display_options['filters']['uid']['table'] = 'users';
+  $handler->display->display_options['filters']['uid']['field'] = 'uid';
+  $handler->display->display_options['filters']['uid']['relationship'] = 'field_employee_target_id';
+  $handler->display->display_options['filters']['uid']['value'] = '';
+  $handler->display->display_options['filters']['uid']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['uid']['expose']['operator_id'] = 'uid_op';
+  $handler->display->display_options['filters']['uid']['expose']['label'] = 'Name';
+  $handler->display->display_options['filters']['uid']['expose']['operator'] = 'uid_op';
+  $handler->display->display_options['filters']['uid']['expose']['identifier'] = 'uid';
+  $handler->display->display_options['filters']['uid']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
   $handler->display->display_options['path'] = 'admin/content/tracking';
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'Tracking';

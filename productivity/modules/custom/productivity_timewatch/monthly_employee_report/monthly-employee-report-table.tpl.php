@@ -21,10 +21,21 @@
   <h3>Signatures</h3>
   <div class="row">
     <div class="col-sm-6 mop-manager">
-      Brice Lenfant (MOP manager):
+      Brice Lenfant (MOP manager):_________________
+    </div>
+    <div class="col-sm-6 mop-manager">
+      Date: <?php print $date_sign; ?>
+    </div>
+  </div>
+  <div class="row">
+    <hr>
+  </div>
+  <div class="row">
+    <div class="col-sm-6 employee-signature">
+      <?php print $fullname; ?>:_________________
     </div>
     <div class="col-sm-6 employee-signature">
-      <?php print $fullname; ?>:
+      Date: <?php print $date_sign; ?>
     </div>
   </div>
 </div>

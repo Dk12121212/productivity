@@ -101,7 +101,8 @@ function productivity_issue_diagram_tracking($project_nid) {
   //  Join issue log multifield.
   $query
     ->leftJoin('field_data_field_issues_logs', 'il', 'n.nid = il.entity_id');
-
+  $query
+    ->leftJoin('field_data_field_issue_id', 'i', 'il.field_issues_logs_field_github_issue_target_id = i.entity_id');
 
   $query
     ->fields('n', array('title', 'nid', 'uid'))
@@ -110,8 +111,10 @@ function productivity_issue_diagram_tracking($project_nid) {
       'field_issues_logs_field_issue_label_value',
       'field_issues_logs_field_time_spent_value',
       'field_issues_logs_field_issue_type_value',
+      'field_issues_logs_id',
       )
     )
+    ->fields('i', array('field_issue_id_value'))
     ->condition('p.field_project_target_id', $project_nid)
     ->condition('type', 'time_tracking')
     ->condition('status', NODE_PUBLISHED);
@@ -123,8 +126,10 @@ function productivity_issue_diagram_tracking($project_nid) {
     $related_nid = $record['field_issues_logs_field_github_issue_target_id'];
     $tracking[$related_nid][] = array(
       'nid' => $record['nid'],
+      'mfid' => $record['field_issues_logs_id'],
       'uid' => $record['uid'],
       'issue_nid' => $related_nid,
+      'issue_id' => $record['field_issue_id_value'],
       'label' => $record['field_issues_logs_field_issue_label_value'],
       'time' => $record['field_issues_logs_field_time_spent_value'],
       'type' => $record['field_issues_logs_field_issue_type_value'],
@@ -151,14 +156,16 @@ function productivity_issue_diagram_graph($project_nid) {
   // Add tracking nodes.
   $tracking = productivity_issue_diagram_tracking($project_nid);
   foreach ($tracking as $tracks) {
-    foreach ($tracks as $track) {
-      $graph['nodes']['group_tracking'][$track['nid']] = array(
-        'title' => $track['label'],
+    foreach ($tracks as $key => $track) {
+      $graph['nodes']['group_tracking'][$track['mfid']] = array(
+        'title' => 'Track: #' . ($track['issue_id'] ?: '0'),
         // Extra description inside node
+        // Need to remove special char to fix this display.
         'properties' => array(
-          $track['label'],
-          $track['type'] => $track['time'],
+//          'title'  => $track['label'],
+           $track['type'] => $track['time'],
           'uid' => $track['uid'],
+          'nid' => $track['nid'],
         )
       );
     }
@@ -170,7 +177,6 @@ function productivity_issue_diagram_graph($project_nid) {
     if ($issue['type'] == 'issue') {
       $graph['nodes']['group_issue'][$issue['nid']] = array(
         'title' => 'Issue #' . $issue['issue_id'],
-        'issue_id' => $issue['issue_id'],
         // Extra description inside node
         'properties' => array('Estimate' => $issue['estimate']),
       );
@@ -178,7 +184,6 @@ function productivity_issue_diagram_graph($project_nid) {
     else {
       $graph['nodes']['group_pr'][$issue['nid']] = array(
         'title' => 'PR #' . $issue['issue_id'],
-        'issue_id' => $issue['issue_id'],
         // Extra description inside node
         'properties' => array('Hour reported' => $issue['actual']),
       );
@@ -207,7 +212,7 @@ function productivity_issue_diagram_graph($project_nid) {
           'caption' => '',
         );
 
-        $graph['edges'][$issue['nid']][$track['nid']] = $edge_info;
+        $graph['edges'][$track['mfid']][$issue['nid']] = $edge_info;
       }
     }
   }
@@ -314,5 +319,5 @@ function productivity_issue_diagram_graph_generate_node($name, $node_info) {
     $label .= "$title  : $value |";
   }
 
-  return $name . ' [ label = "{' . check_plain($label) . '}" ]';
+  return $name . ' [ label = "{' . addslashes($label) . '}" ]';
 }

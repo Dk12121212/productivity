@@ -14,8 +14,8 @@ function productivity_issue_diagram_drush_command() {
     'core' => array('7+'),
     'drupal dependencies' => array('field'),
     'examples' => array(
-      'drush pid | dot -Gratio=0.7 -Eminlen=2 -T png -o ./test.png' => 'Generate the Entity-Relationship graph for the current site and export it has a PNG image.',
-      'drush pid --project=14525 | dot -Gratio=0.7 -Eminlen=2 -T png -o ./test.png' => 'Generate the Entity-Relationship graph for a entity type site including fields and export it has a PNG image.',
+      'drush pid --project=14525 | dot -Gratio=0.005 -Eminlen=1 -T pdf -o ./test.pdf' => 'Generate has a PDF image.',
+      'drush pid --project=14525 | dot -Gratio=0.7 -Eminlen=2 -T png -o ./test.png' => 'Generate has a PNG image.',
     ),
   );
   return $items;

@@ -135,7 +135,6 @@ function productivity_issue_diagram_tracking($project_nid) {
       'type' => $record['field_issues_logs_field_issue_type_value'],
     );
   }
-  dpm($tracking);
   return $tracking;
 }
 
@@ -216,7 +215,6 @@ function productivity_issue_diagram_graph($project_nid) {
       }
     }
   }
-  dpm($graph);
   return $graph;
 }
 

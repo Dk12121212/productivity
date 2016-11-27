@@ -24,7 +24,6 @@ function productivity_issue_diagram_menu() {
  *  $entity_type - Pass on and anetity type to render only.
  */
 function productivity_issue_diagram_menu_callback($project_nid) {
-//  drupal_add_css(drupal_get_path('module', 'productivity_issue_diagram') . '/productivity_issue_diagram.css');
   drupal_add_js('http://mdaines.github.io/viz.js/bower_components/viz.js/viz.js', 'file');
 
   $data = 'var dataSVG = `' . productivity_issue_diagram_graph_generate(productivity_issue_diagram_graph($project_nid)) . '`;';
@@ -34,37 +33,6 @@ function productivity_issue_diagram_menu_callback($project_nid) {
   return '';
 }
 
-/**
- * Main function to create full graph of entities.
- */
-function productivity_issue_diagram_graph($project_nid) {
-  $graph = array();
-  $issues = productivity_issue_diagram_graph_connections($project_nid);
-
-  $graph['nodes']['group_issue']['label'] = 'Issues';
-  $graph['nodes']['group_issue']['group'] = TRUE;
-  $graph['nodes']['group_pull_request']['label'] = 'PR';
-  $graph['nodes']['group_pull_request']['group'] = TRUE;
-  foreach ($issues as $issue) {
-    $graph['nodes']['group_' . $issue['type']][$issue['nid']] = array(
-//      'title' => $issue['title'],
-      'title' => $issue['issue_id'],
-      'issue_id' => $issue['issue_id'],
-    );
-
-    if ($issue['related_issue']) {
-      $edge_info = array(
-        'arrowhead' => 'Normal',
-        'taillabel' => '1',
-        'headlabel' => '2',
-      );
-
-      $graph['edges'][$issue['issue_id']][$issue['related_issue']] = $edge_info;
-    }
-  }
-
-  return $graph;
-}
 
 /**
  * Get entity reference connections.
@@ -79,11 +47,20 @@ function productivity_issue_diagram_graph_connections($project_nid) {
     ->leftJoin('field_data_field_time_estimate', 'e', 'n.nid = e.entity_id');
   $query
     ->leftJoin('field_data_field_issue_id', 'i', 'n.nid = i.entity_id');
- $query
+  $query
     ->leftJoin('field_data_field_github_content_type', 'ct', 'n.nid = ct.entity_id');
   $query
     ->leftJoin('field_data_field_issue_reference', 'ir', 'n.nid = ir.entity_id');
-
+  // Field on GH issue.
+  $query
+    ->leftJoin('field_data_field_actual_hours', 'ah', 'n.nid = ah.entity_id');
+  // Join time tracking node
+//  $query
+//    ->leftJoin('field_data_field_github_issue', 'gh', 'n.nid = gh.entity_id');
+//  //  Join issue log multifiled
+//  $query
+//    ->leftJoin('field_data_field_issue_logs', 'il', 'gh.nid = il.entity_id');
+//
 
   $query
     ->fields('n', array('title', 'nid'))
@@ -91,6 +68,8 @@ function productivity_issue_diagram_graph_connections($project_nid) {
     ->fields('i', array('field_issue_id_value'))
     ->fields('ct', array('field_github_content_type_value'))
     ->fields('ir', array('field_issue_reference_target_id '))
+    ->fields('ah', array('field_actual_hours_value'))
+//    ->fields('il', array('field_actual_hours_value'))
     ->condition('p.field_project_target_id', $project_nid)
     ->condition('type', 'github_issue')
     ->condition('status', NODE_PUBLISHED);
@@ -106,10 +85,134 @@ function productivity_issue_diagram_graph_connections($project_nid) {
       'issue_id' => $record['field_issue_id_value'],
       'type' => $record['field_github_content_type_value'],
       'related_issue' => $record['field_issue_reference_target_id'],
+      'actual' => $record['field_actual_hours_value'],
     );
   }
-  dpm($issues);
+
   return $issues;
+}
+
+function productivity_issue_diagram_tracking($project_nid) {
+
+  // List of links for projects.
+  $query = db_select('node', 'n');
+  $query
+    ->join('field_data_field_project', 'p', 'n.nid = p.entity_id');
+  //  Join issue log multifield.
+  $query
+    ->leftJoin('field_data_field_issues_logs', 'il', 'n.nid = il.entity_id');
+
+
+  $query
+    ->fields('n', array('title', 'nid', 'uid'))
+    ->fields('il', array(
+      'field_issues_logs_field_github_issue_target_id',
+      'field_issues_logs_field_issue_label_value',
+      'field_issues_logs_field_time_spent_value',
+      'field_issues_logs_field_issue_type_value',
+      )
+    )
+    ->condition('p.field_project_target_id', $project_nid)
+    ->condition('type', 'time_tracking')
+    ->condition('status', NODE_PUBLISHED);
+  $result = $query->execute();
+
+  // Create an associative array:
+  $tracking = array();
+  while($record = $result->fetchAssoc()) {
+    $related_nid = $record['field_issues_logs_field_github_issue_target_id'];
+    $tracking[$related_nid][] = array(
+      'nid' => $record['nid'],
+      'uid' => $record['uid'],
+      'issue_nid' => $related_nid,
+      'label' => $record['field_issues_logs_field_issue_label_value'],
+      'time' => $record['field_issues_logs_field_time_spent_value'],
+      'type' => $record['field_issues_logs_field_issue_type_value'],
+    );
+  }
+  dpm($tracking);
+  return $tracking;
+}
+
+/**
+ * Main function to create full graph of entities.
+ */
+function productivity_issue_diagram_graph($project_nid) {
+  $graph = array();
+
+  $graph['nodes']['group_issue']['label'] = 'Issues';
+  $graph['nodes']['group_issue']['group'] = TRUE;
+  $graph['nodes']['group_pr']['label'] = 'PR';
+  $graph['nodes']['group_pr']['group'] = TRUE;
+  $graph['nodes']['group_tracking']['label'] = 'tracking';
+  $graph['nodes']['group_tracking']['group'] = TRUE;
+
+
+  // Add tracking nodes.
+  $tracking = productivity_issue_diagram_tracking($project_nid);
+  foreach ($tracking as $tracks) {
+    foreach ($tracks as $track) {
+      $graph['nodes']['group_tracking'][$track['nid']] = array(
+        'title' => $track['label'],
+        // Extra description inside node
+        'properties' => array(
+          $track['label'],
+          $track['type'] => $track['time'],
+          'uid' => $track['uid'],
+        )
+      );
+    }
+  }
+
+  // Add issue nodes.
+  $issues = productivity_issue_diagram_graph_connections($project_nid);
+  foreach ($issues as $issue) {
+    if ($issue['type'] == 'issue') {
+      $graph['nodes']['group_issue'][$issue['nid']] = array(
+        'title' => 'Issue #' . $issue['issue_id'],
+        'issue_id' => $issue['issue_id'],
+        // Extra description inside node
+        'properties' => array('Estimate' => $issue['estimate']),
+      );
+    }
+    else {
+      $graph['nodes']['group_pr'][$issue['nid']] = array(
+        'title' => 'PR #' . $issue['issue_id'],
+        'issue_id' => $issue['issue_id'],
+        // Extra description inside node
+        'properties' => array('Hour reported' => $issue['actual']),
+      );
+    }
+    // Add edge for PR to ISSUE.
+    if ($issue['related_issue']) {
+      $edge_info = array(
+        // box, crow, curve, icurve, diamond, dot, inv, none, normal, tee, vee
+        'arrowhead' => 'normal',
+        'taillabel' => '',
+        'headlabel' => '',
+        'caption' => '',
+      );
+
+      $graph['edges'][$issue['nid']][$issue['related_issue']] = $edge_info;
+    }
+
+    // Add Edged from tracking to PR.
+    if (isset($tracking[$issue['nid']])) {
+      foreach ($tracking[$issue['nid']] as $track) {
+        $edge_info = array(
+          // box, crow, curve, icurve, diamond, dot, inv, none, normal, tee, vee
+          'arrowhead' => 'box',
+          'taillabel' => '',
+          'headlabel' => '',
+          'caption' => '',
+        );
+
+        $graph['edges'][$issue['nid']][$track['nid']] = $edge_info;
+      }
+    }
+  }
+  dpm($graph);
+  return $graph;
 }
 
 
@@ -141,17 +244,18 @@ function productivity_issue_diagram_graph_generate($graph) {
   foreach ($graph['edges'] as $source_node => $edges) {
     foreach ($edges as $target_node => $edge_info) {
       $output .= "edge [\n";
+      // Edge properties.
       foreach ($edge_info as $k => $v) {
         $output .= ' "' . check_plain($k) . '" = "'. check_plain($v) . '"' . "\n";
       }
       $output .= "]\n";
       $color = productivity_issue_diagram_random_color();
-      $output .= format_string('@source_node -> @target_node [color="@color"][label="(@fieldname)" fontcolor="@color"]',
+      $output .= format_string('@source_node -> @target_node [color="@color"][label="@caption" fontcolor="@color"]',
         array(
           '@source_node' => $source_node,
           '@target_node' => $target_node,
           '@color' => $color,
-          '@fieldname' => $edge_info['fieldname'],
+          '@caption' => $edge_info['caption'],
         )
       );
     }
@@ -202,26 +306,12 @@ function productivity_issue_diagram_graph_generate_node($name, $node_info) {
   $node_info += array(
     'title' => $name,
     'properties' => array(),
-    'fields' => array(),
-    'methods' => array(),
   );
 
   $label  = $node_info['title'] . '|';
 
-  foreach ($node_info['properties'] as $property_name => $property_info) {
-    $property_info += array(
-      'type' => '',
-    );
-    $label .= $property_name . ' : ' . $property_info['type'] . '\l';
-  }
-
-  $label .= '|';
-
-  foreach ($node_info['fields'] as $field_name => $field_info) {
-    $field_info += array(
-      'type' => '',
-    );
-    $label .= $field_name . ' : ' . $field_info['type'] . '|';
+  foreach ($node_info['properties'] as $title => $value) {
+    $label .= "$title  : $value |";
   }
 
   return $name . ' [ label = "{' . check_plain($label) . '}" ]';

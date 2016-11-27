@@ -126,7 +126,8 @@ function productivity_issue_diagram_tracking($project_nid) {
     $related_nid = $record['field_issues_logs_field_github_issue_target_id'];
     $tracking[$related_nid][] = array(
       'nid' => $record['nid'],
-      'mfid' => $record['field_issues_logs_id'],
+      // Adding prefix to prevent mix with NIDs.
+      'mfid' => 'tr_' . $record['field_issues_logs_id'],
       'uid' => $record['uid'],
       'issue_nid' => $related_nid,
       'issue_id' => $record['field_issue_id_value'],

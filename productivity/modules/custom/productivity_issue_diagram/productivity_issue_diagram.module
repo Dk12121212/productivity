@@ -33,13 +33,12 @@ function productivity_issue_diagram_menu_callback($project_nid) {
   return '';
 }
 
-
 /**
  * Get entity reference connections.
  */
 function productivity_issue_diagram_graph_connections($project_nid) {
 
-  // List of links for projects.
+  // List of issues for a project nid.
   $query = db_select('node', 'n');
   $query
     ->join('field_data_field_project', 'p', 'n.nid = p.entity_id');
@@ -54,13 +53,8 @@ function productivity_issue_diagram_graph_connections($project_nid) {
   // Field on GH issue.
   $query
     ->leftJoin('field_data_field_actual_hours', 'ah', 'n.nid = ah.entity_id');
-  // Join time tracking node
-//  $query
-//    ->leftJoin('field_data_field_github_issue', 'gh', 'n.nid = gh.entity_id');
-//  //  Join issue log multifiled
-//  $query
-//    ->leftJoin('field_data_field_issue_logs', 'il', 'gh.nid = il.entity_id');
-//
+  $query
+    ->leftJoin('field_data_field_github_project_id', 'gpi', 'n.nid = gpi.entity_id');
 
   $query
     ->fields('n', array('title', 'nid'))
@@ -69,7 +63,7 @@ function productivity_issue_diagram_graph_connections($project_nid) {
     ->fields('ct', array('field_github_content_type_value'))
     ->fields('ir', array('field_issue_reference_target_id '))
     ->fields('ah', array('field_actual_hours_value'))
-//    ->fields('il', array('field_actual_hours_value'))
+    ->fields('gpi', array('field_github_project_id_value'))
     ->condition('p.field_project_target_id', $project_nid)
     ->condition('type', 'github_issue')
     ->condition('status', NODE_PUBLISHED);
@@ -86,12 +80,18 @@ function productivity_issue_diagram_graph_connections($project_nid) {
       'type' => $record['field_github_content_type_value'],
       'related_issue' => $record['field_issue_reference_target_id'],
       'actual' => $record['field_actual_hours_value'],
+      'github_repo' => $record['field_github_project_id_value'],
     );
   }
 
   return $issues;
 }
 
+/**
+ * Get tracking hours.
+ * @param $project_nid
+ * @return array
+ */
 function productivity_issue_diagram_tracking($project_nid) {
 
   // List of links for projects.
@@ -136,11 +136,12 @@ function productivity_issue_diagram_tracking($project_nid) {
       'type' => $record['field_issues_logs_field_issue_type_value'],
     );
   }
+  dpm($tracking);
   return $tracking;
 }
 
 /**
- * Main function to create full graph of entities.
+ * Main function to create full graph of issues.
  */
 function productivity_issue_diagram_graph($project_nid) {
   $graph = array();
@@ -174,18 +175,28 @@ function productivity_issue_diagram_graph($project_nid) {
   // Add issue nodes.
   $issues = productivity_issue_diagram_graph_connections($project_nid);
   foreach ($issues as $issue) {
+    // Issue.
     if ($issue['type'] == 'issue') {
       $graph['nodes']['group_issue'][$issue['nid']] = array(
         'title' => 'Issue #' . $issue['issue_id'],
         // Extra description inside node
-        'properties' => array('Estimate' => $issue['estimate']),
+        'properties' => array(
+          'Repo' => $issue['github_repo'],
+          'Estimate' => $issue['estimate'],
+          'nid' => $issue['nid'],
+        ),
       );
     }
+    // PR.
     else {
       $graph['nodes']['group_pr'][$issue['nid']] = array(
         'title' => 'PR #' . $issue['issue_id'],
         // Extra description inside node
-        'properties' => array('Hour reported' => $issue['actual']),
+        'properties' => array(
+          'Repo' => $issue['github_repo'],
+          'Hour reported' => $issue['actual'],
+          'nid' => $issue['nid'],
+        ),
       );
     }
     // Add edge for PR to ISSUE.
@@ -218,7 +229,6 @@ function productivity_issue_diagram_graph($project_nid) {
   }
   return $graph;
 }
-
 
 /**
  * Render graph into digraph format.

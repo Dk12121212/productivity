@@ -180,8 +180,10 @@ function productivity_gituhub_payload_handle_pull_request_synchronize($payload, 
     $date_is_saved = FALSE;
     if (!empty($push_dates)) {
       foreach ($push_dates as $date) {
-        $date_formatted = date('d/m/Y', $date);
+        $date_formatted = strtotime($date['value']);
+        $date_formatted = date('d/m/Y', $date_formatted);
         $pushed_date_formatted = date('d/m/Y', strtotime($payload->repository->pushed_at));
+
         if ($date_formatted == $pushed_date_formatted) {
           $date_is_saved = TRUE;
         }
@@ -323,7 +325,6 @@ function productivity_gituhub_payload_handle_issues_opened($payload, $uid) {
  */
 function productivity_github_get_entity_id_by_push_info($payload, $uid) {
   $issue_id = (int)$payload->pull_request->number;
-  $project_id = productivity_github_get_project_by_repository($payload->repository);
 
   // Check if there's any entity opened already for this pull request (issue)
   // which is referencing the current pusher.
@@ -333,7 +334,9 @@ function productivity_github_get_entity_id_by_push_info($payload, $uid) {
     ->propertyCondition('status', NODE_PUBLISHED)
     ->fieldCondition('field_issue_id', 'value', $issue_id)
     ->fieldCondition('field_employee', 'target_id', $uid)
-    ->fieldCondition('field_project', 'target_id', $project_id)
+    // We check project id with repo name, since it's more reliable than Project
+    // nid, because a project can have multiple repos.
+    ->fieldCondition('field_github_project_id', 'value', $payload->repository)
     ->range(0, 1)
     ->execute();
 

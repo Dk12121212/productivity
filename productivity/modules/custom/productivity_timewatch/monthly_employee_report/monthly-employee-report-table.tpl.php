@@ -21,7 +21,7 @@
   <h3>Signatures</h3>
   <div class="row">
     <div class="col-sm-6 mop-manager">
-      Brice Lenfant (MOP manager):_________________
+      <?php print variable_get('productivity_mop_manager', 'Brice Lenfant'); ?>(MOP manager):_________________
     </div>
     <div class="col-sm-6 mop-manager">
       Date: <?php print $date_sign; ?>

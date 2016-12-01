@@ -174,26 +174,10 @@ function productivity_gituhub_payload_handle_pull_request_synchronize($payload, 
     // Update push dates if the entity exists.
     $wrapper = entity_metadata_wrapper('node', $nid);
     $push_dates = $wrapper->field_push_date->value();
+    $push_dates[] = strtotime($payload->repository->pushed_at);
+    $wrapper->field_push_date->set($push_dates);
+    $wrapper->save();
 
-    // Check if the same date have been already submitted (Ignore time).
-    // We don't want to create a big list of dates on each commit.
-    $date_is_saved = FALSE;
-    if (!empty($push_dates)) {
-      foreach ($push_dates as $date) {
-        $date_formatted = strtotime($date['value']);
-        $date_formatted = date('d/m/Y', $date_formatted);
-        $pushed_date_formatted = date('d/m/Y', strtotime($payload->repository->pushed_at));
-
-        if ($date_formatted == $pushed_date_formatted) {
-          $date_is_saved = TRUE;
-        }
-      }
-    }
-    if (!$date_is_saved) {
-      $push_dates[] = strtotime($payload->repository->pushed_at);
-      $wrapper->field_push_date->set($push_dates);
-      $wrapper->save();
-    }
   }
   else {
     // Create a new entity if a new user has pushed to the pull request.

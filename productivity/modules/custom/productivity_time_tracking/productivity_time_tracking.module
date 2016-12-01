@@ -588,7 +588,9 @@ function productivity_time_tracking_update_issue($node) {
 
           if ($github_issue_wrapper->__isset('field_issue_reference')) {
             // Pointing at a pull request - get the issue wrapper.
-            $github_issue_wrapper = $github_issue_wrapper->field_issue_reference;
+            // Take the first issue referencing, since we dont' know where it is
+            // related.
+            $github_issue_wrapper = $github_issue_wrapper->field_issue_reference[0];
           }
           else {
             // This pull request does not have an issue. Can't calculate total

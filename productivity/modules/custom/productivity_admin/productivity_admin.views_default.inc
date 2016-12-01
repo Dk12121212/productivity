@@ -385,6 +385,39 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['fields']['edit_node']['table'] = 'views_entity_node';
   $handler->display->display_options['fields']['edit_node']['field'] = 'edit_node';
   $handler->display->display_options['fields']['edit_node']['label'] = 'Operations';
+  /* Field: Content: Issue ID */
+  $handler->display->display_options['fields']['field_issue_id_1']['id'] = 'field_issue_id_1';
+  $handler->display->display_options['fields']['field_issue_id_1']['table'] = 'field_data_field_issue_id';
+  $handler->display->display_options['fields']['field_issue_id_1']['field'] = 'field_issue_id';
+  /* Field: Content: Status */
+  $handler->display->display_options['fields']['field_status']['id'] = 'field_status';
+  $handler->display->display_options['fields']['field_status']['table'] = 'field_data_field_status';
+  $handler->display->display_options['fields']['field_status']['field'] = 'field_status';
+  /* Field: Content: Published */
+  $handler->display->display_options['fields']['status']['id'] = 'status';
+  $handler->display->display_options['fields']['status']['table'] = 'node';
+  $handler->display->display_options['fields']['status']['field'] = 'status';
+  $handler->display->display_options['fields']['status']['not'] = 0;
+  /* Field: Content: Issue reference */
+  $handler->display->display_options['fields']['field_issue_reference']['id'] = 'field_issue_reference';
+  $handler->display->display_options['fields']['field_issue_reference']['table'] = 'field_data_field_issue_reference';
+  $handler->display->display_options['fields']['field_issue_reference']['field'] = 'field_issue_reference';
+  $handler->display->display_options['fields']['field_issue_reference']['settings'] = array(
+    'link' => 0,
+  );
+  /* Field: Content: Push date */
+  $handler->display->display_options['fields']['field_push_date']['id'] = 'field_push_date';
+  $handler->display->display_options['fields']['field_push_date']['table'] = 'field_data_field_push_date';
+  $handler->display->display_options['fields']['field_push_date']['field'] = 'field_push_date';
+  $handler->display->display_options['fields']['field_push_date']['settings'] = array(
+    'format_type' => 'long',
+    'fromto' => 'both',
+    'multiple_number' => '',
+    'multiple_from' => '',
+    'multiple_to' => '',
+    'show_remaining_days' => 0,
+  );
+  $handler->display->display_options['fields']['field_push_date']['delta_offset'] = '0';
   /* Filter criterion: Content: Title */
   $handler->display->display_options['filters']['title']['id'] = 'title';
   $handler->display->display_options['filters']['title']['table'] = 'node';
@@ -464,6 +497,21 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['filters']['field_github_project_id_value']['expose']['operator'] = 'field_github_project_id_value_op';
   $handler->display->display_options['filters']['field_github_project_id_value']['expose']['identifier'] = 'field_github_project_id_value';
   $handler->display->display_options['filters']['field_github_project_id_value']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
+  /* Filter criterion: Content: Issue ID (field_issue_id) */
+  $handler->display->display_options['filters']['field_issue_id_value']['id'] = 'field_issue_id_value';
+  $handler->display->display_options['filters']['field_issue_id_value']['table'] = 'field_data_field_issue_id';
+  $handler->display->display_options['filters']['field_issue_id_value']['field'] = 'field_issue_id_value';
+  $handler->display->display_options['filters']['field_issue_id_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_issue_id_value']['expose']['operator_id'] = 'field_issue_id_value_op';
+  $handler->display->display_options['filters']['field_issue_id_value']['expose']['label'] = 'Issue ID';
+  $handler->display->display_options['filters']['field_issue_id_value']['expose']['operator'] = 'field_issue_id_value_op';
+  $handler->display->display_options['filters']['field_issue_id_value']['expose']['identifier'] = 'field_issue_id_value';
+  $handler->display->display_options['filters']['field_issue_id_value']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
     3 => 0,

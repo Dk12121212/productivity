@@ -64,18 +64,18 @@ while($record = $result->fetchAssoc()) {
         continue;
       }
       foreach($node_to_merge->{$field}['und'] as $field_to_merge) {
-        foreach($node_base->{$field}['und'] as  $field_combined) {
-          // Compare dates.
-          $date_formatted = strtotime($date['value']);
-          $date_formatted = date('d/m/Y', $date_formatted);
-          $pushed_date_formatted = date('d/m/Y', strtotime($payload->repository->pushed_at));
-
-          if ($date_formatted == $pushed_date_formatted) {
-
+        // Check value if not already set.
+        $value_to_save = TRUE;
+        foreach ($node_base->{$field}['und'] as $field_combined) {
+          // Compare values.
           if ($field_combined[$key] == $field_to_merge[$key]) {
-            continue;
+            $value_to_save = FALSE;
+            print("Value {$field_combined[$key]} already exist. \n");
+            break;
           }
-          // Save only vew values.
+        }
+        // Save only new values.
+        if ($value_to_save) {
           $node_base->{$field}['und'][] = $field_to_merge;
         }
       }

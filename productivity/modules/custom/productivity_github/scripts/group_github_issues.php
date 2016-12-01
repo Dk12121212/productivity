@@ -23,9 +23,6 @@ $query
 $query
   ->leftJoin('field_data_field_employee', 'eid', 'n.nid = eid.entity_id');
 
-//$query->groupBy('gpi.field_github_project_id_value');
-//$query->groupBy('i.field_issue_id_value');
-
 
 $query
   ->fields('n', array('title', 'nid'))
@@ -36,8 +33,8 @@ $query
   ->fields('p', array('field_project_target_id'))
   ->fields('eid', array('field_employee_target_id'))
   ->condition('ct.field_github_content_type_value', 'pull_request')
-  ->condition('gpi.field_github_project_id_value', $repo_id)
   ->condition('type', 'github_issue')
+  ->orderBy('field_employee_target_id', 'DESC')
   ->orderBy('field_github_project_id_value', 'DESC')
   ->orderBy('field_issue_id_value');
 

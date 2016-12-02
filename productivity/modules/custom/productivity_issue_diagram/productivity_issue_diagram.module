@@ -55,15 +55,18 @@ function productivity_issue_diagram_graph_connections($project_nid) {
     ->leftJoin('field_data_field_actual_hours', 'ah', 'n.nid = ah.entity_id');
   $query
     ->leftJoin('field_data_field_github_project_id', 'gpi', 'n.nid = gpi.entity_id');
+//$query
+//    ->leftJoin('field_data_field_employee', 'fe', 'n.nid = fe.entity_id');
 
   $query
-    ->fields('n', array('title', 'nid'))
+    ->fields('n', array('title', 'nid', 'uid'))
     ->fields('e', array('field_time_estimate_value'))
     ->fields('i', array('field_issue_id_value'))
     ->fields('ct', array('field_github_content_type_value'))
     ->fields('ir', array('field_issue_reference_target_id '))
     ->fields('ah', array('field_actual_hours_value'))
     ->fields('gpi', array('field_github_project_id_value'))
+//    ->fields('fe', array('field_employee_value'))
     ->condition('p.field_project_target_id', $project_nid)
     ->condition('type', 'github_issue')
     ->condition('status', NODE_PUBLISHED);
@@ -74,6 +77,7 @@ function productivity_issue_diagram_graph_connections($project_nid) {
   while($record = $result->fetchAssoc()) {
     $issues[$record['nid']] = array(
       'nid' => $record['nid'],
+      'uid' => $record['uid'],
       'title' => $record['title'],
       'estimate' => $record['field_time_estimate_value'],
       'issue_id' => $record['field_issue_id_value'],
@@ -85,6 +89,24 @@ function productivity_issue_diagram_graph_connections($project_nid) {
   }
 
   return $issues;
+}
+
+/**
+ * Get user name from cache.
+ */
+function productivity_issue_get_username($uid) {
+  $cid = __FUNCTION__ . $uid;
+  $username = &drupal_static($cid);
+  if (!isset($username)) {
+    if ($cache = cache_get($cid)) {
+      $username = $cache->data;
+    }
+    else {
+      $user = user_load($uid);
+      cache_set($cid, $user->name, 'cache');
+    }
+  }
+  return $username;
 }
 
 /**
@@ -165,7 +187,7 @@ function productivity_issue_diagram_graph($project_nid) {
         'properties' => array(
 //          'title'  => $track['label'],
            $track['type'] => $track['time'],
-          'uid' => $track['uid'],
+          'U:' => productivity_issue_get_username($track['uid']),
           'nid' => $track['nid'],
         )
       );
@@ -181,6 +203,7 @@ function productivity_issue_diagram_graph($project_nid) {
         'title' => 'Issue #' . $issue['issue_id'],
         // Extra description inside node
         'properties' => array(
+          'U:' => productivity_issue_get_username($issue['uid']),
           'Repo' => $issue['github_repo'],
           'Estimate' => $issue['estimate'],
           'nid' => $issue['nid'],
@@ -193,6 +216,7 @@ function productivity_issue_diagram_graph($project_nid) {
         'title' => 'PR #' . $issue['issue_id'],
         // Extra description inside node
         'properties' => array(
+          'U:' => productivity_issue_get_username($issue['uid']),
           'Repo' => $issue['github_repo'],
           'Hour reported' => $issue['actual'],
           'nid' => $issue['nid'],

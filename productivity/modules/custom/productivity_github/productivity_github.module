@@ -126,6 +126,7 @@ function productivity_github_get_project_by_repository($repository_info) {
   }
   // Print error if no repo was found.
   watchdog('productivity', t('No project with github repository: @repository', array('@repository' => print_r($repository_info, TRUE))));
+  return FALSE;
 }
 
 /**
@@ -233,9 +234,9 @@ function productivity_github_save_references_issue($wrapper, $body, $gh_project_
   // Attempt to get an issue numbers.
   $issue_ids = _productivity_github_issue_number_from_body($body);
 
+  $refs = array();
   if ($issue_ids) {
     // Interate through issue number found.
-    $refs = array();
     foreach ($issue_ids[1] as $issue_id) {
       if ($issue_id) {
         // Find a local node for the issue.
@@ -265,10 +266,9 @@ function productivity_github_save_references_issue($wrapper, $body, $gh_project_
         }
       }
     }
-    // Override refs with new one.
-    $wrapper->field_issue_reference->set($refs);
   }
-
+  // Override refs with new one.
+  $wrapper->field_issue_reference->set($refs);
 }
 
 /**
@@ -407,7 +407,7 @@ function productivity_github_get_entity_id_by_push_info($payload, $uid) {
  */
 function _productivity_github_issue_number_from_body($text) {
   $matches = array();
-  if (preg_match_all("/\#([0-9]*)/", $text, $matches)) {
+  if (preg_match_all("/[^&]#([0-9]+)/", $text, $matches)) {
 
     // Found an issue.
     return $matches;

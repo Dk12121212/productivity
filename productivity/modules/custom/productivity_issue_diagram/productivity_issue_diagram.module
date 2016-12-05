@@ -116,8 +116,10 @@ function productivity_issue_get_username($uid) {
 
 /**
  * Get tracking hours.
+ *
  * @param $project_nid
  * @return array
+ *  an associative array with PRs as key.
  */
 function productivity_issue_diagram_tracking($project_nid) {
 
@@ -130,6 +132,8 @@ function productivity_issue_diagram_tracking($project_nid) {
     ->leftJoin('field_data_field_issues_logs', 'il', 'n.nid = il.entity_id');
   $query
     ->leftJoin('field_data_field_issue_id', 'i', 'il.field_issues_logs_field_github_issue_target_id = i.entity_id');
+  $query
+    ->leftJoin('field_data_field_github_project_id', 'gid', 'il.field_issues_logs_field_github_issue_target_id = gid.entity_id');
 
   $query
     ->fields('n', array('title', 'nid', 'uid'))
@@ -142,6 +146,7 @@ function productivity_issue_diagram_tracking($project_nid) {
       )
     )
     ->fields('i', array('field_issue_id_value'))
+    ->fields('gid', array('field_github_project_id_value'))
     ->condition('p.field_project_target_id', $project_nid)
     ->condition('type', 'time_tracking')
     ->condition('status', NODE_PUBLISHED);
@@ -159,6 +164,7 @@ function productivity_issue_diagram_tracking($project_nid) {
       'uid' => $record['uid'],
       'issue_nid' => $related_nid,
       'issue_id' => $record['field_issue_id_value'],
+      'github_repo' => $record['field_github_project_id_value'],
       'label' => $record['field_issues_logs_field_issue_label_value'],
       'time' => $record['field_issues_logs_field_time_spent_value'],
       'type' => $record['field_issues_logs_field_issue_type_value'],
@@ -181,47 +187,83 @@ function productivity_issue_diagram_graph_array($project_nid) {
   $tracking = productivity_issue_diagram_tracking($project_nid);
   $issues = productivity_issue_diagram_graph_connections($project_nid, 'issue');
   $prs = productivity_issue_diagram_graph_connections($project_nid, 'pull_request');
-  dpm($issues);
-  dpm($prs);
-  dpm($tracking);
 
   $graph = array();
   // Format $graph => array(
   //          [repo_id] => array(
   //            [issue_gh_id] => array(
   //              'estimated' => '100',
+  //              'nid' => '129',
   //              'prs' => array(
   //                [pr_gh_id] => array(
-  //                  [tracks_nid] => array(
-  //                   'time' => <time spent>,
-  //                   'uid' => uid,
-  //                    )
-  //                   )
-  //                  [tracks_nid] => array(
-  //                   'time' => <time spent>,
-  //                   'uid' => uid,
-  //                     )
-  //                   )
-  //                   ...
-  //                )
-  //               [pr_gh_id] => array(
-  //                 [tracks_nid] => array(
-  //                   'time' => <time spent>,
-  //                  'uid' => uid,
-  //                     )
-  //                   )
+  //                  'nid' => 333,
+  //                   'tracks' => array(
+  //                     [tracks_nid] => array(
+  //                       'time' => <time spent>,
+  //                       'uid' => uid,
+  //                      )
+  //                     [tracks_nid] => array(
+  //                       'time' => <time spent>,
+  //                       'uid' => uid,
+  //                       )
+  //                     ...
+  //                  )
   //                )
   //                ...
 
   // Create first and second level, Repo->issue.
   foreach ($issues as $nid => $issue) {
+    // Send message if issue is duplicate.
     if (isset($graph[$issue['github_repo']][$issue['issue_id']])) {
-      drupal_set_message('Duplicate issue $')
+      drupal_set_message(t('Duplicate issue number @issue_id, check nid @nid and duplicate nid @nid2', array(
+        '@issue_id' => $issue['issue_id'],
+        '@nid' => $graph[$issue['github_repo']][$issue['issue_id']]['nid'],
+        '@nid2' => $nid,
+      )));
+      continue;
     }
     $graph[$issue['github_repo']][$issue['issue_id']] = array (
+      'nid' => $nid,
       'estimated' => $issue['estimate'] ? $issue['estimate'] : l(t('Fix estimate'), 'node/' . $nid . '/edit' ),
       'prs' => array(),
     );
+  }
+
+//  dpm($issues);
+//  dpm($prs, 'pr');
+
+  // Build Pr connections. pr->track.
+  foreach ($prs as $pr_nid => $pr) {
+    foreach ($pr['related_issue'] as $pr_to_issue) {
+      // Related issue does not exist.
+      if (!isset($graph[$pr['github_repo']][$pr[$pr_to_issue]])) {
+        // Create tub ?
+        continue;
+      }
+      else {
+        foreach ($tracking[$pr_nid] as $pr_nid => $track) {
+        $graph[$pr['github_repo']][$pr[$pr_to_issue]]['prs'][$pr['issue_id']] = array(
+          'nid' => $pr_nid,
+          'tracks' => array(),
+        );
+      }
+    }
+  }
+
+  dpm($tracking, 'track');
+  // Build track connections..
+  foreach ($tracking as $pr_nid => $track) {
+      // Related issue does not exist.
+      if (!isset($graph[$track['github_repo']][$track['issue_id ']])) {
+        // Create tub ?
+        continue;
+      }
+      else {
+        $graph[$pr['github_repo']][$pr[$pr_to_issue]]['prs'][$pr['issue_id']] = array(
+          'nid' => $pr_nid,
+          'tracks' => array(),
+        );
+    }
   }
 
 }

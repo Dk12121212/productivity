@@ -76,7 +76,8 @@ function productivity_issue_diagram_graph_connections($project_nid) {
   $issues = array();
   while($record = $result->fetchAssoc()) {
     $issues[$record['nid']] = array(
-      'nid' => $record['nid'],
+      'link' =>  l($record['nid'], 'node/' . $record['nid']),
+      'nid' =>  $record['nid'],
       'uid' => $record['uid'],
       'title' => $record['title'],
       'estimate' => $record['field_time_estimate_value'],
@@ -148,6 +149,7 @@ function productivity_issue_diagram_tracking($project_nid) {
     $related_nid = $record['field_issues_logs_field_github_issue_target_id'];
     $tracking[$related_nid][] = array(
       'nid' => $record['nid'],
+      'link' => l($record['nid'], 'node/' . $record['nid']),
       // Adding prefix to prevent mix with NIDs.
       'mfid' => 'tr_' . $record['field_issues_logs_id'],
       'uid' => $record['uid'],
@@ -158,7 +160,6 @@ function productivity_issue_diagram_tracking($project_nid) {
       'type' => $record['field_issues_logs_field_issue_type_value'],
     );
   }
-  dpm($tracking);
   return $tracking;
 }
 
@@ -168,26 +169,18 @@ function productivity_issue_diagram_tracking($project_nid) {
 function productivity_issue_diagram_graph($project_nid) {
   $graph = array();
 
-  $graph['nodes']['group_issue']['label'] = 'Issues';
-  $graph['nodes']['group_issue']['group'] = TRUE;
-  $graph['nodes']['group_pr']['label'] = 'PR';
-  $graph['nodes']['group_pr']['group'] = TRUE;
-  $graph['nodes']['group_tracking']['label'] = 'tracking';
-  $graph['nodes']['group_tracking']['group'] = TRUE;
-
-
   // Add tracking nodes.
   $tracking = productivity_issue_diagram_tracking($project_nid);
   foreach ($tracking as $tracks) {
     foreach ($tracks as $key => $track) {
-      $graph['nodes']['group_tracking'][$track['mfid']] = array(
+      $graph['nodes'][$track['mfid']] = array(
         'title' => 'Track: #' . ($track['issue_id'] ?: '0'),
         // Extra description inside node
         // Need to remove special char to fix this display.
         'properties' => array(
-//          'title'  => $track['label'],
+          'title'  => $track['label'],
            $track['type'] => $track['time'],
-          'U:' => productivity_issue_get_username($track['uid']),
+          'U' => productivity_issue_get_username($track['uid']),
           'nid' => $track['nid'],
         )
       );
@@ -199,11 +192,11 @@ function productivity_issue_diagram_graph($project_nid) {
   foreach ($issues as $issue) {
     // Issue.
     if ($issue['type'] == 'issue') {
-      $graph['nodes']['group_issue'][$issue['nid']] = array(
+      $graph['nodes'][$issue['nid']] = array(
         'title' => 'Issue #' . $issue['issue_id'],
         // Extra description inside node
         'properties' => array(
-          'U:' => productivity_issue_get_username($issue['uid']),
+          'U' => productivity_issue_get_username($issue['uid']),
           'Repo' => $issue['github_repo'],
           'Estimate' => $issue['estimate'],
           'nid' => $issue['nid'],
@@ -212,7 +205,7 @@ function productivity_issue_diagram_graph($project_nid) {
     }
     // PR.
     else {
-      $graph['nodes']['group_pr'][$issue['nid']] = array(
+      $graph['nodes'][$issue['nid']] = array(
         'title' => 'PR #' . $issue['issue_id'],
         // Extra description inside node
         'properties' => array(
@@ -271,12 +264,7 @@ function productivity_issue_diagram_graph_generate($graph) {
   $output .= "]\n";
 
   foreach ($graph['nodes'] as $name => $node_info) {
-    if (!empty($node_info['group'])) {
-      $output .= productivity_issue_diagram_graph_generate_subgraph($name, $node_info);
-    }
-    else {
-      $output .= productivity_issue_diagram_graph_generate_node($name, $node_info);
-    }
+    $output .= productivity_issue_diagram_graph_generate_node($name, $node_info);
   }
 
   foreach ($graph['edges'] as $source_node => $edges) {
@@ -284,7 +272,7 @@ function productivity_issue_diagram_graph_generate($graph) {
       $output .= "edge [\n";
       // Edge properties.
       foreach ($edge_info as $k => $v) {
-        $output .= ' "' . check_plain($k) . '" = "'. check_plain($v) . '"' . "\n";
+        $output .= ' "' . check_plain($k) . '" = "' . check_plain($v) . '"' . "\n";
       }
       $output .= "]\n";
       $color = productivity_issue_diagram_random_color();
@@ -300,6 +288,8 @@ function productivity_issue_diagram_graph_generate($graph) {
   }
 
   $output .= "\n}\n";
+
+//  dpm($output);
   return $output;
 }
 
@@ -318,25 +308,6 @@ function productivity_issue_diagram_random_color() {
 }
 
 /**
- * Create a subgraph
- */
-function productivity_issue_diagram_graph_generate_subgraph($name, $subgraph_info) {
-  $label = $subgraph_info['label'];
-  unset($subgraph_info['label']);
-  unset($subgraph_info['group']);
-
-  $output = "subgraph $name {\n";
-  $output .= 'label = "' . check_plain($label) . '"' . "\n";
-
-  foreach ($subgraph_info as $node_name => $node_info) {
-    $output .= productivity_issue_diagram_graph_generate_node($node_name, $node_info);
-  }
-
-  $output .= "}\n";
-  return $output;
-}
-
-/**
  * Create a single node box.
  */
 function productivity_issue_diagram_graph_generate_node($name, $node_info) {
@@ -349,8 +320,10 @@ function productivity_issue_diagram_graph_generate_node($name, $node_info) {
   $label  = $node_info['title'] . '|';
 
   foreach ($node_info['properties'] as $title => $value) {
-    $label .= "$title  : $value |";
+    $value = str_replace('`', '\'', $value);
+    $value = str_replace('"', '\'', $value);
+    $value = htmlspecialchars($value);
+    $label .= "$title   : $value |";
   }
-
-  return $name . ' [ label = "{' . addslashes($label) . '}" ]';
+  return $name . '[label = "{' . $label . '}"]' . "\n";
 }

@@ -237,49 +237,54 @@ function productivity_issue_diagram_graph_array($project_nid) {
 
   dpm($issues, 'issues');
   dpm($prs, 'pr');
-
   dpm($tracking, 'track');
+
   // Build Pr connections. pr->track.
   foreach ($prs as $pr_nid => $pr) {
     // Related issue does not exist.
     if (!isset($graph[$pr['github_repo']][$pr['related_issue_gh_id']])) {
-      // Create tub ?
-      continue;
-    }
-    else {
-      $tracks = array();
-      // Build track connections.
-      foreach ($tracking[$pr_nid] as $track) {
-        $tracks[$track['mfid']] = array(
-          'track_nid' => $track['nid'],
-          'time' => $track['time'],
-          'type' => $track['type'],
-          'uid' => $track['uid'],
-        );
+      // Create tub for missing issue.
+      if (!isset($pr['related_issue_gh_id'])) {
+        $gh_issue_id = 'no_issue_id_' . $pr_nid;
       }
-      $graph[$pr['github_repo']][$pr['related_issue_gh_id']]['prs'][$pr_nid] = array(
-        'nid' => $pr_nid,
-        'tracks' => $tracks,
+      else {
+        $gh_issue_id = $pr['related_issue_gh_id'];
+      }
+      $graph[$pr['github_repo']][$gh_issue_id] = array (
+        'nid' => 'N/A',
+        'estimated' => 0,
+        'prs' => array(),
       );
     }
+    $tracks = array();
+    // Build track connections.
+    foreach ($tracking[$pr_nid] as &$track) {
+      $tracks[$track['mfid']] = array(
+        'track_nid' => $track['nid'],
+        'time' => $track['time'],
+        'type' => $track['type'],
+        'uid' => $track['uid'],
+      );
+      // Mark as used, to retried orphans later.
+      $track['used'] = TRUE;
+    }
+    $graph[$pr['github_repo']][$pr['related_issue_gh_id']]['prs'][$pr_nid] = array(
+      'nid' => $pr_nid,
+      'tracks' => $tracks,
+    );
   }
+
+  // Build orphans tracks connections.
+  foreach ($tracking as $pr_nid => $track_node) {
+    foreach ($track_node as $track) {
+      if (!isset($track['used'])) {
+        // This is an orphan.
+        $graph['no repo']['no issue']['prs']['no pr'][] = $track;
+      }
+    }
+  }
+
   dpm($graph, 'graph');
-
-  // Build orphans tracks connectons.
-//  foreach ($tracking as $pr_nid => $track) {
-//      // Related issue does not exist.
-//      if (!isset($graph[$track['github_repo']][$track['issue_id ']])) {
-//        // Create tub ?
-//        continue;
-//      }
-//      else {
-//        $graph[$pr['github_repo']][$pr[$pr_to_issue]]['prs'][$pr['issue_id']] = array(
-//          'nid' => $pr_nid,
-//          'tracks' => array(),
-//        );
-//    }
-//  }
-
 }
 
 /**

@@ -172,6 +172,9 @@
       <li>
         <?php print $monthly_report_link; ?>
       </li>
+      <li>
+        <?php print l(t('Issues Diagram'), 'admin/reports/issue-diagram/' . $nid); ?>
+      </li>
     </ul>
   </div>
   <div class="col-lg-12 col-sm-12 col-xs-12">

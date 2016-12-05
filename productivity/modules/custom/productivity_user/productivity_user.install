@@ -34,9 +34,17 @@ function productivity_user_update_7000() {
     content_access_set_settings($settings, $type_name);
   }
 }
+
 /**
  * Set content access.
  */
 function productivity_user_update_7001() {
   module_enable(array('field_group'));
+}
+
+/**
+ * Enable module productivity_issue_diagram.
+ */
+function productivity_user_update_7002() {
+  module_enable(array('productivity_issue_diagram'));
 }

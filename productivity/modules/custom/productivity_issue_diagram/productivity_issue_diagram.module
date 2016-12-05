@@ -36,7 +36,7 @@ function productivity_issue_diagram_menu_callback($project_nid) {
 /**
  * Get entity reference connections.
  */
-function productivity_issue_diagram_graph_connections($project_nid) {
+function productivity_issue_diagram_graph_connections($project_nid, $issue_type = FALSE) {
 
   // List of issues for a project nid.
   $query = db_select('node', 'n');
@@ -70,6 +70,10 @@ function productivity_issue_diagram_graph_connections($project_nid) {
     ->condition('p.field_project_target_id', $project_nid)
     ->condition('type', 'github_issue')
     ->condition('status', NODE_PUBLISHED);
+
+  if ($issue_type) {
+    $query->condition('field_github_content_type_value', $issue_type);
+  }
   $result = $query->execute();
 
   // Create an associative array:
@@ -161,6 +165,65 @@ function productivity_issue_diagram_tracking($project_nid) {
     );
   }
   return $tracking;
+}
+
+/**
+ * Implements hook_init().
+ */
+function productivity_issue_diagram_init() {
+  productivity_issue_diagram_graph_array('26535');
+}
+
+/**
+ * Get the simplified graph - Issue->PRs-Tracks
+ */
+function productivity_issue_diagram_graph_array($project_nid) {
+  $tracking = productivity_issue_diagram_tracking($project_nid);
+  $issues = productivity_issue_diagram_graph_connections($project_nid, 'issue');
+  $prs = productivity_issue_diagram_graph_connections($project_nid, 'pull_request');
+  dpm($issues);
+  dpm($prs);
+  dpm($tracking);
+
+  $graph = array();
+  // Format $graph => array(
+  //          [repo_id] => array(
+  //            [issue_gh_id] => array(
+  //              'estimated' => '100',
+  //              'prs' => array(
+  //                [pr_gh_id] => array(
+  //                  [tracks_nid] => array(
+  //                   'time' => <time spent>,
+  //                   'uid' => uid,
+  //                    )
+  //                   )
+  //                  [tracks_nid] => array(
+  //                   'time' => <time spent>,
+  //                   'uid' => uid,
+  //                     )
+  //                   )
+  //                   ...
+  //                )
+  //               [pr_gh_id] => array(
+  //                 [tracks_nid] => array(
+  //                   'time' => <time spent>,
+  //                  'uid' => uid,
+  //                     )
+  //                   )
+  //                )
+  //                ...
+
+  // Create first and second level, Repo->issue.
+  foreach ($issues as $issue) {
+    if (isset($graph[$issue['github_repo']][$issue['issue_id']])) {
+      drupal_set_message('Duplicate issue $')
+    }
+    $graph[$issue['github_repo']][$issue['issue_id']] = array (
+      'estimated' => $issue['estimate'],
+      'prs' => array(),
+    );
+  }
+
 }
 
 /**

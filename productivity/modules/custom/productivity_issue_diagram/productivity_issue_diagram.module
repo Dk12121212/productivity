@@ -214,12 +214,12 @@ function productivity_issue_diagram_graph_array($project_nid) {
   //                ...
 
   // Create first and second level, Repo->issue.
-  foreach ($issues as $issue) {
+  foreach ($issues as $nid => $issue) {
     if (isset($graph[$issue['github_repo']][$issue['issue_id']])) {
       drupal_set_message('Duplicate issue $')
     }
     $graph[$issue['github_repo']][$issue['issue_id']] = array (
-      'estimated' => $issue['estimate'],
+      'estimated' => $issue['estimate'] ? $issue['estimate'] : l(t('Fix estimate'), 'node/' . $nid . '/edit' ),
       'prs' => array(),
     );
   }

@@ -112,53 +112,18 @@ function productivity_github_time_tracking_issue_table($project_nid) {
  * @return string Rendered HTML.
  * Rendered HTML.
  */
-function productivity_github_time_display_tracking_issue_table($project_node_id = 0, $show_link = TRUE) {
-  if (!$project_node_id) {
+function productivity_github_time_display_tracking_issue_table($project_node = FALSE) {
 
-    return theme('item_list', array('items' => productivity_time_tracking_issue_table_get_list()));
-  }
+  drupal_set_title(t('@project issue tracking table', array('@project' => $project_node->title)));
 
-  $node = node_load($project_node_id);
-  drupal_set_title(t('@project issue tracking table', array('@project' => $node->title)));
-
-  $table = productivity_github_time_tracking_issue_table($project_node_id);
+  $table = productivity_github_time_tracking_issue_table($project_node->nid);
   if (!is_array($table)) {
     // Table returned an error message.
     return $table;
   }
 
   // Add a link to go to the project selection.
-  $go_back_link = $show_link ? '<div class="back-link">' . l(t('Back to project list'), 'tracking/per-issue') . '</div>' : '';
+  $go_back_link = '<div class="back-link">' . l(t('Back to project'), 'tracking/per-issue') . '</div>';
 
   return  $go_back_link . theme('table', $table);
-}
-
-
-/**
- * Build form for the per-issue tracking table.
- *
- * @return array
- *  List of projects.
- */
-function productivity_time_tracking_issue_table_get_list() {
-  // List of links for projects.
-  $query = db_select('node', 'n');
-  $result = $query
-    ->fields('n', array('title', 'nid'))
-    ->condition('type', 'project')
-    ->condition('status', NODE_PUBLISHED)
-    ->execute()
-    ->fetchAll();
-
-  if (empty($result)) {
-    return t('No projects found in the database.');
-  }
-
-  $projects = array();
-  foreach($result as $project) {
-    $projects[strtolower($project->title)] = l($project->title, 'tracking/per-issue/' . $project->nid);
-  }
-  ksort($projects);
-
-  return $projects;
 }

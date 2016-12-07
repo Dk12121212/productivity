@@ -182,7 +182,7 @@ function productivity_issue_diagram_tracking($project_nid) {
  * Implements hook_init().
  */
 function productivity_issue_diagram_init() {
-  productivity_issue_diagram_graph_array('26535');
+//  productivity_issue_diagram_graph_array('26535');
 }
 
 /**
@@ -194,28 +194,29 @@ function productivity_issue_diagram_graph_array($project_nid) {
   $prs = productivity_issue_diagram_graph_connections($project_nid, 'pull_request');
 
   $graph = array();
-  // Format $graph => array(
-  //          [repo_id] => array(
-  //            [issue_gh_id] => array(
-  //              'estimated' => '100',
-  //              'nid' => '129',
-  //              'prs' => array(
-  //                [pr_gh_id] => array(
-  //                  'nid' => 333,
-  //                   'tracks' => array(
-  //                     [tracks_fc_id] => array(
-  //                       'track_nid' => 333,
-  //                       'time' => <time spent>,
-  //                       'uid' => uid,
-  //                      )
-  //                     [tracks_fc_id] => array(
-  //                       'time' => <time spent>,
-  //                       'uid' => uid,
-  //                       )
-  //                     ...
-  //                  )
-  //                )
-  //                ...
+  // Format of the issue graph.
+  // $graph => array(
+  //  [repo_id] => array(
+  //    [issue_gh_id] => array(
+  //      'estimated' => '100',
+  //      'nid' => '129',
+  //      'prs' => array(
+  //        [pr_gh_id] => array(
+  //          'nid' => 333,
+  //           'tracks' => array(
+  //             [tracks_fc_id] => array(
+  //               'track_nid' => 333,
+  //               'time' => <time spent>,
+  //               'uid' => uid,
+  //              )
+  //             [tracks_fc_id] => array(
+  //               'time' => <time spent>,
+  //               'uid' => uid,
+  //               )
+  //             ...
+  //          )
+  //        )
+  //        ...
 
   // Create first and second level, Repo->issue.
   foreach ($issues as $nid => $issue) {
@@ -235,10 +236,6 @@ function productivity_issue_diagram_graph_array($project_nid) {
     );
   }
 
-  dpm($issues, 'issues');
-  dpm($prs, 'pr');
-  dpm($tracking, 'track');
-
   // Build Pr connections. pr->track.
   foreach ($prs as $pr_nid => $pr) {
     // Related issue does not exist.
@@ -250,6 +247,7 @@ function productivity_issue_diagram_graph_array($project_nid) {
       else {
         $gh_issue_id = $pr['related_issue_gh_id'];
       }
+      // Still some work here.
       $graph[$pr['github_repo']][$gh_issue_id] = array (
         'nid' => 'N/A',
         'estimated' => 0,
@@ -283,8 +281,8 @@ function productivity_issue_diagram_graph_array($project_nid) {
       }
     }
   }
-
-  dpm($graph, 'graph');
+  dpm($graph);
+  return $graph;
 }
 
 /**

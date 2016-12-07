@@ -43,6 +43,11 @@ function productivity_github_time_tracking_issue_table($project_node) {
 
   // Prepare table for tracking data.
   foreach($graph as $repo_id => $repo) {
+    // No repo create a second table later for this.
+    if ($repo_id == 'no repo') {
+      continue;
+    }
+
     foreach ($repo as $github_issue_id => $issue) {
 
       $estimate = $issue['estimated'];

@@ -182,41 +182,46 @@ function productivity_issue_diagram_tracking($project_nid) {
  * Implements hook_init().
  */
 function productivity_issue_diagram_init() {
-//  productivity_issue_diagram_graph_array('26535');
+//  productivity_issue_diagram_graph_normalized('26535');
 }
 
 /**
- * Get the simplified graph - Issue->PRs-Tracks
+ * Get the normalized graph - Issue->PRs-Tracks, for tracking table.
+ *
+ * @param $project_nid
+ *  The project NID.
+ *
+ * @return array
+ *
+ *   Format of the issue graph.
+ *   $graph => array(
+ *     [repo_id] => array(
+ *      [issue_gh_id] => array(
+ *       'estimated' => '100',
+ *       'nid' => '129',
+ *       'prs' => array(
+ *       [pr_gh_id] => array(
+ *         'nid' => 333,
+ *         'tracks' => array(
+ *           [tracks_fc_id] => array(
+ *             'track_nid' => 333,
+ *             'time' => <time spent>,
+ *             'uid' => uid,
+ *            )
+ *          [tracks_fc_id] => array(
+ *          ...
+ *          )
+ *      ...
+ *     )
+ *   )
+ *  ...
  */
-function productivity_issue_diagram_graph_array($project_nid) {
+function productivity_issue_diagram_graph_normalized($project_nid) {
   $tracking = productivity_issue_diagram_tracking($project_nid);
   $issues = productivity_issue_diagram_graph_connections($project_nid, 'issue');
   $prs = productivity_issue_diagram_graph_connections($project_nid, 'pull_request');
 
   $graph = array();
-  // Format of the issue graph.
-  // $graph => array(
-  //  [repo_id] => array(
-  //    [issue_gh_id] => array(
-  //      'estimated' => '100',
-  //      'nid' => '129',
-  //      'prs' => array(
-  //        [pr_gh_id] => array(
-  //          'nid' => 333,
-  //           'tracks' => array(
-  //             [tracks_fc_id] => array(
-  //               'track_nid' => 333,
-  //               'time' => <time spent>,
-  //               'uid' => uid,
-  //              )
-  //             [tracks_fc_id] => array(
-  //               'time' => <time spent>,
-  //               'uid' => uid,
-  //               )
-  //             ...
-  //          )
-  //        )
-  //        ...
 
   // Create first and second level, Repo->issue.
   foreach ($issues as $nid => $issue) {
@@ -231,6 +236,7 @@ function productivity_issue_diagram_graph_array($project_nid) {
     }
     $graph[$issue['github_repo']][$issue['issue_id']] = array (
       'nid' => $nid,
+      'title' => $issue['title'],
       'estimated' => $issue['estimate'] ? $issue['estimate'] : l(t('Fix estimate'), 'node/' . $nid . '/edit' ),
       'prs' => array(),
     );
@@ -249,6 +255,7 @@ function productivity_issue_diagram_graph_array($project_nid) {
       }
       // Still some work here.
       $graph[$pr['github_repo']][$gh_issue_id] = array (
+        'title' => 'N/A',
         'nid' => 'N/A',
         'estimated' => 0,
         'prs' => array(),

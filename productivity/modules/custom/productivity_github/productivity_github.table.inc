@@ -9,7 +9,15 @@ define('PRODUCTIVITY_GITHUB_ISSUE_CLOSED_STATUS', 'Done');
 /**
  * Menu callback; display tracking table for issues.
  */
-function productivity_github_time_tracking_issue_table($project_nid) {
+function productivity_github_time_tracking_issue_table($project_node) {
+  $project_wrapper = entity_metadata_wrapper('node', $project_node);
+  $graph = productivity_issue_diagram_graph_normalized($project_node->nid);
+
+  if (empty($graph)) {
+    return t('No issues found for project @project.', array('@project' => $project_wrapper->label()));
+  }
+
+  // Header.
   $table = array(
     'header' => array(
       t('Issue ID'),
@@ -21,25 +29,6 @@ function productivity_github_time_tracking_issue_table($project_nid) {
     ),
     'attributes' => array('class' => array('per-issue-table')),
   );
-
-  $project_wrapper = entity_metadata_wrapper('node', $project_nid);
-
-  // Get list of issues for a specific project.
-  $query = new EntityFieldQuery();
-  $result = $query
-    ->entityCondition('entity_type', 'node')
-    ->entityCondition('bundle', 'github_issue')
-    ->propertyCondition('status', NODE_PUBLISHED)
-    ->fieldCondition('field_project', 'target_id', $project_nid)
-    ->fieldCondition('field_github_content_type', 'value', 'issue')
-    ->execute();
-
-  if (empty($result['node'])) {
-    return t('No issues found for project @project.', array('@project' => $project_wrapper->label()));
-  }
-
-  $issue_nids = array_keys($result['node']);
-  $issue_nodes = node_load_multiple($issue_nids);
 
   $total_row = array(
     'data' => array(
@@ -53,34 +42,44 @@ function productivity_github_time_tracking_issue_table($project_nid) {
   );
 
   // Prepare table for tracking data.
-  foreach($issue_nodes as $node_id => $node) {
-    $wrapper = entity_metadata_wrapper('node', $node);
+  foreach($graph as $repo_id => $repo) {
+    foreach ($repo as $github_issue_id => $issue) {
 
-    $estimate = floatval($wrapper->field_time_estimate->value());
-    $actual = floatval($wrapper->field_actual_hours->value());
-    $github_issue_id = $wrapper->field_issue_id->value();
-    $project_link =  'http://github.com/' . $wrapper->field_github_project_id->value();
+      $estimate = $issue['estimated'];
+      $actual = 0;
+      $nid = $issue['nid'];
 
-    $issue_row = array(
-      'class' => '',
-      'data' => array(
-        'issue_id' => l($github_issue_id,  $project_link . '/issues/' . $github_issue_id, array('attributes' => array('target' => '_blank'))),
-        'issue_name' => $wrapper->label(),
-        'estimate' => $estimate,
-        'actual' => $actual,
-        'overtime' => $actual - $estimate,
-        // TODO: Followup - closing/opening issue should change this.
-        'status' => 'WIP',
-      ),
-    );
+      // Get total actual.
+      foreach ($issue['prs'] as $pr) {
+        foreach ($pr['tracks'] as $track) {
+          $actual += floatval($track['time']);
+        }
+      }
 
-    // Total row.
-    $total_row['data']['estimate'] += $issue_row['data']['estimate'];
-    $total_row['data']['actual'] += $issue_row['data']['actual'];
-    $total_row['data']['overtime'] += $issue_row['data']['overtime'];
+      $issue_link = "https://github.com/$repo_id/issues/$github_issue_id";
 
-    // Add to the table
-    $table['rows'][$node_id] = $issue_row;
+
+      $issue_row = array(
+        'class' => '',
+        'data' => array(
+          'issue_id' => l("$repo_id/$github_issue_id", $issue_link, array('attributes' => array('target' => '_blank'))),
+          'issue_name' =>  l($issue['title'], "node/$nid/edit"),
+          'estimate' => $estimate,
+          'actual' => $actual,
+          'overtime' => $actual - $estimate,
+          // TODO: Followup - closing/opening issue should change this.
+          'status' => 'WIP',
+        ),
+      );
+
+      // Total row.
+      $total_row['data']['estimate'] += $issue_row['data']['estimate'];
+      $total_row['data']['actual'] += $issue_row['data']['actual'];
+      $total_row['data']['overtime'] += $issue_row['data']['overtime'];
+
+      // Add to the table
+      $table['rows'][$nid] = $issue_row;
+    }
   }
 
   // Add total row.
@@ -116,7 +115,7 @@ function productivity_github_time_display_tracking_issue_table($project_node = F
 
   drupal_set_title(t('@project issue tracking table', array('@project' => $project_node->title)));
 
-  $table = productivity_github_time_tracking_issue_table($project_node->nid);
+  $table = productivity_github_time_tracking_issue_table($project_node);
   if (!is_array($table)) {
     // Table returned an error message.
     return $table;

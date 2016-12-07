@@ -56,14 +56,25 @@ function productivity_github_time_tracking_issue_table($project_node) {
         }
       }
 
-      $issue_link = "https://github.com/$repo_id/issues/$github_issue_id";
+      if ($pr_gh_id = $issue['no_issue']) {
+        $link = "https://github.com/$repo_id/issues/$pr_gh_id";
+        $issue_link = l("$repo_id/$pr_gh_id", $link, array('attributes' => array('target' => '_blank')));
+
+        $title_link =  l("Stub issue for PR $pr_gh_id", "node/$nid/edit");
+      }
+    else {
+        $link = "https://github.com/$repo_id/issues/$github_issue_id";
+        $issue_link = l("$repo_id/$github_issue_id", $link, array('attributes' => array('target' => '_blank')));
+        $title_link =  l($issue['title'], "node/$nid/edit");
+
+      }
 
 
       $issue_row = array(
         'class' => '',
         'data' => array(
-          'issue_id' => l("$repo_id/$github_issue_id", $issue_link, array('attributes' => array('target' => '_blank'))),
-          'issue_name' =>  l($issue['title'], "node/$nid/edit"),
+          'issue_id' => $issue_link,
+          'issue_name' => $title_link,
           'estimate' => $estimate,
           'actual' => $actual,
           'overtime' => $actual - $estimate,
@@ -111,7 +122,7 @@ function productivity_github_time_tracking_issue_table($project_node) {
  * @return string Rendered HTML.
  * Rendered HTML.
  */
-function productivity_github_time_display_tracking_issue_table($project_node = FALSE) {
+function productivity_github_time_display_tracking_issue_table($project_node) {
 
   drupal_set_title(t('@project issue tracking table', array('@project' => $project_node->title)));
 
@@ -122,7 +133,7 @@ function productivity_github_time_display_tracking_issue_table($project_node = F
   }
 
   // Add a link to go to the project selection.
-  $go_back_link = '<div class="back-link">' . l(t('Back to project'), 'tracking/per-issue') . '</div>';
+  $go_back_link = '<div class="back-link">' . l(t('Back to project'), "node/{$project_node->nid}") . '</div>';
 
   return  $go_back_link . theme('table', $table);
 }

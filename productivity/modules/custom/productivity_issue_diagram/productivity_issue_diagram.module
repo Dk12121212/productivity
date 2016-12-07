@@ -234,33 +234,39 @@ function productivity_issue_diagram_graph_normalized($project_nid) {
       )));
       continue;
     }
+
     $graph[$issue['github_repo']][$issue['issue_id']] = array (
       'nid' => $nid,
       'title' => $issue['title'],
       'estimated' => $issue['estimate'] ? $issue['estimate'] : l(t('Fix estimate'), 'node/' . $nid . '/edit' ),
       'prs' => array(),
+      'no_issue' => FALSE,
     );
   }
 
   // Build Pr connections. pr->track.
   foreach ($prs as $pr_nid => $pr) {
     // Related issue does not exist.
-    if (!isset($graph[$pr['github_repo']][$pr['related_issue_gh_id']])) {
-      // Create tub for missing issue.
-      if (!isset($pr['related_issue_gh_id'])) {
-        $gh_issue_id = 'no_issue_id_' . $pr_nid;
-      }
-      else {
-        $gh_issue_id = $pr['related_issue_gh_id'];
-      }
-      // Still some work here.
+
+    if (!isset($pr['related_issue_gh_id'])) {
+      $gh_issue_id = 'no_issue_id_for_pr_' . $pr['issue_id'];
+    }
+    else {
+      $gh_issue_id = $pr['related_issue_gh_id'];
+    }
+
+    // Create tub for missing issue.
+    if (!isset($graph[$pr['github_repo']][$gh_issue_id])) {
+      // Creating stub issue for missing issue.
       $graph[$pr['github_repo']][$gh_issue_id] = array (
         'title' => 'N/A',
         'nid' => 'N/A',
         'estimated' => 0,
         'prs' => array(),
+        'no_issue' => $pr['issue_id'],
       );
     }
+
     $tracks = array();
     // Build track connections.
     foreach ($tracking[$pr_nid] as &$track) {
@@ -273,8 +279,11 @@ function productivity_issue_diagram_graph_normalized($project_nid) {
       // Mark as used, to retried orphans later.
       $track['used'] = TRUE;
     }
-    $graph[$pr['github_repo']][$pr['related_issue_gh_id']]['prs'][$pr_nid] = array(
+
+    //
+    $graph[$pr['github_repo']][$gh_issue_id]['prs'][$pr_nid] = array(
       'nid' => $pr_nid,
+      'pr_id' => $pr['issue_id'],
       'tracks' => $tracks,
     );
   }

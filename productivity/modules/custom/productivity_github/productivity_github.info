@@ -10,6 +10,7 @@ dependencies[] = number
 dependencies[] = options
 dependencies[] = productivity_salary
 dependencies[] = productivity_time_tracking
+dependencies[] = productivity_issue_diagram
 dependencies[] = strongarm
 dependencies[] = text
 features[ctools][] = strongarm:strongarm:1

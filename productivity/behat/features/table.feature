@@ -19,7 +19,7 @@ Feature: Per-issue Table
     Then  I should see in the "Example Issue" line 0 "Overtime"
     And   I should see in the "Total" line 0 "Overtime"
 
-  @javascript 
+  @javascript @wip
   Scenario: Check tracking table after tracking for issue was added.
     Given I login with user "admin"
     When  I add a new time tracking to the issue "Example Issue" with "1" hours to "Example Project" project

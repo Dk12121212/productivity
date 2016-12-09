@@ -73,6 +73,9 @@ apt-get install openjdk-7-jre-headless -y
 
 # Install headless GUI for browser.'Xvfb is a display server that performs graphical operations in memory'
 echo -e "\n [RUN] Installing XVFB (headless GUI for Firefox).\n"
+# on mac use instruction here:
+# http://stackoverflow.com/questions/18868743/how-to-install-selenium-webdriver-on-mac-os
+# and put in behat dir this: https://github.com/mozilla/geckodriver/releases
 apt-get install xvfb -y
 
 # Install Behat for backend.

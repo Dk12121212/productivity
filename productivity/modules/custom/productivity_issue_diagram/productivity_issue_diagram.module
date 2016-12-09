@@ -297,7 +297,6 @@ function productivity_issue_diagram_graph_normalized($project_nid) {
       }
     }
   }
-  dpm($graph);
   return $graph;
 }
 
@@ -427,7 +426,6 @@ function productivity_issue_diagram_graph_generate($graph) {
 
   $output .= "\n}\n";
 
-//  dpm($output);
   return $output;
 }
 

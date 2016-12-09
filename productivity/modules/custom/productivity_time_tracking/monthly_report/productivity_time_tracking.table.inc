@@ -96,7 +96,14 @@ function productivity_time_tracking_issue_table($node = FALSE, $year = FALSE, $m
   $variables['tables'] = array();
   $variables['total_types'] = array();
   $variables['grand_total'] = 0;
-  $header = array('Issue', 'Label', 'Date', 'Time', 'Amount');
+  $header = array(
+    'Issue',
+    'Label',
+    'Date',
+    'Time',
+    'Amount'
+  );
+  // Build table.
   foreach ($issues_table as $table_name => $table) {
     $variables['table_titles'][$table_name] = _productivity_time_tracking_get_table_title($table_name, $node, $table['label']);
     $variables['total_per_types'][$table_name] = 0;
@@ -107,6 +114,7 @@ function productivity_time_tracking_issue_table($node = FALSE, $year = FALSE, $m
         'absolute' => TRUE,
         'attributes' => array('target' => '_blank'),
       ));
+
       $rows[$index]['gitHub_issue_num'] = l($issue['label'], 'node/' . $issue['nid'] . '/edit', array('attributes' => array('target' => '_blank')));
       $rows[$index]['date'] = $issue['date'];
       $rows[$index]['time'] = $issue['time'];

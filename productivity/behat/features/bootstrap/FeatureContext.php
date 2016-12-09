@@ -300,7 +300,7 @@ class FeatureContext extends DrupalContext implements SnippetAcceptingContext {
 
         if ($issue_name) {
           $issue_ref = $this->getNodeIdByTitleBundleAndRef('github_issue', $issue_name, $project_node_id);
-          $wrapper->field_issue_reference->set($issue_ref);
+          $wrapper->field_issue_reference[0]->set($issue_ref);
           $wrapper->field_github_content_type->set('pull_request');
         }
       }

@@ -18,11 +18,11 @@ function productivity_time_tracking_menu() {
     'file' => 'monthly_report/productivity_time_tracking.table.inc'
   );
 
-  $items['monthly-report/%node/%/%'] = array(
+  $items['monthly-report/%node/%/%/%'] = array(
     'title' => 'Issue tracking table',
     'access arguments' => array('access content'),
     'page callback' => 'productivity_time_tracking_issue_table_callback',
-    'page arguments' => array(1, 2, 3),
+    'page arguments' => array(1, 2, 3, 4),
     'type' => MENU_CALLBACK,
     'file' => 'monthly_report/productivity_time_tracking.table.inc'
   );
@@ -525,17 +525,6 @@ function productivity_time_tracking_bulk_update($month, $year, $employee, $proje
 }
 
 /**
- * Implements hook_node_update().
- */
-function productivity_time_tracking_node_update($node) {
-  if ($node->type != 'time_tracking') {
-    return;
-  }
-
-  productivity_time_tracking_update_issue($node);
-}
-
-/**
  * Implements hook_node_delete().
  */
 function productivity_time_tracking_node_delete($node) {
@@ -546,70 +535,3 @@ function productivity_time_tracking_node_delete($node) {
   $wrapper = entity_metadata_wrapper('node', $node);
   productivity_project_update_project_total_hours($wrapper, TRUE);
 }
-
-
-/**
- * Update the issue node with time tracking data.
- *
- * @param $node
- *   Time tracking node that has been updated or inserted.
- */
-function productivity_time_tracking_update_issue($node) {
-  $wrapper = entity_metadata_wrapper('node', $node);
-
-  // Skip updating the issue node if something is wrong.
-  $skip_issue_update = FALSE;
-
-  $old_count = 0;
-
-  if (isset($node->is_new) && !$node->is_new) {
-    $original_wrapper = entity_metadata_wrapper('node', $node->original);
-    $old_count = $original_wrapper->field_issues_logs->count();
-  }
-
-  foreach($wrapper->field_issues_logs as $key => $field_wrapper) {
-    if ($field_wrapper->__isset('field_github_issue')) {
-      // Re-calculate how many hours were worked on the issue that the time
-      // tracking is referencing, or the issue that's referenced by the pull
-      // request the node is referencing.
-
-      $old_track_time = 0;
-      // This is an update to the tracking, update data correctly.
-      if ($key + 1 < $old_count ) {
-        // Order of the multifield shouldn't change.
-        $old_track_time = $original_wrapper->field_issues_logs->get($key)->field_time_spent->value();
-      }
-
-      // Note that this could be either a pull request or an issue.
-      if ($field_wrapper->__isset('field_github_issue')) {
-
-        $github_issue_wrapper = $field_wrapper->field_github_issue;
-        if ($github_issue_wrapper->value() && $github_issue_wrapper->field_github_content_type->value() != 'issue') {
-
-          if ($github_issue_wrapper->__isset('field_issue_reference')) {
-            // Pointing at a pull request - get the issue wrapper.
-            $github_issue_wrapper = $github_issue_wrapper->field_issue_reference;
-          }
-          else {
-            // This pull request does not have an issue. Can't calculate total
-            // issue hours.
-            $skip_issue_update = TRUE;
-          }
-        }
-
-        if (!$skip_issue_update && $github_issue_wrapper->getBundle() == 'github_issue') {
-          // Calculate the total hours worked on the issue.
-          $issue_hours = productivity_github_sum_issue_hours($github_issue_wrapper->getIdentifier());
-
-          // Save this value into the issue node.
-          $github_issue_wrapper->field_actual_hours->set($issue_hours);
-          $github_issue_wrapper->save();
-        }
-        else {
-          watchdog(WATCHDOG_NOTICE, 'Github issue for time tracking node @node_title not found, might cause problems in the issue tracking table', array('@node_title' => $wrapper->label()));
-        }
-      }
-    }
-  }
-}
-

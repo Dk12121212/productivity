@@ -1,0 +1,471 @@
+<?php
+/**
+ * @file
+ * Code for the entity relationship graph.
+ */
+/**
+ * Implements hook_menu().
+ */
+function productivity_issue_diagram_menu() {
+  $items['admin/reports/issue-diagram/%'] = array(
+    'title' => 'Issue Diagram',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'productivity_issue_diagram_menu_callback',
+    'page arguments' => array(3),
+    'access arguments' => array('administer content'),
+  );
+  return $items;
+}
+
+/**
+ * Main function to create full graph of entities.
+ *
+ * @param
+ *  $entity_type - Pass on and anetity type to render only.
+ */
+function productivity_issue_diagram_menu_callback($project_nid) {
+  drupal_add_js('http://mdaines.github.io/viz.js/bower_components/viz.js/viz.js', 'file');
+
+  $data = 'var dataSVG = `' . productivity_issue_diagram_graph_generate(productivity_issue_diagram_graph($project_nid)) . '`;';
+  drupal_add_js($data, 'inline');
+
+  drupal_add_js(drupal_get_path('module', 'productivity_issue_diagram') . '/productivity_issue_diagram.js', 'file');
+  return '';
+}
+
+/**
+ * Get entity reference connections.
+ */
+function productivity_issue_diagram_graph_connections($project_nid, $issue_type = FALSE) {
+
+  // List of issues for a project nid.
+  $query = db_select('node', 'n');
+  $query
+    ->join('field_data_field_project', 'p', 'n.nid = p.entity_id');
+  $query
+    ->leftJoin('field_data_field_time_estimate', 'e', 'n.nid = e.entity_id');
+  $query
+    ->leftJoin('field_data_field_issue_id', 'i', 'n.nid = i.entity_id');
+  $query
+    ->leftJoin('field_data_field_github_content_type', 'ct', 'n.nid = ct.entity_id');
+  $query
+    ->leftJoin('field_data_field_issue_reference', 'ir', 'n.nid = ir.entity_id');
+  // Field on GH issue.
+  $query
+    ->leftJoin('field_data_field_actual_hours', 'ah', 'n.nid = ah.entity_id');
+  $query
+    ->leftJoin('field_data_field_github_project_id', 'gpi', 'n.nid = gpi.entity_id');
+  $query
+    ->leftJoin('field_data_field_issue_id', 'ri', 'ir.field_issue_reference_target_id = ri.entity_id');
+
+//$query
+//    ->leftJoin('field_data_field_employee', 'fe', 'n.nid = fe.entity_id');
+
+  $query
+    ->fields('n', array('title', 'nid', 'uid'))
+    ->fields('e', array('field_time_estimate_value'))
+    ->fields('i', array('field_issue_id_value'))
+    ->fields('ct', array('field_github_content_type_value'))
+    ->fields('ir', array('field_issue_reference_target_id'))
+    ->fields('ri', array('ri' => 'field_issue_id_value'))
+    ->fields('ah', array('field_actual_hours_value'))
+    ->fields('gpi', array('field_github_project_id_value'))
+//    ->fields('fe', array('field_employee_value'))
+    ->condition('p.field_project_target_id', $project_nid)
+    ->condition('type', 'github_issue')
+    ->condition('status', NODE_PUBLISHED);
+
+  if ($issue_type) {
+    $query->condition('field_github_content_type_value', $issue_type);
+  }
+  $result = $query->execute();
+
+  // Create an associative array:
+  $issues = array();
+  while($record = $result->fetchAssoc()) {
+    $issues[$record['nid']] = array(
+      'link' =>  l($record['nid'], 'node/' . $record['nid']),
+      'nid' =>  $record['nid'],
+      'uid' => $record['uid'],
+      'title' => $record['title'],
+      'estimate' => $record['field_time_estimate_value'],
+      'issue_id' => $record['field_issue_id_value'],
+      'type' => $record['field_github_content_type_value'],
+      'related_issue' => $record['field_issue_reference_target_id'],
+      'related_issue_gh_id' => $record['ri_field_issue_id_value'],
+      'actual' => $record['field_actual_hours_value'],
+      'github_repo' => $record['field_github_project_id_value'],
+    );
+  }
+
+  return $issues;
+}
+
+/**
+ * Get user name from cache.
+ */
+function productivity_issue_get_username($uid) {
+  $cid = __FUNCTION__ . $uid;
+  $username = &drupal_static($cid);
+  if (!isset($username)) {
+    if ($cache = cache_get($cid)) {
+      $username = $cache->data;
+    }
+    else {
+      $user = user_load($uid);
+      cache_set($cid, $user->name, 'cache');
+    }
+  }
+  return $username;
+}
+
+/**
+ * Get tracking hours.
+ *
+ * @param $project_nid
+ * @return array
+ *  an associative array with PRs as key.
+ */
+function productivity_issue_diagram_tracking($project_nid) {
+
+  // List of links for projects.
+  $query = db_select('node', 'n');
+  $query
+    ->join('field_data_field_project', 'p', 'n.nid = p.entity_id');
+  //  Join issue log multifield.
+  $query
+    ->leftJoin('field_data_field_issues_logs', 'il', 'n.nid = il.entity_id');
+  $query
+    ->leftJoin('field_data_field_issue_id', 'i', 'il.field_issues_logs_field_github_issue_target_id = i.entity_id');
+  $query
+    ->leftJoin('field_data_field_github_project_id', 'gid', 'il.field_issues_logs_field_github_issue_target_id = gid.entity_id');
+
+  $query
+    ->fields('n', array('title', 'nid', 'uid'))
+    ->fields('il', array(
+      'field_issues_logs_field_github_issue_target_id',
+      'field_issues_logs_field_issue_label_value',
+      'field_issues_logs_field_time_spent_value',
+      'field_issues_logs_field_issue_type_value',
+      'field_issues_logs_id',
+      )
+    )
+    ->fields('i', array('field_issue_id_value'))
+    ->fields('gid', array('field_github_project_id_value'))
+    ->condition('p.field_project_target_id', $project_nid)
+    ->condition('type', 'time_tracking')
+    ->condition('status', NODE_PUBLISHED);
+  $result = $query->execute();
+
+  // Create an associative array:
+  $tracking = array();
+  while($record = $result->fetchAssoc()) {
+    $related_nid = $record['field_issues_logs_field_github_issue_target_id'];
+    $tracking[$related_nid][] = array(
+      'nid' => $record['nid'],
+      'link' => l($record['nid'], 'node/' . $record['nid']),
+      // Adding prefix to prevent mix with NIDs.
+      'mfid' => 'tr_' . $record['field_issues_logs_id'],
+      'uid' => $record['uid'],
+      'issue_nid' => $related_nid,
+      'issue_id' => $record['field_issue_id_value'],
+      'github_repo' => $record['field_github_project_id_value'],
+      'label' => $record['field_issues_logs_field_issue_label_value'],
+      'time' => $record['field_issues_logs_field_time_spent_value'],
+      'type' => $record['field_issues_logs_field_issue_type_value'],
+    );
+  }
+  return $tracking;
+}
+
+/**
+ * Implements hook_init().
+ */
+function productivity_issue_diagram_init() {
+//  productivity_issue_diagram_graph_normalized('26535');
+}
+
+/**
+ * Get the normalized graph - Issue->PRs-Tracks, for tracking table.
+ *
+ * @param $project_nid
+ *  The project NID.
+ *
+ * @return array
+ *
+ *   Format of the issue graph.
+ *   $graph => array(
+ *     [repo_id] => array(
+ *      [issue_gh_id] => array(
+ *       'estimated' => '100',
+ *       'nid' => '129',
+ *       'prs' => array(
+ *       [pr_gh_id] => array(
+ *         'nid' => 333,
+ *         'tracks' => array(
+ *           [tracks_fc_id] => array(
+ *             'track_nid' => 333,
+ *             'time' => <time spent>,
+ *             'uid' => uid,
+ *            )
+ *          [tracks_fc_id] => array(
+ *          ...
+ *          )
+ *      ...
+ *     )
+ *   )
+ *  ...
+ */
+function productivity_issue_diagram_graph_normalized($project_nid) {
+  $tracking = productivity_issue_diagram_tracking($project_nid);
+  $issues = productivity_issue_diagram_graph_connections($project_nid, 'issue');
+  $prs_and_issues = productivity_issue_diagram_graph_connections($project_nid);
+  $graph = array();
+
+  // Create first and second level, Repo->issue.
+  foreach ($issues as $nid => $issue) {
+    // Send message if issue is duplicate.
+    if (isset($graph[$issue['github_repo']][$issue['issue_id']])) {
+      drupal_set_message(t('Duplicate issue number @issue_id, check nid @nid and duplicate nid @nid2', array(
+        '@issue_id' => $issue['issue_id'],
+        '@nid' => $graph[$issue['github_repo']][$issue['issue_id']]['nid'],
+        '@nid2' => $nid,
+      )));
+      continue;
+    }
+
+    $graph[$issue['github_repo']][$issue['issue_id']] = array (
+      'nid' => $nid,
+      'title' => $issue['title'],
+      'estimated' => $issue['estimate'] ? $issue['estimate'] : l(t('Fix estimate'), 'node/' . $nid . '/edit' ),
+      'prs' => array(),
+      'no_issue' => FALSE,
+    );
+  }
+
+  // Build Pr connections. pr/issue->track.
+  foreach ($prs_and_issues as $pr_nid => $pr) {
+    // Related issue does not exist.
+    if ($prs_and_issues['type'] == 'pull_request') {
+      if (!isset($pr['related_issue_gh_id'])) {
+        $gh_issue_id = 'no_issue_id_for_pr_' . $pr['issue_id'];
+      }
+      else {
+        $gh_issue_id = $pr['related_issue_gh_id'];
+      }
+    }
+    // If it's an issue type.
+    // This case enable a track to connect directly to an issue, and will create
+    // the format Issue->Issue(same)->Track.
+    else {
+      $gh_issue_id = $pr['issue_id'];
+    }
+
+    // Create tub for missing issue.
+    if (!isset($graph[$pr['github_repo']][$gh_issue_id])) {
+      // Creating stub issue for missing issue.
+      $graph[$pr['github_repo']][$gh_issue_id] = array (
+        'title' => 'N/A',
+        'nid' => 'N/A',
+        'estimated' => 0,
+        'prs' => array(),
+        'no_issue' => $pr['issue_id'],
+      );
+    }
+
+    $tracks = array();
+    // Build track connections.
+    foreach ($tracking[$pr_nid] as &$track) {
+      $tracks[$track['mfid']] = array(
+        'track_nid' => $track['nid'],
+        'time' => $track['time'],
+        'type' => $track['type'],
+        'uid' => $track['uid'],
+      );
+      // Mark as used, to retried orphans later.
+      $track['used'] = TRUE;
+    }
+
+    //
+    $graph[$pr['github_repo']][$gh_issue_id]['prs'][$pr_nid] = array(
+      'nid' => $pr_nid,
+      'pr_id' => $pr['issue_id'],
+      'tracks' => $tracks,
+    );
+  }
+
+  // Build orphans tracks connections.
+  foreach ($tracking as $pr_nid => $track_node) {
+    foreach ($track_node as $track) {
+      if (!isset($track['used'])) {
+        // This is an orphan.
+        $graph['no repo']['no issue']['prs']['no pr'][] = $track;
+      }
+    }
+  }
+  return $graph;
+}
+
+/**
+ * Main function to create full graph of issues.
+ */
+function productivity_issue_diagram_graph($project_nid) {
+  $graph = array();
+
+  // Add tracking nodes.
+  $tracking = productivity_issue_diagram_tracking($project_nid);
+  foreach ($tracking as $tracks) {
+    foreach ($tracks as $key => $track) {
+      $graph['nodes'][$track['mfid']] = array(
+        'title' => 'Track: #' . ($track['issue_id'] ?: '0'),
+        // Extra description inside node
+        // Need to remove special char to fix this display.
+        'properties' => array(
+          'title'  => $track['label'],
+           $track['type'] => $track['time'],
+          'U' => productivity_issue_get_username($track['uid']),
+          'nid' => $track['nid'],
+        )
+      );
+    }
+  }
+
+  // Add issue nodes.
+  $issues = productivity_issue_diagram_graph_connections($project_nid);
+  foreach ($issues as $issue) {
+    // Issue.
+    if ($issue['type'] == 'issue') {
+      $graph['nodes'][$issue['nid']] = array(
+        'title' => 'Issue #' . $issue['issue_id'],
+        // Extra description inside node
+        'properties' => array(
+          'U' => productivity_issue_get_username($issue['uid']),
+          'Repo' => $issue['github_repo'],
+          'Estimate' => $issue['estimate'],
+          'nid' => $issue['nid'],
+        ),
+      );
+    }
+    // PR.
+    else {
+      $graph['nodes'][$issue['nid']] = array(
+        'title' => 'PR #' . $issue['issue_id'],
+        // Extra description inside node
+        'properties' => array(
+          'U:' => productivity_issue_get_username($issue['uid']),
+          'Repo' => $issue['github_repo'],
+          'Hour reported' => $issue['actual'],
+          'nid' => $issue['nid'],
+        ),
+      );
+    }
+    // Add edge for PR to ISSUE.
+    if ($issue['related_issue']) {
+      $edge_info = array(
+        // box, crow, curve, icurve, diamond, dot, inv, none, normal, tee, vee
+        'arrowhead' => 'normal',
+        'taillabel' => '',
+        'headlabel' => '',
+        'caption' => '',
+      );
+
+      $graph['edges'][$issue['nid']][$issue['related_issue']] = $edge_info;
+    }
+
+    // Add Edged from tracking to PR.
+    if (isset($tracking[$issue['nid']])) {
+      foreach ($tracking[$issue['nid']] as $track) {
+        $edge_info = array(
+          // box, crow, curve, icurve, diamond, dot, inv, none, normal, tee, vee
+          'arrowhead' => 'box',
+          'taillabel' => '',
+          'headlabel' => '',
+          'caption' => '',
+        );
+
+        $graph['edges'][$track['mfid']][$issue['nid']] = $edge_info;
+      }
+    }
+  }
+  return $graph;
+}
+
+/**
+ * Render graph into digraph format.
+ * using https://en.wikipedia.org/wiki/DOT_(graph_description_language)
+ */
+function productivity_issue_diagram_graph_generate($graph) {
+  // Merge in defaults.
+  $graph += array(
+    'nodes' => array(),
+    'edges' => array(),
+  );
+  $output = "digraph G {\n";
+
+  $output .= "node [\n";
+  $output .= "shape = \"record\"\n";
+  $output .= "]\n";
+
+  foreach ($graph['nodes'] as $name => $node_info) {
+    $output .= productivity_issue_diagram_graph_generate_node($name, $node_info);
+  }
+
+  foreach ($graph['edges'] as $source_node => $edges) {
+    foreach ($edges as $target_node => $edge_info) {
+      $output .= "edge [\n";
+      // Edge properties.
+      foreach ($edge_info as $k => $v) {
+        $output .= ' "' . check_plain($k) . '" = "' . check_plain($v) . '"' . "\n";
+      }
+      $output .= "]\n";
+      $color = productivity_issue_diagram_random_color();
+      $output .= format_string('@source_node -> @target_node [color="@color"][label="@caption" fontcolor="@color"]',
+        array(
+          '@source_node' => $source_node,
+          '@target_node' => $target_node,
+          '@color' => $color,
+          '@caption' => $edge_info['caption'],
+        )
+      );
+    }
+  }
+
+  $output .= "\n}\n";
+
+  return $output;
+}
+
+/**
+ * Create random RGB element.
+ */
+function productivity_issue_diagram_random_color_part() {
+  return str_pad( dechex( mt_rand( 0, 255 ) ), 2, '0', STR_PAD_LEFT);
+}
+
+/**
+ * Create random RGB color.
+ */
+function productivity_issue_diagram_random_color() {
+  return '#' . productivity_issue_diagram_random_color_part() . productivity_issue_diagram_random_color_part() . productivity_issue_diagram_random_color_part();
+}
+
+/**
+ * Create a single node box.
+ */
+function productivity_issue_diagram_graph_generate_node($name, $node_info) {
+  // Merge in defaults.
+  $node_info += array(
+    'title' => $name,
+    'properties' => array(),
+  );
+
+  $label  = $node_info['title'] . '|';
+
+  foreach ($node_info['properties'] as $title => $value) {
+    $value = str_replace('`', '\'', $value);
+    $value = str_replace('"', '\'', $value);
+    $value = htmlspecialchars($value);
+    $label .= "$title   : $value |";
+  }
+  return $name . '[label = "{' . $label . '}"]' . "\n";
+}

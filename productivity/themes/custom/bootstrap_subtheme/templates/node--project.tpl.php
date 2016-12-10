@@ -125,6 +125,7 @@
       <span class="value"><?php print $days; ?></span>
     </div>
   </div>
+
   <?php if (!empty($developer_chart)): ?>
     <div class="col-lg-4 col-sm-6 col-xs-12">
       <div class="main-box infographic-box">
@@ -139,6 +140,22 @@
       </div>
     </div>
   <?php endif; ?>
+
+  <div class="col-xs-12">
+    <ul>
+      <li>
+        <?php print $recalculate_hours_days_link; ?>
+      </li>
+      <li>
+        <?php print $monthly_report_link; ?>
+      </li>
+      <li>
+        <?php print l(t('Issues Diagram'), 'admin/reports/issue-diagram/' . $nid); ?>
+      </li>
+    </ul>
+  </div>
+
+
   <div class="col-xs-12">
     <div class="main-box infographic-box">
       <?php print $table; ?>
@@ -163,20 +180,5 @@
     </div>
   </div>
   <div class="col-xs-12">
-  </div>
-  <div class="col-xs-12">
-    <ul>
-      <li>
-        <?php print $recalculate_hours_days_link; ?>
-      </li>
-      <li>
-        <?php print $monthly_report_link; ?>
-      </li>
-    </ul>
-  </div>
-  <div class="col-lg-12 col-sm-12 col-xs-12">
-    <div class="main-box infographic-box">
-      <?php print $per_issue_table; ?>
-    </div>
   </div>
 </div>

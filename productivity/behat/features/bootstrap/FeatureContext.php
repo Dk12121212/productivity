@@ -49,13 +49,6 @@ class FeatureContext extends DrupalContext implements SnippetAcceptingContext {
   }
 
   /**
-   * @When /^I visit the homepage$/
-   */
-  public function iVisitTheHomepage() {
-    $this->getSession()->visit($this->locatePath('/'));
-  }
-
-  /**
    * @When /^I visit the "([^"]*)" page$/
    */
   public function iVisitThePage($path) {
@@ -220,7 +213,7 @@ class FeatureContext extends DrupalContext implements SnippetAcceptingContext {
    */
   public function iVisitPerIssueTableFor($project_name) {
     $project_node_id = $this->getNodeIdByTitleBundleAndRef('project', $project_name);
-    $this->getSession()->visit($this->locatePath('tracking/per-issue/' . $project_node_id));
+    $this->getSession()->visit($this->locatePath("node/$project_node_id/issues"));
   }
 
   /**
@@ -307,7 +300,7 @@ class FeatureContext extends DrupalContext implements SnippetAcceptingContext {
 
         if ($issue_name) {
           $issue_ref = $this->getNodeIdByTitleBundleAndRef('github_issue', $issue_name, $project_node_id);
-          $wrapper->field_issue_reference->set($issue_ref);
+          $wrapper->field_issue_reference[0]->set($issue_ref);
           $wrapper->field_github_content_type->set('pull_request');
         }
       }
@@ -587,13 +580,13 @@ class FeatureContext extends DrupalContext implements SnippetAcceptingContext {
     $autocomplete = $this->getSession()->getPage()->findById('autocomplete');
 
     if (empty($autocomplete)) {
-      throw new ExpectationException(t('Could not find the autocomplete popup box'), $this->getSession());
+      throw new \Behat\Mink\Exception\ExpectationException(t('Could not find the autocomplete popup box'), $this->getSession());
     }
 
     $popup_element = $autocomplete->find('xpath', "//div[text() = '{$popup}']");
 
     if (empty($popup_element)) {
-      throw new ExpectationException(t('Could not find autocomplete popup text @popup', array(
+      throw new \Behat\Mink\Exception\ExpectationException(t('Could not find autocomplete popup text @popup', array(
         '@popup' => $popup)), $this->getSession());
     }
 

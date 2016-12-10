@@ -1,7 +1,7 @@
 Feature: Projects test
   Test Projects page
 
-  @javascript
+  @api
   Scenario Outline: Test nike site in the projects page and validate that the type is Fix
     Given I login with user "admin"
     When  I visit the "Projects"

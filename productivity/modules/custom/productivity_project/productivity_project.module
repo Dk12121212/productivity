@@ -47,6 +47,19 @@ function productivity_project_menu() {
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
   );
 
+  $items['node/%node/issues'] = array(
+    'title' => t('Issues'),
+    'page callback' => 'productivity_github_time_display_tracking_issue_table',
+    'page arguments' => array(1),
+    'access callback' => 'node_access',
+    'access arguments' => array('update', 1),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'file path' => drupal_get_path('module', 'productivity_github'),
+    'file' => '/productivity_github.table.inc',
+  );
+
   $items['node/%node/acceptance/post'] = array(
     'page callback' => 'productivity_project_page_acceptance_post',
     'page arguments' => array(1),

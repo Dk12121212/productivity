@@ -9,14 +9,15 @@ define('PRODUCTIVITY_GITHUB_ISSUE_CLOSED_STATUS', 'Done');
 /**
  * Menu callback; display tracking table for issues.
  */
-function productivity_time_tracking_issue_table_callback($node = FALSE, $year = FALSE, $month = FALSE) {
-  return productivity_time_tracking_issue_table($node, $year, $month);
+function productivity_time_tracking_issue_table_callback($node = FALSE, $year = FALSE, $month = FALSE, $estimated_based = FALSE) {
+  $estimated_based = $estimated_based == 'false' ? FALSE : TRUE;
+  return productivity_time_tracking_issue_table($node, $year, $month, $estimated_based);
 }
 
 /**
  * Render callback;  Bidder page.
  */
-function productivity_time_tracking_issue_table($node = FALSE, $year = FALSE, $month = FALSE) {
+function productivity_time_tracking_issue_table($node = FALSE, $year = FALSE, $month = FALSE, $estimated_based = FALSE) {
   global $base_url;
   // Add JavaScript file with the base url of the page.
   drupal_add_js(drupal_get_path('module', 'productivity_time_tracking') . '/monthly_report/monthly_report.js');
@@ -57,8 +58,10 @@ function productivity_time_tracking_issue_table($node = FALSE, $year = FALSE, $m
     'base_url' => $base_url,
     'year' => $variables['year'],
     'month' => $variables['month'],
+    'estimate' => $estimated_based,
     )
   ), 'setting');
+
 
   // No project given.
   if (!$node) {
@@ -93,7 +96,14 @@ function productivity_time_tracking_issue_table($node = FALSE, $year = FALSE, $m
   $variables['tables'] = array();
   $variables['total_types'] = array();
   $variables['grand_total'] = 0;
-  $header = array('Issue', 'Label', 'Date', 'Time', 'Amount');
+  $header = array(
+    'Issue',
+    'Label',
+    'Date',
+    'Time',
+    'Amount'
+  );
+  // Build table.
   foreach ($issues_table as $table_name => $table) {
     $variables['table_titles'][$table_name] = _productivity_time_tracking_get_table_title($table_name, $node, $table['label']);
     $variables['total_per_types'][$table_name] = 0;
@@ -104,6 +114,7 @@ function productivity_time_tracking_issue_table($node = FALSE, $year = FALSE, $m
         'absolute' => TRUE,
         'attributes' => array('target' => '_blank'),
       ));
+
       $rows[$index]['gitHub_issue_num'] = l($issue['label'], 'node/' . $issue['nid'] . '/edit', array('attributes' => array('target' => '_blank')));
       $rows[$index]['date'] = $issue['date'];
       $rows[$index]['time'] = $issue['time'];

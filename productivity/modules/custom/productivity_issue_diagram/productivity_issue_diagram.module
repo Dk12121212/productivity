@@ -219,8 +219,7 @@ function productivity_issue_diagram_init() {
 function productivity_issue_diagram_graph_normalized($project_nid) {
   $tracking = productivity_issue_diagram_tracking($project_nid);
   $issues = productivity_issue_diagram_graph_connections($project_nid, 'issue');
-  $prs = productivity_issue_diagram_graph_connections($project_nid, 'pull_request');
-
+  $prs_and_issues = productivity_issue_diagram_graph_connections($project_nid);
   $graph = array();
 
   // Create first and second level, Repo->issue.
@@ -244,15 +243,22 @@ function productivity_issue_diagram_graph_normalized($project_nid) {
     );
   }
 
-  // Build Pr connections. pr->track.
-  foreach ($prs as $pr_nid => $pr) {
+  // Build Pr connections. pr/issue->track.
+  foreach ($prs_and_issues as $pr_nid => $pr) {
     // Related issue does not exist.
-
-    if (!isset($pr['related_issue_gh_id'])) {
-      $gh_issue_id = 'no_issue_id_for_pr_' . $pr['issue_id'];
+    if ($prs_and_issues['type'] == 'pull_request') {
+      if (!isset($pr['related_issue_gh_id'])) {
+        $gh_issue_id = 'no_issue_id_for_pr_' . $pr['issue_id'];
+      }
+      else {
+        $gh_issue_id = $pr['related_issue_gh_id'];
+      }
     }
+    // If it's an issue type.
+    // This case enable a track to connect directly to an issue, and will create
+    // the format Issue->Issue(same)->Track.
     else {
-      $gh_issue_id = $pr['related_issue_gh_id'];
+      $gh_issue_id = $pr['issue_id'];
     }
 
     // Create tub for missing issue.

@@ -34,7 +34,8 @@ npm install -g bower
 echo -e "\n [RUN] Install php packages."
 apt-get install -y --force-yes php5-cgi php5-mysql
 # Fix error sending mails.
-echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+echo 'sendmail_path = /bin/true' >> /etc/php.ini
+#echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
 # Install Drush & create alias.
 echo -e "\n [RUN] Install Drush."

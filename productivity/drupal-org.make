@@ -18,7 +18,7 @@ projects[content_access][subdir] = "contrib"
 projects[content_access][version] = "1.2-beta2"
 
 projects[ctools][subdir] = "contrib"
-projects[ctools][version] = "1.9"
+projects[ctools][version] = "1.12"
 
 projects[currency][subdir] = "contrib"
 projects[currency][version] = "2.6"

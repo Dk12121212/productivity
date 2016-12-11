@@ -33,6 +33,8 @@ npm install -g bower
 # Install php packages required for running a web server from drush on php 5.3
 echo -e "\n [RUN] Install php packages."
 apt-get install -y --force-yes php5-cgi php5-mysql
+# Fix error sending mails.
+echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
 # Install Drush & create alias.
 echo -e "\n [RUN] Install Drush."

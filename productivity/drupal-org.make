@@ -109,8 +109,8 @@ projects[multifield][patch][] = "https://www.drupal.org/files/issues/multifield-
 projects[multifield][patch][] = "https://www.drupal.org/files/issues/2041531-23-entity-api-support.patch"
 # Fix feature integration.
 
+projects[panels][version] = "3.8"
 projects[panels][subdir] = "contrib"
-projects[panels][version] = "3.5"
 
 projects[profile2][subdir] = "contrib"
 projects[profile2][version] = "1.3"
@@ -122,7 +122,6 @@ projects[restful][subdir] = "contrib"
 projects[restful][download][type] = "git"
 projects[restful][download][url] = "https://github.com/RESTful-Drupal/restful.git"
 projects[restful][download][branch] = "7.x-1.x"
-projects[restful][subdir] = "contrib"
 
 projects[smtp][subdir] = "contrib"
 projects[smtp][version] = "1.3"

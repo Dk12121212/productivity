@@ -33,7 +33,9 @@ function productivity_project_field_default_field_bases() {
           ),
         ),
         'sort' => array(
-          'type' => 'none',
+          'direction' => 'ASC',
+          'property' => 'title',
+          'type' => 'property',
         ),
         'target_bundles' => array(
           'account' => 'account',
@@ -91,6 +93,7 @@ function productivity_project_field_default_field_bases() {
         'second' => 0,
         'year' => 'year',
       ),
+      'profile2_private' => FALSE,
       'timezone_db' => '',
       'todate' => 'optional',
       'tz_handling' => 'none',

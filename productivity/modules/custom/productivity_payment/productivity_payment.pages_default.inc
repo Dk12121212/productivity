@@ -75,6 +75,32 @@ function productivity_payment_default_page_manager_pages() {
   $display->content = array();
   $display->panels = array();
   $pane = new stdClass();
+  $pane->pid = 'new-2846164a-6d17-4aa0-897b-de62008d44dc';
+  $pane->panel = 'top';
+  $pane->type = 'custom';
+  $pane->subtype = 'custom';
+  $pane->shown = TRUE;
+  $pane->access = array();
+  $pane->configuration = array(
+    'admin_title' => '',
+    'title' => '',
+    'title_heading' => 'h2',
+    'body' => '<a href=/node/add/payment>Add new payment</a>',
+    'format' => 'full_html',
+    'substitute' => TRUE,
+  );
+  $pane->cache = array();
+  $pane->style = array(
+    'settings' => NULL,
+  );
+  $pane->css = array();
+  $pane->extras = array();
+  $pane->position = 0;
+  $pane->locks = array();
+  $pane->uuid = '2846164a-6d17-4aa0-897b-de62008d44dc';
+  $display->content['new-2846164a-6d17-4aa0-897b-de62008d44dc'] = $pane;
+  $display->panels['top'][0] = 'new-2846164a-6d17-4aa0-897b-de62008d44dc';
+  $pane = new stdClass();
   $pane->pid = 'new-68a8d365-4c8f-451e-a782-34113737a9b7';
   $pane->panel = 'top';
   $pane->type = 'views_panes';
@@ -88,11 +114,11 @@ function productivity_payment_default_page_manager_pages() {
   );
   $pane->css = array();
   $pane->extras = array();
-  $pane->position = 0;
+  $pane->position = 1;
   $pane->locks = array();
   $pane->uuid = '68a8d365-4c8f-451e-a782-34113737a9b7';
   $display->content['new-68a8d365-4c8f-451e-a782-34113737a9b7'] = $pane;
-  $display->panels['top'][0] = 'new-68a8d365-4c8f-451e-a782-34113737a9b7';
+  $display->panels['top'][1] = 'new-68a8d365-4c8f-451e-a782-34113737a9b7';
   $display->hide_title = PANELS_TITLE_FIXED;
   $display->title_pane = '0';
   $handler->conf['display'] = $display;

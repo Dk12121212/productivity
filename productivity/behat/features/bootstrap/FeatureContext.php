@@ -284,13 +284,6 @@ class FeatureContext extends DrupalContext implements SnippetAcceptingContext {
     $wrapper = entity_metadata_wrapper('node', $entity);
     $wrapper->title->set($title);
 
-    if ($type == 'project') {
-      $wrapper->field_scope->set(array(
-        'interval' => 10,
-        'period' => 'month',
-      ));
-    }
-
     if ($type == 'github_issue') {
       // Set some more fields if available.
       if ($project_node_id = $this->getNodeIdByTitleBundleAndRef('project', $project_name)) {

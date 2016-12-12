@@ -57,13 +57,14 @@ function productivity_payment_default_page_manager_pages() {
     'relationships' => array(),
   );
   $display = new panels_display();
-  $display->layout = 'dashboard';
+  $display->layout = 'general';
   $display->layout_settings = array();
   $display->panel_settings = array(
     'style_settings' => array(
       'default' => NULL,
       'top' => NULL,
       'left' => NULL,
+      'bottom' => NULL,
     ),
   );
   $display->cache = array();
@@ -73,25 +74,6 @@ function productivity_payment_default_page_manager_pages() {
   $display->storage_id = 'page_payments_panel_context';
   $display->content = array();
   $display->panels = array();
-  $pane = new stdClass();
-  $pane->pid = 'new-264e3cb9-82ba-464e-9acf-bca2e20f8f17';
-  $pane->panel = 'left';
-  $pane->type = 'views_panes';
-  $pane->subtype = 'payments-panel_pane_2';
-  $pane->shown = TRUE;
-  $pane->access = array();
-  $pane->configuration = array();
-  $pane->cache = array();
-  $pane->style = array(
-    'settings' => NULL,
-  );
-  $pane->css = array();
-  $pane->extras = array();
-  $pane->position = 0;
-  $pane->locks = array();
-  $pane->uuid = '264e3cb9-82ba-464e-9acf-bca2e20f8f17';
-  $display->content['new-264e3cb9-82ba-464e-9acf-bca2e20f8f17'] = $pane;
-  $display->panels['left'][0] = 'new-264e3cb9-82ba-464e-9acf-bca2e20f8f17';
   $pane = new stdClass();
   $pane->pid = 'new-68a8d365-4c8f-451e-a782-34113737a9b7';
   $pane->panel = 'top';

@@ -31,13 +31,6 @@ function productivity_payment_views_default_views() {
   $handler->display->display_options['exposed_form']['type'] = 'basic';
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['style_plugin'] = 'table';
-  $handler->display->display_options['style_options']['grouping'] = array(
-    0 => array(
-      'field' => 'field_project',
-      'rendered' => 1,
-      'rendered_strip' => 0,
-    ),
-  );
   $handler->display->display_options['style_options']['columns'] = array(
     'title' => 'title',
     'field_project' => 'field_project',
@@ -45,6 +38,7 @@ function productivity_payment_views_default_views() {
     'field_date_expected' => 'field_date_expected',
     'field_payment_status' => 'field_payment_status',
     'field_transaction' => 'field_transaction',
+    'edit_node' => 'edit_node',
   );
   $handler->display->display_options['style_options']['default'] = 'field_date_expected';
   $handler->display->display_options['style_options']['info'] = array(
@@ -84,6 +78,11 @@ function productivity_payment_views_default_views() {
       'empty_column' => 0,
     ),
     'field_transaction' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'edit_node' => array(
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
@@ -200,7 +199,7 @@ function productivity_payment_views_default_views() {
   /* Display: Payments */
   $handler = $view->new_display('panel_pane', 'Payments', 'panel_pane_1');
   $handler->display->display_options['defaults']['title'] = FALSE;
-  $handler->display->display_options['title'] = 'UnPayed';
+  $handler->display->display_options['title'] = 'Payments';
   $export['payments'] = $view;
 
   return $export;

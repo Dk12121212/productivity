@@ -41,9 +41,9 @@ class ProductivityMigratePayment extends ProductivityMigrate {
     $this->addFieldMapping('field_date_expected:timezone')
       ->defaultValue('Asia/Jerusalem');
 
-    $this->addFieldMapping('field_date_actual', 'field_date_actual');
-    $this->addFieldMapping('field_date_actual:timezone')
-      ->defaultValue('Asia/Jerusalem');
+//    $this->addFieldMapping('field_date_actual', 'field_date_actual');
+//    $this->addFieldMapping('field_date_actual:timezone')
+//      ->defaultValue('Asia/Jerusalem');
 
 
     $this

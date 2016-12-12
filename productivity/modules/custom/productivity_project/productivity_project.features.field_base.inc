@@ -102,25 +102,6 @@ function productivity_project_field_default_field_bases() {
     'type' => 'datetime',
   );
 
-  // Exported field_base: 'field_days'.
-  $field_bases['field_days'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_days',
-    'indexes' => array(),
-    'locked' => 0,
-    'module' => 'number',
-    'settings' => array(
-      'decimal_separator' => '.',
-      'precision' => 11,
-      'scale' => 2,
-    ),
-    'translatable' => 0,
-    'type' => 'number_decimal',
-  );
-
   // Exported field_base: 'field_github_repository_name'.
   $field_bases['field_github_repository_name'] = array(
     'active' => 1,

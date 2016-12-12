@@ -335,7 +335,7 @@ function productivity_payment_field_default_field_instances() {
         'decimals_display_mode' => 'field',
       ),
       'type' => 'money_widget',
-      'weight' => 4,
+      'weight' => 2,
     ),
   );
 
@@ -367,12 +367,12 @@ function productivity_payment_field_default_field_instances() {
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_select',
-      'weight' => 5,
+      'weight' => 3,
     ),
   );
 
-  // Exported field_instance: 'multifield-field_transaction-field_date'.
-  $field_instances['multifield-field_transaction-field_date'] = array(
+  // Exported field_instance: 'multifield-field_transaction-field_date_payed'.
+  $field_instances['multifield-field_transaction-field_date_payed'] = array(
     'bundle' => 'field_transaction',
     'deleted' => 0,
     'description' => '',
@@ -389,12 +389,12 @@ function productivity_payment_field_default_field_instances() {
           'show_remaining_days' => FALSE,
         ),
         'type' => 'date_default',
-        'weight' => 0,
+        'weight' => 4,
       ),
     ),
     'entity_type' => 'multifield',
-    'field_name' => 'field_date',
-    'label' => 'Date',
+    'field_name' => 'field_date_payed',
+    'label' => 'Date payed',
     'required' => 0,
     'settings' => array(
       'default_value' => 'now',
@@ -416,7 +416,7 @@ function productivity_payment_field_default_field_instances() {
         'year_range' => '-3:+3',
       ),
       'type' => 'date_popup',
-      'weight' => 2,
+      'weight' => 1,
     ),
   );
 
@@ -450,7 +450,7 @@ function productivity_payment_field_default_field_instances() {
         'rows' => 2,
       ),
       'type' => 'text_textarea',
-      'weight' => 7,
+      'weight' => 4,
     ),
   );
 
@@ -1012,8 +1012,8 @@ function productivity_payment_field_default_field_instances() {
   // Included for use with string extractors like potx.
   t('Amount');
   t('Bank account');
-  t('Date');
   t('Date expected');
+  t('Date payed');
   t('Description');
   t('Project');
   t('Status');

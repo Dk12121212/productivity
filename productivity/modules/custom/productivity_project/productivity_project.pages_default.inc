@@ -90,6 +90,29 @@ function productivity_project_default_page_manager_handlers() {
   $pane->uuid = 'f1f0319a-950f-4c9f-9cc9-8ac5f14f7fe2';
   $display->content['new-f1f0319a-950f-4c9f-9cc9-8ac5f14f7fe2'] = $pane;
   $display->panels['rendered_node'][0] = 'new-f1f0319a-950f-4c9f-9cc9-8ac5f14f7fe2';
+  $pane = new stdClass();
+  $pane->pid = 'new-53bf417f-eeb7-4cdc-a8bc-3c71539ac584';
+  $pane->panel = 'rendered_node';
+  $pane->type = 'views_panes';
+  $pane->subtype = 'payments-panel_pane_2';
+  $pane->shown = TRUE;
+  $pane->access = array();
+  $pane->configuration = array(
+    'context' => array(
+      0 => 'argument_entity_id:node_1',
+    ),
+  );
+  $pane->cache = array();
+  $pane->style = array(
+    'settings' => NULL,
+  );
+  $pane->css = array();
+  $pane->extras = array();
+  $pane->position = 1;
+  $pane->locks = array();
+  $pane->uuid = '53bf417f-eeb7-4cdc-a8bc-3c71539ac584';
+  $display->content['new-53bf417f-eeb7-4cdc-a8bc-3c71539ac584'] = $pane;
+  $display->panels['rendered_node'][1] = 'new-53bf417f-eeb7-4cdc-a8bc-3c71539ac584';
   $display->hide_title = PANELS_TITLE_NONE;
   $display->title_pane = '0';
   $handler->conf['display'] = $display;

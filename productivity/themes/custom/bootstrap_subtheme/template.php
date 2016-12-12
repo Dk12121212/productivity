@@ -33,7 +33,7 @@ function bootstrap_subtheme_preprocess_node__project__full(&$variables) {
   $year = date('Y');
   $month = date('m', strtotime("-1 month"));
   $project_id = $node->nid;
-  $variables['monthly_report_link'] = l(t('Monthly report'), "/monthly-report/$project_id/$year/$month");
+  $variables['monthly_report_link'] = l(t('Monthly report'), "/monthly-report/$project_id/$year/$month/false");
 
   // Add charts.
   $chart = productivity_project_get_developer_chart($node);

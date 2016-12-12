@@ -91,12 +91,12 @@ function post_install {
   echo "\$conf['github_secret'] = '<your-client-secret>';"  >> www/sites/default/settings.php
 
    # install Dompdf
-  cd /~brice/productivity/www/profiles/productivity/libraries/dompdf
+  cd productivity/www/profiles/productivity/libraries/dompdf
   composer install --no-interaction --prefer-source
 
-  cd /~brice/productivity/www/profiles/productivity/libraries
+  cd productivity/www/profiles/productivity/libraries
   mkdir css-to-inline
   cd css-to-inline
-  composer require tijsverkoyen/css-to-inline-styles
+  composer require tijsverkoyen/css-to-inline-styles:1.5
 }
 

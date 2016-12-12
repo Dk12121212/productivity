@@ -12,13 +12,13 @@ projects[charts][subdir] = "contrib"
 projects[charts][version] = "2.x-dev"
 
 projects[ckeditor][subdir] = "contrib"
-projects[ckeditor][version] = "1.x-dev"
+projects[ckeditor][version] = "1.17"
 
 projects[content_access][subdir] = "contrib"
 projects[content_access][version] = "1.2-beta2"
 
 projects[ctools][subdir] = "contrib"
-projects[ctools][version] = "1.9"
+projects[ctools][version] = "1.12"
 
 projects[currency][subdir] = "contrib"
 projects[currency][version] = "2.6"
@@ -50,7 +50,7 @@ projects[entitiesdiagram][download][branch] = "master"
 projects[entitiesdiagram][download][url] = "https://github.com/Gizra/entitiesdiagram.git"
 
 projects[gravatar][subdir] = "contrib"
-projects[gravatar][version] = "1.x-dev"
+projects[gravatar][version] = "1.1"
 
 projects[flag][subdir] = "contrib"
 projects[flag][version] = "3.7"
@@ -62,7 +62,7 @@ projects[features][subdir] = "contrib"
 projects[features][version] = "2.9"
 
 projects[file_entity][subdir] = "contrib"
-projects[file_entity][version] = "2.x-dev"
+projects[file_entity][version] = "2.0-beta3"
 
 projects[interval][subdir] = "contrib"
 projects[interval][version] = "1.0"
@@ -104,13 +104,13 @@ projects[money][subdir] = "contrib"
 projects[money][version] = "1.x-dev"
 
 projects[multifield][subdir] = "contrib"
-projects[multifield][version] = "1.x-dev"
+projects[multifield][version] = "1.0-alpha4"
 projects[multifield][patch][] = "https://www.drupal.org/files/issues/multifield-features-integration-fix-api-2102265-32.patch"
 projects[multifield][patch][] = "https://www.drupal.org/files/issues/2041531-23-entity-api-support.patch"
 # Fix feature integration.
 
+projects[panels][version] = "3.8"
 projects[panels][subdir] = "contrib"
-projects[panels][version] = "3.5"
 
 projects[profile2][subdir] = "contrib"
 projects[profile2][version] = "1.3"
@@ -122,7 +122,6 @@ projects[restful][subdir] = "contrib"
 projects[restful][download][type] = "git"
 projects[restful][download][url] = "https://github.com/RESTful-Drupal/restful.git"
 projects[restful][download][branch] = "7.x-1.x"
-projects[restful][subdir] = "contrib"
 
 projects[smtp][subdir] = "contrib"
 projects[smtp][version] = "1.3"
@@ -137,7 +136,7 @@ projects[views][subdir] = "contrib"
 projects[views][version] = "3.13"
 
 projects[views_data_export][subdir] = "contrib"
-projects[views_data_export][version] = "4.x-dev"
+projects[views_data_export][version] = "3.1"
 
 projects[views_bulk_operations][subdir] = "contrib"
 projects[views_bulk_operations][version] = "3.3"
@@ -161,9 +160,10 @@ projects[migrate_extras][version] = "2.5"
 ; Libraries
 libraries[dompdf][type] = "libraries"
 libraries[dompdf][download][type] = "get"
+libraries[dompdf][download][type] = "get"
 libraries[dompdf][download][url] = "https://github.com/dompdf/dompdf/releases/download/v0.7.0/dompdf_0-7-0.zip"
 
 ; Themes
 projects[bootstrap][subdir] = "contrib"
-projects[bootstrap][version] = "3.x-dev"
+projects[bootstrap][version] = "3.5"
 projects[bootstrap][type] = "theme"

@@ -191,7 +191,7 @@ function productivity_timewatch_build_report($account, $year, $month){
     $day_sign = rand(1, 20);
     $date_sign = strtotime("$year-$month_sign-$day_sign");
   }
-  $variables_report['date_sign'] =   date("F, d Y", $date_sign);
+  $variables_report['date_sign'] = date("F, d Y", $date_sign) . date(", H:m", time());
 
   // Main table headers.
   $header = array(

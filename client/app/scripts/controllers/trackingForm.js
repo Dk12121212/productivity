@@ -61,6 +61,9 @@ angular.module('clientApp')
       id: 'non_billable',
       label: 'None billable'
     }, {
+      id: 'installation_setup',
+      label: 'Installation and Set-up'
+    }, {
       id: 'review',
       label: 'Review'
     }, {

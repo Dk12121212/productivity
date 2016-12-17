@@ -18,6 +18,13 @@ class ProductivityProjectResource extends \ProductivityEntityBaseNode {
       'property' => 'nid',
     );
 
+    $public_fields['rate_types'] = array(
+      'property' => 'field_table_rate',
+      'process_callbacks' => array(
+        array($this, 'getRateTypes'),
+      ),
+    );
+
     return $public_fields;
   }
 
@@ -40,5 +47,39 @@ class ProductivityProjectResource extends \ProductivityEntityBaseNode {
     }
 
     return $query;
+  }
+
+  /**
+   * Fetches the allowed rate types for-each project.
+   *
+   * In order to get custom rate types for each project and to get rid of the
+   * necessity to list the issues type manually in the frontend application,
+   * this provides a list of types allowed for issues to be logged by the
+   * employees.
+   * i.e. 'dev' => 'Development'
+   *
+   * @param array $values
+   *   The rate table values.
+   *
+   * @return array
+   *   An array containing the allowed issue types for each project or null if
+   *   empty.
+   */
+  protected function getRateTypes(array $values) {
+    // Get the allowed values for the issues types.
+    $issues_type_info = field_info_field('field_issue_type');
+    $allowed_values = $issues_type_info['settings']['allowed_values'];
+
+    // Go throw the rates table and get the allowed types.
+    $rate_types = array();
+    if (!empty($values)) {
+      foreach ($values as $value) {
+        // Sub field of a multi-field, we can't use wrapper.
+        $type = $value->field_issue_type[LANGUAGE_NONE][0]['value'];
+        $rate_types[$type] = $allowed_values[$type];
+      }
+    }
+
+    return $rate_types;
   }
 }

@@ -112,7 +112,7 @@
                       </div>
                       <div class="col-md-3 col-xs-3">
                         <select name="issues-hours" ng-model="issue.type" class="form-control" ng-required="true" id="issue-type"
-                                ng-options="type.id as type.label for type in issueTypes">
+                                ng-options="id as label for (id, label) in projectsIssueTypes">
                         </select>
                       </div>
                       <div class="col-md-2 col-xs-3">

@@ -60,6 +60,19 @@ function productivity_project_menu() {
     'file' => '/productivity_github.table.inc',
   );
 
+  $items['node/%node/project-work-report'] = array(
+    'title' => t('Tracking report'),
+    'page callback' => 'productivity_time_tracking_project_table',
+    'page arguments' => array(1, 3),
+    'access callback' => 'node_access',
+    'access arguments' => array('update', 1),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'file path' => drupal_get_path('module', 'productivity_time_tracking') . '/project_report',
+    'file' => '/project_report.inc',
+  );
+
   $items['node/%node/acceptance/post'] = array(
     'page callback' => 'productivity_project_page_acceptance_post',
     'page arguments' => array(1),
@@ -610,30 +623,39 @@ function productivity_project_update_project_total_hours($wrapper_time_tracking,
  * Recalculate project total hours per rate
  */
 function productivity_project_recalcualte_rate_total_hours($project_id, $rate_type = FALSE) {
-  $wrapper = entity_metadata_wrapper('node', $project_id);
   $total = 0;
-  foreach ($wrapper->field_table_rate as $rate) {
-    // Handle only one type.
-    $type = $rate->field_issue_type->value();
-    if ($rate_type && $type != $rate_type) {
-      continue;
-    }
-    // Get all work done in a project and specific type.
-    $query = db_select('field_data_field_issues_logs', 'il');
-    $query->join('field_data_field_project', 'p', 'il.entity_id = p.entity_id');
-
-    $query->fields('il')
-      ->condition('p.field_project_target_id', $project_id)
-      ->condition('il.bundle', 'time_tracking')
-      ->condition('il.field_issues_logs_field_issue_type_value', $type);
-    $result = $query->execute();
-
-    while ($record = $result->fetchAssoc()) {
-      $total += $record['field_issues_logs_field_time_spent_value'];
-    }
+  $result = productivity_project_get_tracking($project_id, $rate_type);
+  // Read result a sum total.
+  while ($record = $result->fetchAssoc()) {
+    $total += $record['field_issues_logs_field_time_spent_value'];
   }
 
   return $total;
+}
+
+/**
+ * Recalculate project total hours per rate
+ */
+function productivity_project_get_tracking($project_id, $rate_type = FALSE) {
+  // Get all work done in a project and specific type.
+  $query = db_select('field_data_field_issues_logs', 'il');
+  $query->join('field_data_field_project', 'p', 'il.entity_id = p.entity_id');
+  $query->join('field_data_field_employee', 'e', 'il.entity_id = e.entity_id');
+  $query->join('field_data_field_work_date', 'd', 'il.entity_id = d.entity_id');
+
+  $query
+    ->fields('il')
+    ->fields('e')
+    ->fields('d')
+    ->condition('p.field_project_target_id', $project_id)
+    ->condition('il.bundle', 'time_tracking');
+
+  if ($rate_type) {
+    $query->condition('il.field_issues_logs_field_issue_type_value', $rate_type);
+  }
+
+  return $query->execute();
+
 }
 
 /**

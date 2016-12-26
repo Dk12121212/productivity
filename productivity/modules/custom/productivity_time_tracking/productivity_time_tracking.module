@@ -62,6 +62,18 @@ function productivity_time_tracking_theme() {
       'path' => drupal_get_path('module', 'productivity_time_tracking') . '/monthly_report',
       'template' => 'monthly_report_table',
     ),
+    'productivity_time_tracking_project_report_table' => array(
+      'variables' => array(
+      ),
+      'path' => drupal_get_path('module', 'productivity_time_tracking') . '/project_report',
+      'template' => 'project_report_table',
+    ),
+    'productivity_time_tracking_project_report' => array(
+      'variables' => array(
+      ),
+      'path' => drupal_get_path('module', 'productivity_time_tracking') . '/project_report',
+      'template' => 'project_report',
+    ),
   );
 }
 

@@ -61,8 +61,7 @@ function productivity_time_tracking_project_table($node = FALSE) {
     productivity_time_tracking_reset_value($summary[$track_year]['sum']['total'], $time);
     productivity_time_tracking_reset_value($summary['sum'], $time);
   }
-  dpm($summary);
-  // Build diplay table.
+  // Build display table.
   $header = ['Type'];
   $rows = [];
   // Build table.
@@ -100,8 +99,6 @@ function productivity_time_tracking_project_table($node = FALSE) {
       'rows' => $rows
     ));
   }
-  dpm($rows);
-  dpm($variables['tables']);
 
   return theme('productivity_time_tracking_project_report', $variables);
 }

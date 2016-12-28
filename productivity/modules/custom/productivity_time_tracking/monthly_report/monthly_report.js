@@ -115,7 +115,7 @@
         format: "MM, yyyy",
         minViewMode: 1,
         autoclose: true,
-        startDate: "2/2016",
+        startDate: "1/2014",
         startView: 1,
         todayBtn: "linked",
         keyboardNavigation: false,

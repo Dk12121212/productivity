@@ -173,7 +173,7 @@ function productivity_timewatch_build_report($account, $year, $month){
   $month_array = productivity_timewatch_build_month_skeleton($month, $year, $summary['6.potential']['total_minutes'], $endday);
   // Get all sessions for the project.
   $madaan = array();
-  $month_array = productivity_timewatch_create_sessions_table($node_keys, $summary, $madaan, $month_array, $endday);
+  $month_array =  productivity_timewatch_create_sessions_table($node_keys, $summary, $madaan, $month_array, $endday);
 
   $variables_report = array();
   $variables_report['year'] = $year;
@@ -186,7 +186,7 @@ function productivity_timewatch_build_report($account, $year, $month){
     $date_sign = time();
   }
   else {
-    // Print random date, for testing.
+    // Print random date, for testing and demos.
     $month_sign = $month + 1;
     $day_sign = rand(1, 20);
     $date_sign = strtotime("$year-$month_sign-$day_sign");

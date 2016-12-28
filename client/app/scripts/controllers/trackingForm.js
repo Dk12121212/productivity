@@ -43,34 +43,6 @@ angular.module('clientApp')
     var monthNames = [ 'January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December' ];
 
-
-    // Set the allowed values for issue type.
-    $scope.issueTypes = [{
-      id: 'dev',
-      label: 'Development'
-    }, {
-      id: 'qa',
-      label: 'QA'
-    }, {
-      id: 'management',
-      label: 'Management'
-    }, {
-      id: 'designer',
-      label: 'Designer'
-    }, {
-      id: 'non_billable',
-      label: 'None billable'
-    }, {
-      id: 'review',
-      label: 'Review'
-    }, {
-      id: 'training',
-      label: 'Training'
-    }, {
-      id: 'support',
-      label: 'Support'
-    }];
-
     // Set vacation object.
     $scope.vacationTypes = {
       fullday: 'Full day',
@@ -105,6 +77,14 @@ angular.module('clientApp')
     $scope.projects = projects;
     $scope.message = '';
     $scope.messageClass = 'alert-success';
+
+    // Initialize default project's issue types.
+    $scope.projectsIssueTypes = {};
+    // Set the allowed values for issue types for each project.
+    $scope.issueTypes = {};
+    angular.forEach($scope.projects, function (project) {
+      $scope.issueTypes[project.id] = project.rate_types;
+    });
 
 
     // Prepare form for create new.
@@ -390,6 +370,9 @@ angular.module('clientApp')
      */
     $scope.changeProject = function() {
       $scope.data.issues = [];
+      // Set the issue types for the project that the employee choose from the
+      // list.
+      $scope.projectsIssueTypes = $scope.issueTypes[$scope.data.projectID];
       $scope.getPRs();
     };
 

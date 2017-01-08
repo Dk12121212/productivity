@@ -108,6 +108,8 @@ angular.module('clientApp')
       // Fill with existing nid.
       angular.forEach(tracking[$stateParams.day], function(value) {
         if (value.id == $stateParams.id) {
+          // Add the issue types of the logged work.
+          $scope.projectsIssueTypes = $scope.issueTypes[value.projectID];
           $scope.data = value;
         }
       });

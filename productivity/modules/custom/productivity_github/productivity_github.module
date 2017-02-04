@@ -233,6 +233,7 @@ function productivity_github_save_references_issue($wrapper, $body, $gh_project_
           ->propertyCondition('status', NODE_PUBLISHED)
           ->fieldCondition('field_issue_id', 'value', $issue_id)
           ->fieldCondition('field_github_project_id', 'value', $gh_project_id)
+          ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT')
           ->range(0, 1)
           ->execute();
 
@@ -374,12 +375,15 @@ function productivity_github_get_entity_id_by_push_info($payload, $uid) {
     // We check project id with repo name, since it's more reliable than Project
     // nid, because a project can have multiple repos.
     ->fieldCondition('field_github_project_id', 'value', $payload->repository->full_name)
+    ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT')
     ->range(0, 1)
     ->execute();
 
   if (!empty($result['node'])) {
     return key($result['node']);
   }
+
+  return FALSE;
 }
 
 /**

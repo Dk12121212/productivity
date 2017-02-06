@@ -26,7 +26,8 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['css_class'] = 'admin-views-view';
   $handler->display->display_options['use_ajax'] = TRUE;
   $handler->display->display_options['use_more_always'] = FALSE;
-  $handler->display->display_options['access']['type'] = 'menu';
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['access']['perm'] = 'administer nodes';
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['query']['options']['distinct'] = TRUE;
@@ -500,7 +501,8 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['css_class'] = 'admin-views-view';
   $handler->display->display_options['use_ajax'] = TRUE;
   $handler->display->display_options['use_more_always'] = FALSE;
-  $handler->display->display_options['access']['type'] = 'menu';
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['access']['perm'] = 'administer nodes';
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['query']['options']['distinct'] = TRUE;
@@ -1165,7 +1167,8 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['css_class'] = 'admin-views-view';
   $handler->display->display_options['use_ajax'] = TRUE;
   $handler->display->display_options['use_more_always'] = FALSE;
-  $handler->display->display_options['access']['type'] = 'menu';
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['access']['perm'] = 'administer nodes';
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['query']['options']['distinct'] = TRUE;
@@ -1428,20 +1431,6 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['fields']['field_project']['settings'] = array(
     'link' => 0,
   );
-  /* Field: Field: Rate */
-  $handler->display->display_options['fields']['field_rate']['id'] = 'field_rate';
-  $handler->display->display_options['fields']['field_rate']['table'] = 'field_data_field_rate';
-  $handler->display->display_options['fields']['field_rate']['field'] = 'field_rate';
-  $handler->display->display_options['fields']['field_rate']['click_sort_column'] = 'amount';
-  /* Field: Field: Rate type */
-  $handler->display->display_options['fields']['field_rate_type']['id'] = 'field_rate_type';
-  $handler->display->display_options['fields']['field_rate_type']['table'] = 'field_data_field_rate_type';
-  $handler->display->display_options['fields']['field_rate_type']['field'] = 'field_rate_type';
-  /* Field: Field: Scope */
-  $handler->display->display_options['fields']['field_scope']['id'] = 'field_scope';
-  $handler->display->display_options['fields']['field_scope']['table'] = 'field_data_field_scope';
-  $handler->display->display_options['fields']['field_scope']['field'] = 'field_scope';
-  $handler->display->display_options['fields']['field_scope']['click_sort_column'] = 'interval';
   /* Field: Content: Status */
   $handler->display->display_options['fields']['field_status']['id'] = 'field_status';
   $handler->display->display_options['fields']['field_status']['table'] = 'field_data_field_status';
@@ -1571,7 +1560,8 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['css_class'] = 'admin-views-view';
   $handler->display->display_options['use_ajax'] = TRUE;
   $handler->display->display_options['use_more_always'] = FALSE;
-  $handler->display->display_options['access']['type'] = 'menu';
+  $handler->display->display_options['access']['type'] = 'perm';
+  $handler->display->display_options['access']['perm'] = 'administer nodes';
   $handler->display->display_options['cache']['type'] = 'none';
   $handler->display->display_options['query']['type'] = 'views_query';
   $handler->display->display_options['query']['options']['distinct'] = TRUE;

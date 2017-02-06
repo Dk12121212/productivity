@@ -227,6 +227,7 @@ function productivity_project_field_default_field_bases() {
     'module' => 'number',
     'settings' => array(
       'decimal_separator' => '.',
+      'profile2_private' => FALSE,
     ),
     'translatable' => 0,
     'type' => 'number_float',

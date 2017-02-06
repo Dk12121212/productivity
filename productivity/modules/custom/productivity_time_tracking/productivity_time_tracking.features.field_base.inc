@@ -169,6 +169,7 @@ function productivity_time_tracking_field_default_field_bases() {
       'allowed_values' => array(
         'dev' => 'Development',
         'dev_senior' => 'Development (Senior)',
+        'migrate' => 'Migrate expert',
         'qa' => 'QA',
         'management' => 'Management',
         'designer' => 'Designer',
@@ -246,6 +247,7 @@ function productivity_time_tracking_field_default_field_bases() {
           'project' => 'project',
         ),
       ),
+      'profile2_private' => FALSE,
       'target_type' => 'node',
     ),
     'translatable' => 0,

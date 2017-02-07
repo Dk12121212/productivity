@@ -1,0 +1,7 @@
+<?php
+/**
+ * @file
+ * Code for the Productivity tracking feature.
+ */
+
+include_once 'productivity_tracking.features.inc';

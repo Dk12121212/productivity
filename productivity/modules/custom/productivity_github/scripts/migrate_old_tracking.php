@@ -8,15 +8,14 @@
 // 33709 => unio 6.5
 $project_nid = '33709';
 
-
 // Prepare query.
-$issues_result = productivity_issue_get_all($project_nid, 'issue');
+$issues_result = productivity_issue_get_all(FALSE, 'issue');
 
-while($record = $issues_result->fetchAssoc()) {
+// Create one new tracking per issue.
+while(FALSE && ($record = $issues_result->fetchAssoc())) {
 
   // Create an associative array:
   $old_issue = array(
-    'link' =>  l($record['nid'], 'node/' . $record['nid']),
     'nid' =>  $record['nid'],
     'uid' => $record['uid'],
     'title' => $record['title'],
@@ -38,38 +37,7 @@ while($record = $issues_result->fetchAssoc()) {
   $logs = array();
 
   foreach ($tracking as $track) {
-    $old_track_nid = $track->entity_id;
-    $old_track_node_wrapper = entity_metadata_wrapper('node', $old_track_nid);
-    $pr_nid = $track->field_issues_logs_field_github_issue_target_id;
-    $pr_wrapper = entity_metadata_wrapper('node', $pr_nid);
-
-    // Get last push
-    $last_date = FALSE;
-    $pr_node = $pr_wrapper->value();
-    foreach($pr_node->field_push_date['und'] as $date) {
-      $last_date = $date['value'];
-    }
-
-    // Get time spent average.
-    $number_of_issue = count($pr_node->field_issue_reference['und']);
-    $total_time_spent = $track->field_issues_logs_field_time_spent_value;
-    if ($number_of_issue > 1) {
-      // Get average.
-      $total_time_spent /= $number_of_issue;
-    }
-
-    $log = array();
-    $old_track_node = $old_track_node_wrapper->value();
-    $log['field_date']['und'][0]['value'] = $old_track_node->field_work_date['und'][0]['value'];
-    $log['field_issue_label']['und'][0]['value'] = $track->field_issues_logs_field_issue_label_value;
-    // PR id.
-    $log['field_issue_id']['und'][0]['value'] = $pr_wrapper->field_issue_id->value();
-    $log['field_github_username']['und'][0]['value'] = $old_track_node_wrapper->field_employee->field_github_username->value();
-    $log['field_time_spent']['und'][0]['value'] = $total_time_spent;
-    $log['field_issue_type']['und'][0]['value'] = $track->field_issues_logs_field_issue_type_value;
-    $log['field_last_push']['und'][0]['value'] = $last_date;
-    $log['field_employee']['und'][0]['target_id'] = $old_track_node_wrapper->field_employee->getIdentifier();
-    $logs['und'][] = $log;
+    $logs['und'][] = create_multifields_track($track);
   }
 
   $node = $wrapper->value();
@@ -78,12 +46,84 @@ while($record = $issues_result->fetchAssoc()) {
   print("Saving Tracking.  \n");
 }
 
-// Now get all tracking logs with no issue refs, and create a stub tracking from them.
+// Now get all tracking logs with no issue refs, and create a stub tracking from
+// each one of them.
+// No PR.
+$tracking = get_tracked_data(FALSE, FALSE, TRUE);
+//$tracking = get_tracked_data(FALSE, FALSE, FALSE, TRUE);
+foreach ($tracking as $track) {
+  // Create the stub info.
+  $logs['und'][] = create_multifields_track($track);
+  $old_track_nid = $track->entity_id;
+  $old_track_node_wrapper = entity_metadata_wrapper('node', $old_track_nid);
 
+  $issue = array(
+    'uid' => $logs['und'][0]['field_employee']['und'][0]['target_id'],
+    // Use real nid as isseue id to be able to reimport.
+    'issue_id' => $old_track_nid,
+    'github_repo' => 'no-repo',
+    'estimate' => 0,
+    'employee' => $logs['und'][0]['field_employee']['und'][0]['target_id'],
+    'project' => $old_track_node_wrapper->field_project->getIdentifier(),
+    'title' => $old_track_node_wrapper->field_project->label() . date('-c' , $old_track_node_wrapper->field_work_date->value()),
+  );
+
+  $wrapper = get_new_tracking($issue);
+  $node = $wrapper->value();
+  $node->field_track_log = $logs;
+  $wrapper->save();
+  print("Saving Tracking.  \n");
+}
+
+
+
+
+/**
+ * Create a well formated log track multifileld.
+ */
+function create_multifields_track($track) {
+  $old_track_nid = $track->entity_id;
+  $old_track_node_wrapper = entity_metadata_wrapper('node', $old_track_nid);
+  $pr_nid = $track->field_issues_logs_field_github_issue_target_id;
+  $pr_wrapper = entity_metadata_wrapper('node', $pr_nid);
+
+  // Get last push
+  $last_date = 0;
+  $pr_node = $pr_wrapper->value();
+
+  if ($pr_node) {
+    foreach ($pr_node->field_push_date['und'] as $date) {
+      $last_date = $date['value'];
+    }
+  }
+  // Get time spent average.
+  $number_of_issue = count($pr_node->field_issue_reference['und']);
+  $total_time_spent = $track->field_issues_logs_field_time_spent_value;
+  if ($number_of_issue > 1) {
+    // Get average.
+    $total_time_spent /= $number_of_issue;
+  }
+
+  $log = array();
+  $old_track_node = $old_track_node_wrapper->value();
+  $log['field_date']['und'][0]['value'] = $old_track_node->field_work_date['und'][0]['value'];
+  $log['field_issue_label']['und'][0]['value'] = $track->field_issues_logs_field_issue_label_value;
+  // PR id.
+  if ($pr_node) {
+    $log['field_issue_id']['und'][0]['value'] = $pr_wrapper->field_issue_id->value();
+    $log['field_last_push']['und'][0]['value'] = $last_date;
+  }
+  $log['field_github_username']['und'][0]['value'] = $old_track_node_wrapper->field_employee->field_github_username->value();
+  $log['field_time_spent']['und'][0]['value'] = $total_time_spent;
+  $log['field_issue_type']['und'][0]['value'] = $track->field_issues_logs_field_issue_type_value;
+  $log['field_employee']['und'][0]['target_id'] = $old_track_node_wrapper->field_employee->getIdentifier();
+
+  return $log;
+}
 /**
  * Get old tracking logs.
  */
-function get_tracked_data($repo, $issue_id, $no_pr_ref = FALSE, $no_issue_ref = FALSE) {
+function get_tracked_data($repo, $issue_id, $no_pr_ref = FALSE) {
   $query = db_select('field_data_field_issues_logs', 'il');
   // PR -> Issue
   $query
@@ -106,10 +146,6 @@ function get_tracked_data($repo, $issue_id, $no_pr_ref = FALSE, $no_issue_ref = 
     $query
       ->condition('il.field_issues_logs_field_github_issue_target_id', '');
   }
-  elseif ($no_issue_ref) {
-    $query
-      ->condition('gh.field_issue_reference_target_id', '');
-  }
   else {
     $query
       ->condition('g_id.field_issue_id_value', $issue_id)
@@ -123,52 +159,46 @@ function get_tracked_data($repo, $issue_id, $no_pr_ref = FALSE, $no_issue_ref = 
  * Get the issue by ID
  */
 function get_new_tracking($issue) {
-//
-//      'uid' => $record['uid'],
-//      'title' => $record['title'],
-//      'estimate' => $record['field_time_estimate_value'],
-//      'issue_id' => $record['field_issue_id_value'],
-//      'type' => $record['field_github_content_type_value'],
-//      'related_issue' => $record['field_issue_reference_target_id'],
-//      'related_issue_gh_id' => $record['ri_field_issue_id_value'],
-//      'actual' => $record['field_actual_hours_value'],
-//      'github_repo' => $record['field_github_project_id_value'],
-//      'employee' => $record['field_employee_value'],
   // List of issues for a project nid.
   $query = new EntityFieldQuery();
-  $result = $query
-    ->entityCondition('entity_type', 'node')
-    ->entityCondition('bundle', 'tracking')
-    ->fieldCondition('field_issue_id', 'value', $issue['issue_id'])
-    ->fieldCondition('field_github_project_id', 'value', $issue['github_repo'])
-    ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT')
-    ->range(0, 1)
-    ->execute();
+    $result = $query
+      ->entityCondition('entity_type', 'node')
+      ->entityCondition('bundle', 'tracking')
+      ->fieldCondition('field_issue_id', 'value', $issue['issue_id'])
+      ->fieldCondition('field_github_project_id', 'value', $issue['github_repo'])
+      ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT')
+      ->range(0, 1)
+      ->execute();
 
-  if (!empty($result['node'])) {
-    $nid = reset($result['node']);
-    $node =  node_load($nid->nid);
-    print("Found existing new tracking {$node->title} \n");
-  }
-  else {
-    $title = "Tracking for issue {$issue['github_repo']}/{$issue['issue_id']}";
-    $values = array(
-      'title' => $title,
-      'type' => 'tracking',
-      'uid' => $issue['uid'],
-      'status' => 1,
-    );
-    print("Creating new $title \n");
-    $node = entity_create('node', $values);
+    if (!empty($result['node'])) {
+      $nid = reset($result['node']);
+      $node = node_load($nid->nid);
+      print("Found existing new tracking {$node->title} \n");
+    }
+    else {
+      // If stub issue or not found before create a new node.
+      if ($issue['github_repo'] != 'no-repo') {
+        $title = "Tracking for issue {$issue['github_repo']}/{$issue['issue_id']}";
+      }
+      else {
+        $title = "Tracking for project: {$issue['title']}";
+      }
+      $values = array(
+        'title' => $title,
+        'type' => 'tracking',
+        'uid' => $issue['uid'],
+        'status' => 1,
+      );
+      print("Creating new $title \n");
+      $node = entity_create('node', $values);
 
-  }
+    }
 
   $wrapper = entity_metadata_wrapper('node', $node);
   $wrapper->field_project->set($issue['project']);
   $wrapper->field_time_estimate->set($issue['estimate']);
   $wrapper->field_issue_id->set($issue['issue_id']);
   $wrapper->field_github_project_id->set($issue['github_repo']);
-//  $wrapper->save();
   return $wrapper;
 }
 

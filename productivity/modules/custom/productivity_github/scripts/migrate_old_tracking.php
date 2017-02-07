@@ -39,18 +39,18 @@ while($record = $issues_result->fetchAssoc()) {
 
   foreach ($tracking as $track) {
     $old_track_nid = $track->entity_id;
-    $old_track_node = entity_metadata_wrapper('node', $old_track_nid);
+    $old_track_node_wrapper = entity_metadata_wrapper('node', $old_track_nid);
     $pr_nid = $track->field_issues_logs_field_github_issue_target_id;
     $pr_wrapper = entity_metadata_wrapper('node', $pr_nid);
 
     // Get last push
     $last_date = FALSE;
-    foreach($pr_wrapper->field_push_date->value() as $date) {
-      $last_date = $date;
+    $pr_node = $pr_wrapper->value();
+    foreach($pr_node->field_push_date['und'] as $date) {
+      $last_date = $date['value'];
     }
 
     // Get time spent average.
-    $pr_node = $pr_wrapper->value();
     $number_of_issue = count($pr_node->field_issue_reference['und']);
     $total_time_spent = $track->field_issues_logs_field_time_spent_value;
     if ($number_of_issue > 1) {
@@ -59,15 +59,16 @@ while($record = $issues_result->fetchAssoc()) {
     }
 
     $log = array();
-    $log['field_date']['und'][0] = $old_track_node->field_work_date->value();
+    $old_track_node = $old_track_node_wrapper->value();
+    $log['field_date']['und'][0]['value'] = $old_track_node->field_work_date['und'][0]['value'];
     $log['field_issue_label']['und'][0]['value'] = $track->field_issues_logs_field_issue_label_value;
     // PR id.
     $log['field_issue_id']['und'][0]['value'] = $pr_wrapper->field_issue_id->value();
-    $log['field_github_username']['und'][0]['value'] = $old_track_node->field_employee->field_github_username->value();
+    $log['field_github_username']['und'][0]['value'] = $old_track_node_wrapper->field_employee->field_github_username->value();
     $log['field_time_spent']['und'][0]['value'] = $total_time_spent;
     $log['field_issue_type']['und'][0]['value'] = $track->field_issues_logs_field_issue_type_value;
     $log['field_last_push']['und'][0]['value'] = $last_date;
-    $log['field_employee']['und'][0]['target_id'] = $old_track_node->field_employee->getIdentifier();
+    $log['field_employee']['und'][0]['target_id'] = $old_track_node_wrapper->field_employee->getIdentifier();
     $logs['und'][] = $log;
   }
 

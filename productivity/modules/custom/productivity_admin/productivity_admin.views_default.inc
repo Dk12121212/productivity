@@ -738,7 +738,7 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['fields']['field_employee']['settings'] = array(
     'link' => 0,
   );
-  /* Field: Content: Issue ID */
+  /* Field: Field: Issue ID */
   $handler->display->display_options['fields']['field_issue_id']['id'] = 'field_issue_id';
   $handler->display->display_options['fields']['field_issue_id']['table'] = 'field_data_field_issue_id';
   $handler->display->display_options['fields']['field_issue_id']['field'] = 'field_issue_id';

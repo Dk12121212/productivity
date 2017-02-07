@@ -25,7 +25,6 @@ function productivity_migrate_migrate_api() {
     'ProductivityMigratePayment',
     'ProductivityMigrateUser',
     'ProductivityMigrateGithubIssue',
-    'ProductivityMigrateTracking',
   );
 
   $migrations = array();

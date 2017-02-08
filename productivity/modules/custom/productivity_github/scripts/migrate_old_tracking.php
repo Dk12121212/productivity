@@ -6,15 +6,16 @@
  */
 
 // 33709 => unio 6.5
-$project_nid = '33709';
+$project_nid = drush_get_option('project', FALSE);
+$skip_issues = drush_get_option('skip-issues', FALSE);
 
 // Prepare query.
-$issues_result = productivity_issue_get_all(FALSE, 'issue');
+$issues_result = productivity_issue_get_all($project_nid, 'issue');
 $count_issues = $issues_result->rowCount();
 
 $processed_mfs = array();
 // Create one new tracking per issue.
-while($record = $issues_result->fetchAssoc()) {
+while(!$skip_issues && ($record = $issues_result->fetchAssoc())) {
 
   // Create an associative array:
   $old_issue = array(
@@ -62,7 +63,8 @@ while($track = $result->fetchAssoc()) {
   // Create the stub info.
   // Don't process same track again.
   if ($processed_mfs[$track['field_issues_logs_id']]) {
-    print("remaining track: {($count_track--)}.  \n");
+    $count_track--;
+    print("Skiping, remaining track: {($count_track)}.  \n");
     continue;
   }
   $logs['und'][] = create_multifields_track($track);

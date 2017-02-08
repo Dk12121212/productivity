@@ -6,8 +6,9 @@
  */
 
 // 33709 => unio 6.5
-$project_nid = drush_get_option('project', FALSE);
+$project_nid = drush_get_option('project', 33709);
 $skip_issues = drush_get_option('skip-issues', FALSE);
+$last_track_id = drush_get_option('last-track-id', 0);
 
 // Prepare query.
 $issues_result = productivity_issue_get_all($project_nid, 'issue');
@@ -15,7 +16,7 @@ $count_issues = $issues_result->rowCount();
 
 $processed_mfs = array();
 // Create one new tracking per issue.
-while(!$skip_issues && ($record = $issues_result->fetchAssoc())) {
+while($record = $issues_result->fetchAssoc()) {
 
   // Create an associative array:
   $old_issue = array(
@@ -36,7 +37,7 @@ while(!$skip_issues && ($record = $issues_result->fetchAssoc())) {
   // Get or create tracking node.
   $wrapper = get_new_tracking($old_issue);
   // Save logs for issue.
-  $result = get_tracked_data($old_issue['github_repo'], $old_issue['issue_id']);
+  $result = get_tracked_data($project_nid, $old_issue['github_repo'], $old_issue['issue_id']);
   $logs = array();
 
   while($track = $result->fetchAssoc()) {
@@ -44,6 +45,9 @@ while(!$skip_issues && ($record = $issues_result->fetchAssoc())) {
     $processed_mfs[$track['field_issues_logs_id']] = TRUE;
   }
 
+  if ($skip_issues) {
+    continue;
+  }
   $node = $wrapper->value();
   $node->field_track_log = $logs;
   $wrapper->save();
@@ -55,11 +59,16 @@ while(!$skip_issues && ($record = $issues_result->fetchAssoc())) {
 // Now get all tracking logs with no issue refs, and create a stub tracking from
 // each one of them.
 // Get all Tracks.
-$result = get_tracked_data();
+$result = get_tracked_data($project_nid);
 $count_track = $result->rowCount();
 
 // We should mark the mlid of processed tracks.
 while($track = $result->fetchAssoc()) {
+  print("Processing, track id: {$track['field_issues_logs_id']}.  \n");
+  // Skip ids.
+  if ($last_track_id && $last_track_id < $track['field_issues_logs_id']) {
+    continue;
+  }
   // Create the stub info.
   // Don't process same track again.
   if ($processed_mfs[$track['field_issues_logs_id']]) {
@@ -86,6 +95,7 @@ while($track = $result->fetchAssoc()) {
   $node = $wrapper->value();
   $node->field_track_log = $logs;
   $wrapper->save();
+
   print("Saving Tracking.  \n");
   $count_track--;
   print("remaining track: {$count_track}.  \n");
@@ -139,11 +149,16 @@ function create_multifields_track($track) {
 /**
  * Get old tracking logs.
  */
-function get_tracked_data($repo = FALSE, $issue_id = FALSE) {
+function get_tracked_data($project_nid = FALSE, $repo = FALSE, $issue_id = FALSE) {
   $query = db_select('field_data_field_issues_logs', 'il');
   // PR -> Issue
   $query
     ->leftJoin('field_data_field_issue_reference', 'gh', 'gh.entity_id = il.field_issues_logs_field_github_issue_target_id');
+
+  // Project.
+  $query
+    ->leftJoin('field_data_field_project', 'p', 'gh.entity_id = p.entity_id');
+
   // Issue -> info
   $query
     ->leftJoin('field_data_field_issue_id', 'g_id', 'gh.field_issue_reference_target_id = g_id.entity_id');
@@ -155,6 +170,11 @@ function get_tracked_data($repo = FALSE, $issue_id = FALSE) {
     // GH issue nid.
     ->fields('gh', array('field_issue_reference_target_id'))
     ->orderBy('il.field_issues_logs_id', 'DESC');
+
+  if ($project_nid) {
+    $query
+      ->condition('p.field_project_target_id', $project_nid);
+  }
 
   if ($issue_id) {
     $query

@@ -114,7 +114,7 @@ function productivity_tracking_burn_report($project_node) {
         // Total row.
         $total_row['data']['estimate'] += $table['rows']["nid_" . $last_nid]['data']['estimate'];
         $total_row['data']['actual'] += $totals[$last_nid];
-        $total_row['data']['overtime'] += ($totals[$last_nid] - $table['rows']["nid_" . $last_nid]['data']['overtime']);
+        $total_row['data']['overtime'] = $total_row['data']['actual'] - $total_row['data']['estimate'];
       }
       // Create a new issue row.
       $main_track_id = $track_id;
@@ -169,10 +169,10 @@ function productivity_tracking_burn_report($project_node) {
 
     // Invert on each issue.
     if ($data['status'] == 'WIP') {
-      $row['class'] = 'warning';
+      $row['class'] = 'info';
     }
     else {
-      $row['class'] = 'info';
+      $row['class'] = 'warning';
     }
 
     // Add class only to overtime cells.

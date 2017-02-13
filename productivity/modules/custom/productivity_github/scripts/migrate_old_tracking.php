@@ -9,6 +9,10 @@
 $project_nid = drush_get_option('project', 33709);
 $skip_issues = drush_get_option('skip-issues', FALSE);
 $last_track_id = drush_get_option('last-track-id', 0);
+$default_repo = drush_get_option('default-repo ', 'Gizra/unio');
+$clean_repo = explode('/', $default_repo);
+$gh_user = $clean_repo[0];
+$clean_repo = $clean_repo[1];
 
 // Prepare query.
 $issues_result = productivity_issue_get_all($project_nid, 'issue');
@@ -59,16 +63,16 @@ while($record = $issues_result->fetchAssoc()) {
 // Now get all tracking logs with no issue refs, and create a stub tracking from
 // each one of them.
 // Get all Tracks.
-$result = get_tracked_data($project_nid);
+$result = get_all_tracked_data($project_nid);
 $count_track = $result->rowCount();
 
-// We should mark the mlid of processed tracks.
+//$all = $result->fetchAll();
+
+
+// Go over orphan tracks.
 while($track = $result->fetchAssoc()) {
   print("Processing, track id: {$track['field_issues_logs_id']}.  \n");
-  // Skip ids.
-  if ($last_track_id && $last_track_id < $track['field_issues_logs_id']) {
-    continue;
-  }
+
   // Create the stub info.
   // Don't process same track again.
   if ($processed_mfs[$track['field_issues_logs_id']]) {
@@ -78,13 +82,35 @@ while($track = $result->fetchAssoc()) {
   }
   $logs['und'][] = create_multifields_track($track);
   $old_track_nid = $track['entity_id'];
+  $old_track_id = $track['field_issues_logs_id'];
   $old_track_node_wrapper = entity_metadata_wrapper('node', $old_track_nid);
+
+
+  if (!$track['field_issues_logs_field_github_issue_target_id']) {
+    // Try to find the pr id.
+  }
+
+  if ($track['field_issues_logs_field_github_issue_target_id']) {
+    $pr_node = entity_metadata_wrapper('node', $track['field_issues_logs_field_github_issue_target_id']);
+    $pr_info = productivity_tracking_get_issue_info($clean_repo, $pr_node->field_issue_id->value(), $gh_user);
+    foreach ($pr_info['related_issues'] as $issue_info) {
+      // Found a related issue.
+      if (!isset($issue_info['issue']['pull_request'])) {
+
+        $pr_node->field_issue_reference[]->set();
+      }
+    }
+  }
+
+  // Try to complete the missing data:
+
+  $issue = productivity_tracking_get_issue_info('unio', 691);
 
   $issue = array(
     'uid' => $logs['und'][0]['field_employee']['und'][0]['target_id'],
     // Use real nid as issue id to be able to reimport.
-    'issue_id' => $old_track_nid,
-    'github_repo' => 'no-repo',
+    'issue_id' => $old_track_id,
+    'github_repo' => $default_repo,
     'estimate' => 0,
     'employee' => $logs['und'][0]['field_employee']['und'][0]['target_id'],
     'project' => $old_track_node_wrapper->field_project->getIdentifier(),
@@ -96,7 +122,7 @@ while($track = $result->fetchAssoc()) {
   $node->field_track_log = $logs;
   $wrapper->save();
 
-  print("Saving Tracking.  \n");
+  print("Saving Tracking. old_track_id: $old_track_id  \n");
   $count_track--;
   print("remaining track: {$count_track}.  \n");
 }
@@ -146,6 +172,35 @@ function create_multifields_track($track) {
 
   return $log;
 }
+
+/**
+ * Get old tracking logs.
+ */
+function get_all_tracked_data($project_nid = FALSE) {
+  $query = db_select('field_data_field_issues_logs', 'il');
+
+  // Project.
+  $query
+    ->leftJoin('field_data_field_project', 'p', 'il.entity_id = p.entity_id');
+
+  // PR
+  $query
+    ->leftJoin('field_data_field_issue_id', 'g_id', 'il.field_issues_logs_field_github_issue_target_id = g_id.entity_id');
+  $query
+    ->leftJoin('field_data_field_github_project_id', 'repo', 'il.field_issues_logs_field_github_issue_target_id = repo.entity_id');
+
+  $query
+    ->fields('il')
+    // GH issue nid.
+    ->orderBy('il.field_issues_logs_id', 'DESC');
+
+  if ($project_nid) {
+    $query
+      ->condition('p.field_project_target_id', $project_nid);
+  }
+  return $query->execute();
+}
+
 /**
  * Get old tracking logs.
  */
@@ -190,14 +245,14 @@ function get_tracked_data($project_nid = FALSE, $repo = FALSE, $issue_id = FALSE
 function get_new_tracking($issue) {
   // List of issues for a project nid.
   $query = new EntityFieldQuery();
-    $result = $query
-      ->entityCondition('entity_type', 'node')
-      ->entityCondition('bundle', 'tracking')
-      ->fieldCondition('field_issue_id', 'value', $issue['issue_id'])
-      ->fieldCondition('field_github_project_id', 'value', $issue['github_repo'])
-      ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT')
-      ->range(0, 1)
-      ->execute();
+  $result = $query
+    ->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'tracking')
+    ->fieldCondition('field_issue_id', 'value', $issue['issue_id'])
+    ->fieldCondition('field_github_project_id', 'value', $issue['github_repo'])
+    ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT')
+    ->range(0, 1)
+    ->execute();
 
     if (!empty($result['node'])) {
       $nid = reset($result['node']);

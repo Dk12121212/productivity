@@ -5,3 +5,137 @@
  */
 
 include_once 'productivity_tracking.features.inc';
+
+
+/**
+ * Implements hook_menu().
+ */
+function productivity_tracking_menu() {
+  $items['node/%node/issues-tracking'] = array(
+    'title' => t('Burn Report'),
+    'page callback' => 'productivity_tracking_burn_report_callback',
+    'page arguments' => array(1),
+    'access callback' => 'node_access',
+    'access arguments' => array('update', 1),
+    'weight' => 0,
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'file path' => drupal_get_path('module', 'productivity_tracking'),
+    'file' => 'reports/productivity_tracking.burn.report.inc',
+  );
+
+  return $items;
+}
+
+
+/**
+ * Implements hook_menu().
+ */
+function productivity_tracking_init() {
+  // Set composer dir.
+  global $conf;
+  $conf['composer_manager_vendor_dir'] = 'profiles/productivity/composer/vendor';
+  $conf['composer_manager_file_dir'] = 'profiles/productivity/composer';
+
+}
+
+/**
+ * Get entity reference connections.
+ *
+ * @param $project_nid
+ *  The project nid.
+ *
+ * @param $work_type
+ *  qa, dev, management or other type.
+ *
+ * @return
+ *   SelectQuery::execute();
+ */
+function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = FALSE) {
+
+  // List of issues for a project nid.
+  $query = db_select('node', 'n');
+
+  $node_fields = [
+    'p' => 'field_project',
+    'e' => 'field_time_estimate',
+    'i' => 'field_issue_id',
+    'gpi' => 'field_github_project_id',
+    't' => 'field_track_log',
+  ];
+
+  foreach ($node_fields as $alias => $field) {
+    $query
+      ->join("field_data_$field", $alias, "n.nid = $alias.entity_id");
+  }
+
+  $query
+    ->fields('n', array('title', 'nid', 'uid'))
+    ->fields('e', array('field_time_estimate_value'))
+    ->fields('i', array('field_issue_id_value'))
+    ->fields('gpi', array('field_github_project_id_value'))
+    ->fields('t')
+    ->fields('p', array('field_project_target_id'));
+
+  if ($project_nid) {
+    $query
+      ->condition('p.field_project_target_id', $project_nid);
+  }
+
+  $query
+    ->condition('type', 'tracking')
+    ->condition('status', NODE_PUBLISHED)
+    ->orderBy('gpi.field_github_project_id_value')
+    ->orderBy('i.field_issue_id_value');
+
+  if ($work_type) {
+    $query->condition('t.field_issue_type_value', $work_type);
+  }
+
+  $result = $query->execute();
+
+  return $result;
+}
+
+
+/**
+ * Return estimate from github.
+ */
+function productivity_tracking_get_issue_info($repo, $issue_id, $user = 'Gizra', $level = 0) {
+  $client = github_api_client();
+  try {
+    // Get ifo from GH.
+    $issue = $client->issue()->show($user, $repo, $issue_id);
+
+    // Get time estimate from title, if it has any.
+    $matches = array();
+    $estimate = 0;
+    if (preg_match('/\[([0-9]+)[h|H]\]|\[([0-9]+\.[0-9]+)[h|H]\]/', $issue['title'], $matches)) {
+      // The iss has a time estimate.
+      $estimate = empty($matches[1]) ? (empty($matches[2]) ? 0 : $matches[2]) : $matches[1];
+    }
+
+    // Find issue connected.
+    $issues = [];
+    if ($level == 0) {
+      $re = '/\d+/';
+      $str = $issue['body'];
+      preg_match_all($re, $str, $matches);
+      $issues = [];
+      foreach ($matches as $issue_id_from_body) {
+        // Collect related issues info.
+        $issues[] = productivity_tracking_get_issue_info($repo, $issue_id_from_body, $user, 1);
+      }
+    }
+    return [
+      'issue' => $issue,
+      'estimate' => $estimate,
+      'related_issues' => $issues,
+    ];
+
+  }
+  catch (Exception $exception) {
+    watchdog('productivity_github', '@exception', array('@exception' => $exception->getMessage()), WATCHDOG_ERROR);
+  }
+
+}

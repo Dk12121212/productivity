@@ -36,6 +36,7 @@ function productivity_tracking_burn_report_callback($project_node) {
 function productivity_tracking_burn_report($project_node) {
   $project_wrapper = entity_metadata_wrapper('node', $project_node);
 
+  // TODO: for QA and management create separate tables.
   $tracking = productivity_tracking_get_tracking($project_node->nid);
 
   if (empty($count = $tracking->rowCount())) {

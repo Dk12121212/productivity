@@ -68,7 +68,7 @@ projects[file_entity][subdir] = "contrib"
 projects[file_entity][version] = "2.0-beta3"
 
 projects[github_api][subdir] = "contrib"
-projects[file_entity][version] = "1.0-beta2"
+projects[github_api][version] = "1.0-beta2"
 
 projects[interval][subdir] = "contrib"
 projects[interval][version] = "1.0"

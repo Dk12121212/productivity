@@ -14,82 +14,17 @@ $clean_repo = explode('/', $default_repo);
 $gh_user = $clean_repo[0];
 $clean_repo = $clean_repo[1];
 
-// Prepare query.
-$issues_result = productivity_issue_get_all($project_nid, 'issue');
-$count_issues = $issues_result->rowCount();
-
-$processed_mfs = array();
-// Create one new tracking per issue.
-while($record = $issues_result->fetchAssoc()) {
-
-  // Create an associative array:
-  $old_issue = array(
-    'nid' =>  $record['nid'],
-    'uid' => $record['uid'],
-    'title' => $record['title'],
-    'estimate' => $record['field_time_estimate_value'],
-    'issue_id' => $record['field_issue_id_value'],
-    'type' => $record['field_github_content_type_value'],
-    'related_issue' => $record['field_issue_reference_target_id'],
-    'related_issue_gh_id' => $record['ri_field_issue_id_value'],
-    'actual' => $record['field_actual_hours_value'],
-    'github_repo' => $record['field_github_project_id_value'],
-    'employee' => $record['field_employee_value'],
-    'project' => $record['field_project_target_id'],
-  );
-
-  // Get or create tracking node.
-  $wrapper = get_new_tracking($old_issue);
-  // Save logs for issue.
-  $result = get_tracked_data($project_nid, $old_issue['github_repo'], $old_issue['issue_id']);
-  $logs = array();
-
-  while($track = $result->fetchAssoc()) {
-    // Get time spent average.
-    $pr_nid = $track['field_issues_logs_field_github_issue_target_id'];
-    $pr_node = node_load($pr_nid);
-    $number_of_issue = count($pr_node->field_issue_reference['und']);
-    $total_time_spent = $track['field_issues_logs_field_time_spent_value'];
-    if ($number_of_issue > 1) {
-      // Get average.
-      $total_time_spent /= $number_of_issue;
-    }
-
-    $logs['und'][] = create_multifields_track($track, $total_time_spent);
-    $processed_mfs[$track['field_issues_logs_id']] = TRUE;
-  }
-
-  if ($skip_issues) {
-    continue;
-  }
-  $node = $wrapper->value();
-  $node->field_track_log = $logs;
-  $wrapper->save();
-  print("Saving Tracking.  \n");
-  $count_issues--;
-  print("remaining issues: {$count_issues}.  \n");
-}
-
 // Now get all tracking logs with no issue refs, and create a stub tracking from
 // each one of them.
 // Get all Tracks.
 $result = get_all_tracked_data($project_nid);
 $count_track = $result->rowCount();
 
-//$all = $result->fetchAll();
 
-
+$processed_tracking = [];
 // Go over orphan tracks.
 while($track = $result->fetchAssoc()) {
   print("Processing, track id: {$track['field_issues_logs_id']}.  \n");
-
-  // Create the stub info.
-  // Don't process same track again.
-  if ($processed_mfs[$track['field_issues_logs_id']]) {
-    $count_track--;
-    print("Skiping, remaining track: {($count_track)}.  \n");
-    continue;
-  }
 
   $old_track_nid = $track['entity_id'];
   $old_track_id = $track['field_issues_logs_id'];
@@ -108,7 +43,7 @@ while($track = $result->fetchAssoc()) {
       $pr_id = $matches[0][0];
     }
     else {
-      print("No  PR attached to old_track_id: $old_track_id  \n");
+      print("No PR attached to old_track_id: $old_track_id  \n");
     }
   }
   else {
@@ -165,8 +100,17 @@ while($track = $result->fetchAssoc()) {
     // Create log for time divided by number of issue related.
     $logs = array();
     $logs['und'][] = create_multifields_track($track, $total_time_spent/ count($gh_ids));
-
-    $node->field_track_log = $logs;
+    if (!isset($processed_tracking[$node->nid])) {
+      // First time prossessing this node, errase all other tracking.
+      $processed_tracking[$node->nid] = TRUE;
+      $node->field_track_log = $logs;
+    }
+    else {
+      foreach ($node->field_track_log['und'] as $existing_log) {
+        $logs['und'][] = $existing_log;
+      }
+      $node->field_track_log = $logs;
+    }
     $wrapper->save();
     print("Saving Tracking. old_track_id: $old_track_id  \n");
   }

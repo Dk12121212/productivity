@@ -102,40 +102,60 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
  * Return estimate from github.
  */
 function productivity_tracking_get_issue_info($repo, $issue_id, $user = 'Gizra', $level = 0) {
-  $client = github_api_client();
-  try {
-    // Get ifo from GH.
-    $issue = $client->issue()->show($user, $repo, $issue_id);
+  $cid = "$user/$repo/$issue_id-$level";
+  $data = &drupal_static($cid);
 
-    // Get time estimate from title, if it has any.
-    $matches = array();
-    $estimate = 0;
-    if (preg_match('/\[([0-9]+)[h|H]\]|\[([0-9]+\.[0-9]+)[h|H]\]/', $issue['title'], $matches)) {
-      // The iss has a time estimate.
-      $estimate = empty($matches[1]) ? (empty($matches[2]) ? 0 : $matches[2]) : $matches[1];
+  if (!isset($data)) {
+    if ($cache = cache_get($cid)) {
+      $data = $cache->data;
     }
+    else {
+      $client = github_api_client();
+      try {
+        // Get ifo from GH.
+        $issue = $client->issue()->show($user, $repo, $issue_id);
 
-    // Find issue connected.
-    $issues = [];
-    if ($level == 0) {
-      $re = '/\d+/';
-      $str = $issue['body'];
-      preg_match_all($re, $str, $matches);
-      $issues = [];
-      foreach ($matches as $issue_id_from_body) {
-        // Collect related issues info.
-        $issues[] = productivity_tracking_get_issue_info($repo, $issue_id_from_body, $user, 1);
+        // Get time estimate from title, if it has any.
+        $matches = array();
+        $estimate = 0;
+        if (preg_match('/\[([0-9]+)[h|H]\]|\[([0-9]+\.[0-9]+)[h|H]\]/', $issue['title'], $matches)) {
+          // The iss has a time estimate.
+          $estimate = empty($matches[1]) ? (empty($matches[2]) ? 0 : $matches[2]) : $matches[1];
+        }
+
+        // Find issue connected.
+        if ($level == 0) {
+          $re = '/#(\d+)/';
+          $str = $issue['body'];
+          preg_match_all($re, $str, $matches);
+          $issues = [];
+          foreach ($matches[1] as $issue_id_from_body) {
+            // Collect related issues info.
+            $issues[] = productivity_tracking_get_issue_info($repo, $issue_id_from_body, $user, 1);
+          }
+        }
+        $data = [
+          'issue' => $issue,
+          'estimate' => $estimate,
+          'related_issues' => $issues,
+        ];
+
+        cache_set($cid, $data);
+
+      } catch (Exception $exception) {
+        watchdog('productivity_github', 'looking for @cid : @exception', array('@cid' => $cid, '@exception' => $exception->getMessage()), WATCHDOG_ERROR);
+        // CAche nit found.
+        if ($exception->getCode() == 404){
+          $data = [
+            'issue' => [],
+            'estimate' => 0,
+            'related_issues' => [],
+          ];
+          cache_set($cid, $data);
+        }
+        return [];
       }
     }
-    return [
-      'issue' => $issue,
-      'estimate' => $estimate,
-      'related_issues' => $issues,
-    ];
-
   }
-  catch (Exception $exception) {
-    watchdog('productivity_github', '@exception', array('@exception' => $exception->getMessage()), WATCHDOG_ERROR);
-  }
-
+  return $data;
 }

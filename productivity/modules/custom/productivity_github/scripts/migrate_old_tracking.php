@@ -45,7 +45,17 @@ while($record = $issues_result->fetchAssoc()) {
   $logs = array();
 
   while($track = $result->fetchAssoc()) {
-    $logs['und'][] = create_multifields_track($track);
+    // Get time spent average.
+    $pr_nid = $track['field_issues_logs_field_github_issue_target_id'];
+    $pr_node = node_load($pr_nid);
+    $number_of_issue = count($pr_node->field_issue_reference['und']);
+    $total_time_spent = $track['field_issues_logs_field_time_spent_value'];
+    if ($number_of_issue > 1) {
+      // Get average.
+      $total_time_spent /= $number_of_issue;
+    }
+
+    $logs['und'][] = create_multifields_track($track, $total_time_spent);
     $processed_mfs[$track['field_issues_logs_id']] = TRUE;
   }
 
@@ -80,49 +90,86 @@ while($track = $result->fetchAssoc()) {
     print("Skiping, remaining track: {($count_track)}.  \n");
     continue;
   }
-  $logs['und'][] = create_multifields_track($track);
+
   $old_track_nid = $track['entity_id'];
   $old_track_id = $track['field_issues_logs_id'];
   $old_track_node_wrapper = entity_metadata_wrapper('node', $old_track_nid);
 
+  $pr_nid = $track['field_issues_logs_field_github_issue_target_id'];
+  $pr_id = FALSE;
 
-  if (!$track['field_issues_logs_field_github_issue_target_id']) {
-    // Try to find the pr id.
-  }
-
-  if ($track['field_issues_logs_field_github_issue_target_id']) {
-    $pr_node = entity_metadata_wrapper('node', $track['field_issues_logs_field_github_issue_target_id']);
-    $pr_info = productivity_tracking_get_issue_info($clean_repo, $pr_node->field_issue_id->value(), $gh_user);
-    foreach ($pr_info['related_issues'] as $issue_info) {
-      // Found a related issue.
-      if (!isset($issue_info['issue']['pull_request'])) {
-
-        $pr_node->field_issue_reference[]->set();
-      }
+  // No PR related.
+  if (!$pr_nid) {
+    // Try to find the pr id in label.
+    $re = '/\d+/';
+    $str = $track['field_issues_logs_field_issue_label_value'];
+    preg_match_all($re, $str, $matches);
+    if (isset($matches[0][0])) {
+      $pr_id = $matches[0][0];
+    }
+    else {
+      print("No  PR attached to old_track_id: $old_track_id  \n");
     }
   }
+  else {
+    // Found PR ref, let's look for issues.
+    $pr_node = entity_metadata_wrapper('node', $pr_nid);
+    $pr_id = $pr_node->field_issue_id->value();
+  }
 
-  // Try to complete the missing data:
+  $gh_ids = [];
+  if ($pr_id) {
+    // Try to complete the missing data:
+    print("Looking up in GH for issue: {$pr_nid}.  \n");
+    $pr_info = productivity_tracking_get_issue_info($clean_repo, $pr_id, $gh_user);
 
-  $issue = productivity_tracking_get_issue_info('unio', 691);
+    // Check if id is issue.
+    if (!isset($pr_info['issue']['pull_request'])) {
+      $gh_ids[$pr_info['issue']['number']] = $pr_info['estimate'];
+    }
+    else {
+      foreach ($pr_info['related_issues'] as $issue_info) {
+        // Found a related issue.
+        if (!isset($issue_info['issue']['pull_request'])) {
+          $gh_ids[$issue_info['issue']['number']] = $issue_info['estimate'];
+        }
+      }
+    }
 
-  $issue = array(
-    'uid' => $logs['und'][0]['field_employee']['und'][0]['target_id'],
-    // Use real nid as issue id to be able to reimport.
-    'issue_id' => $old_track_id,
-    'github_repo' => $default_repo,
-    'estimate' => 0,
-    'employee' => $logs['und'][0]['field_employee']['und'][0]['target_id'],
-    'project' => $old_track_node_wrapper->field_project->getIdentifier(),
-    'title' => $old_track_node_wrapper->field_project->label() . date('-c' , $old_track_node_wrapper->field_work_date->value()),
-  );
+  }
 
-  $wrapper = get_new_tracking($issue);
-  $node = $wrapper->value();
-  $node->field_track_log = $logs;
-  $wrapper->save();
+  // No PR was found, use olf log id as identifier.
+  if (empty($gh_ids)) {
+    // Create one default item to make the loop run one time.
+    $gh_ids[$old_track_nid] = 0;
+  }
 
-  print("Saving Tracking. old_track_id: $old_track_id  \n");
+  $total_time_spent = $track['field_issues_logs_field_time_spent_value'];
+
+  foreach ($gh_ids as $gh_issue_number => $estimate) {
+
+    $issue = array(
+      'uid' => $logs['und'][0]['field_employee']['und'][0]['target_id'],
+      // Use real nid as issue id to be able to reimport.
+      'issue_id' => $gh_issue_number,
+      'github_repo' => $default_repo,
+      'estimate' => $estimate,
+      'employee' => $logs['und'][0]['field_employee']['und'][0]['target_id'],
+      'project' => $old_track_node_wrapper->field_project->getIdentifier(),
+      'title' => $old_track_node_wrapper->field_project->label() . date('-c', $old_track_node_wrapper->field_work_date->value()),
+    );
+
+    $wrapper = get_new_tracking($issue);
+    $node = $wrapper->value();
+
+    // Create log for time divided by number of issue related.
+    $logs = array();
+    $logs['und'][] = create_multifields_track($track, $total_time_spent/ count($gh_ids));
+
+    $node->field_track_log = $logs;
+    $wrapper->save();
+    print("Saving Tracking. old_track_id: $old_track_id  \n");
+  }
   $count_track--;
   print("remaining track: {$count_track}.  \n");
 }
@@ -131,7 +178,7 @@ while($track = $result->fetchAssoc()) {
 /**
  * Create a well formated log track multifileld.
  */
-function create_multifields_track($track) {
+function create_multifields_track($track, $total_time_spent) {
   $old_track_nid = $track['entity_id'];
   $old_track_node_wrapper = entity_metadata_wrapper('node', $old_track_nid);
   $pr_nid = $track['field_issues_logs_field_github_issue_target_id'];
@@ -145,13 +192,6 @@ function create_multifields_track($track) {
     foreach ($pr_node->field_push_date['und'] as $date) {
       $last_date = $date['value'];
     }
-  }
-  // Get time spent average.
-  $number_of_issue = count($pr_node->field_issue_reference['und']);
-  $total_time_spent = $track['field_issues_logs_field_time_spent_value'];
-  if ($number_of_issue > 1) {
-    // Get average.
-    $total_time_spent /= $number_of_issue;
   }
 
   $log = array();

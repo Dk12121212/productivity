@@ -15,6 +15,7 @@ dependencies[] = productivity_time_tracking
 dependencies[] = productivity_user
 dependencies[] = strongarm
 dependencies[] = text
+dependencies[] = github_api
 features[ctools][] = multifield:multifield:1
 features[ctools][] = strongarm:strongarm:1
 features[features_api][] = api:2

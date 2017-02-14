@@ -36,7 +36,6 @@ function productivity_tracking_init() {
   global $conf;
   $conf['composer_manager_vendor_dir'] = 'profiles/productivity/composer/vendor';
   $conf['composer_manager_file_dir'] = 'profiles/productivity/composer';
-
 }
 
 /**
@@ -99,7 +98,7 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
 
 
 /**
- * Return estimate from github.
+ * Return estimate from github API.
  */
 function productivity_tracking_get_issue_info($repo, $issue_id, $user = 'Gizra', $level = 0) {
   $cid = "$user/$repo/$issue_id-$level";
@@ -158,4 +157,124 @@ function productivity_tracking_get_issue_info($repo, $issue_id, $user = 'Gizra',
     }
   }
   return $data;
+}
+
+/**
+ * Create a well formated log track multifileld.
+ */
+function productivity_tracking_create_multifields_track($track, $total_time_spent) {
+  $old_track_nid = $track['entity_id'];
+  $old_track_node_wrapper = entity_metadata_wrapper('node', $old_track_nid);
+  $pr_nid = $track['field_issues_logs_field_github_issue_target_id'];
+  $pr_wrapper = entity_metadata_wrapper('node', $pr_nid);
+
+  // Get last push
+  $last_date = 0;
+  $pr_node = $pr_wrapper->value();
+
+  if ($pr_node && $pr_node->field_push_date['und']) {
+    foreach ($pr_node->field_push_date['und'] as $date) {
+      $last_date = $date['value'];
+    }
+  }
+
+  $log = array();
+  $old_track_node = $old_track_node_wrapper->value();
+  $log['field_date']['und'][0]['value'] = $old_track_node->field_work_date['und'][0]['value'];
+  $log['field_issue_label']['und'][0]['value'] = $track['field_issues_logs_field_issue_label_value'];
+  // PR id.
+  if ($pr_node) {
+    $log['field_issue_id']['und'][0]['value'] = $pr_wrapper->field_issue_id->value();
+    if ($last_date) {
+      $log['field_last_push']['und'][0]['value'] = $last_date;
+    }
+  }
+  $log['field_github_username']['und'][0]['value'] = $old_track_node_wrapper->field_employee->field_github_username->value();
+  $log['field_time_spent']['und'][0]['value'] = $total_time_spent;
+  $log['field_issue_type']['und'][0]['value'] = $track['field_issues_logs_field_issue_type_value'];
+  $log['field_employee']['und'][0]['target_id'] = $old_track_node_wrapper->field_employee->getIdentifier();
+
+  return $log;
+}
+
+/**
+ * Try to find a matching tacking node, or create one.
+ *
+ * @param $data
+ *   array();
+ *
+ *  'issue_id - not requires for new
+ *  'repo' - not requires for new
+ *  'title'- Required for new if no issue id.
+ *  'project' - Required for new
+ *  'estimate' -  Required for new
+ *  'uid' -  Required for new
+ */
+function productivity_tracking_get_tracking_node($data) {
+
+  $node = FALSE;
+  if ($data['issue_id'] && $data['repo']) {
+    // Look for a tracking of the same issue.
+    $query = new EntityFieldQuery();
+    $result = $query
+      ->entityCondition('entity_type', 'node')
+      ->entityCondition('bundle', 'tracking')
+      ->fieldCondition('field_issue_id', 'value', $data['issue_id'])
+      ->fieldCondition('field_github_project_id', 'value', $data['repo'])
+      ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT')
+      ->range(0, 1)
+      ->execute();
+
+    if (!empty($result['node'])) {
+      $nid = reset($result['node']);
+      $node = node_load($nid->nid);
+      $wrapper = entity_metadata_wrapper('node', $node);
+    }
+  }
+  // Not found, create a new one.
+  if ($node) {
+    // If stub issue or not found before create a new node.
+    if ($data['repo'] != '') {
+      $title = "Tracking for issue {$data['issue_id']}/{$data['repo']}";
+    }
+    else {
+      $title = "Tracking for project: {$data['title']}";
+    }
+    $values = array(
+      'title' => $title,
+      'type' => 'tracking',
+      'uid' => $data['uid'],
+      'status' => 1,
+    );
+    print("Creating new $title \n");
+    $node = entity_create('node', $values);
+
+    $wrapper = entity_metadata_wrapper('node', $node);
+    $wrapper->field_project->set($data['project']);
+    $wrapper->field_time_estimate->set($data['estimate']);
+    $wrapper->field_issue_id->set($data['issue_id']);
+    $wrapper->field_github_project_id->set($data['repo']);
+  }
+
+  return $wrapper;
+}
+
+/**
+ * Get or create status term
+ */
+function productivity_tracking_get_term_status($name) {
+  $vocab = taxonomy_vocabulary_machine_name_load('issue_status');
+  $term = taxonomy_get_term_by_name($name);
+
+  if (!$term) {
+    $term = new stdClass();
+    $term->name = $name;
+    $term->vid = $vocab->vid;
+    taxonomy_term_save($term);
+  }
+  else {
+    $term = reset($term);
+  }
+
+  return $term;
 }

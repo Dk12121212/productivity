@@ -608,38 +608,3 @@ function productivity_github_get_project_github_issues_query($project_id, $year,
   // TODO: This can timeout on projects with a lot of issues.
   return node_load_multiple(array_keys($result['node']));
 }
-
-
-/**
- * Get issue nid from issue GH id
- */
-/**
- * Implements hook_action_info().
- */
-function productivity_github_get_nid_from_ghid($issue_id, $repo_id) {
-  $query_issue = db_select('node', 'n');
-  $query_issue
-    ->join('field_data_field_github_project_id', 'gpi', 'n.nid = gpi.entity_id');
-  $query_issue
-    ->leftJoin('field_data_field_issue_id', 'i', 'n.nid = i.entity_id');
-  $query_issue
-    ->leftJoin('field_data_field_employee', 'e', 'n.nid = e.entity_id');
-
-
-  $query_issue
-    ->fields('n', array('nid', 'title'))
-    ->fields('i', array('field_issue_id_value'))
-    ->fields('gpi', array('field_github_project_id_value'))
-    ->fields('e', array('field_employee_target_id'))
-    ->condition('status', NODE_PUBLISHED)
-    ->condition('type', 'github_issue')
-    ->condition('gpi.field_github_project_id_value', $repo_id)
-    ->condition('i.field_issue_id_value', $issue_id)
-    ->range(0, 1);
-
-
-  $result_issue = $query_issue->execute();
-
-  if ($record_issue = $result_issue->fetchAssoc()) {
-  }
-}

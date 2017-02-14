@@ -7,8 +7,6 @@
 
 // 33709 => unio 6.5
 $project_nid = drush_get_option('project', 33709);
-$skip_issues = drush_get_option('skip-issues', FALSE);
-$last_track_id = drush_get_option('last-track-id', 0);
 $default_repo = drush_get_option('default-repo ', 'Gizra/unio');
 $clean_repo = explode('/', $default_repo);
 $gh_user = $clean_repo[0];
@@ -53,10 +51,12 @@ while($track = $result->fetchAssoc()) {
   }
 
   $gh_ids = [];
+  $status = 'open';
   if ($pr_id) {
     // Try to complete the missing data:
     print("Looking up in GH for issue: {$pr_nid}.  \n");
     $pr_info = productivity_tracking_get_issue_info($clean_repo, $pr_id, $gh_user);
+    $status = $pr_info['issue']['state'];
 
     // Check if id is issue.
     if (!isset($pr_info['issue']['pull_request'])) {
@@ -83,6 +83,13 @@ while($track = $result->fetchAssoc()) {
 
   foreach ($gh_ids as $gh_issue_number => $estimate) {
 
+    // Set default estimate for non dev.
+    if ($track['field_issues_logs_field_issue_type_value'] != 'dev') {
+      if (!$estimate) {
+        $estimate = $total_time_spent;
+      }
+    }
+
     $issue = array(
       'uid' => $logs['und'][0]['field_employee']['und'][0]['target_id'],
       // Use real nid as issue id to be able to reimport.
@@ -94,23 +101,28 @@ while($track = $result->fetchAssoc()) {
       'title' => $old_track_node_wrapper->field_project->label() . date('-c', $old_track_node_wrapper->field_work_date->value()),
     );
 
-    $wrapper = get_new_tracking($issue);
+    $wrapper = get_new_tracking($issue, $status);
     $node = $wrapper->value();
 
     // Create log for time divided by number of issue related.
     $logs = array();
     $logs['und'][] = create_multifields_track($track, $total_time_spent/ count($gh_ids));
+
     if (!isset($processed_tracking[$node->nid])) {
       // First time prossessing this node, errase all other tracking.
       $processed_tracking[$node->nid] = TRUE;
       $node->field_track_log = $logs;
     }
     else {
-      foreach ($node->field_track_log['und'] as $existing_log) {
-        $logs['und'][] = $existing_log;
+      if (isset($node->field_track_log['und'])) {
+        foreach ($node->field_track_log['und'] as $existing_log) {
+          $logs['und'][] = $existing_log;
+        }
       }
       $node->field_track_log = $logs;
     }
+
+
     $wrapper->save();
     print("Saving Tracking. old_track_id: $old_track_id  \n");
   }
@@ -226,7 +238,7 @@ function get_tracked_data($project_nid = FALSE, $repo = FALSE, $issue_id = FALSE
 /**
  * Get the issue by ID
  */
-function get_new_tracking($issue) {
+function get_new_tracking($issue, $status = 'open') {
   // List of issues for a project nid.
   $query = new EntityFieldQuery();
   $result = $query
@@ -267,6 +279,11 @@ function get_new_tracking($issue) {
   $wrapper->field_time_estimate->set($issue['estimate']);
   $wrapper->field_issue_id->set($issue['issue_id']);
   $wrapper->field_github_project_id->set($issue['github_repo']);
+
+
+  $term = productivity_tracking_get_term_status($status);
+
+  $wrapper->field_issue_status->set($term);
   return $wrapper;
 }
 

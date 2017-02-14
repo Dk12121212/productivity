@@ -1,0 +1,11 @@
+{
+    "require": {
+        "php": ">=5.3.0",
+        "knplabs/github-api": "~1.7.1"
+    },
+    "config": {
+        "autoloader-suffix": "ComposerManager",
+        "vendor-dir": "vendor"
+    },
+    "prefer-stable": true
+}

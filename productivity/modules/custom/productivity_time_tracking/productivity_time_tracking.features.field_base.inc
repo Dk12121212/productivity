@@ -89,6 +89,7 @@ function productivity_time_tracking_field_default_field_bases() {
         ),
         'target_bundles' => array(),
       ),
+      'profile2_private' => FALSE,
       'target_type' => 'user',
     ),
     'translatable' => 0,
@@ -146,6 +147,7 @@ function productivity_time_tracking_field_default_field_bases() {
     'module' => 'text',
     'settings' => array(
       'max_length' => 255,
+      'profile2_private' => FALSE,
     ),
     'translatable' => 0,
     'type' => 'text',
@@ -169,6 +171,7 @@ function productivity_time_tracking_field_default_field_bases() {
       'allowed_values' => array(
         'dev' => 'Development',
         'dev_senior' => 'Development (Senior)',
+        'migrate' => 'Migrate expert',
         'qa' => 'QA',
         'management' => 'Management',
         'designer' => 'Designer',
@@ -246,6 +249,7 @@ function productivity_time_tracking_field_default_field_bases() {
           'project' => 'project',
         ),
       ),
+      'profile2_private' => FALSE,
       'target_type' => 'node',
     ),
     'translatable' => 0,
@@ -265,6 +269,7 @@ function productivity_time_tracking_field_default_field_bases() {
     'settings' => array(
       'decimal_separator' => '.',
       'precision' => 10,
+      'profile2_private' => FALSE,
       'scale' => 2,
     ),
     'translatable' => 0,

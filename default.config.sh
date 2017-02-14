@@ -98,5 +98,9 @@ function post_install {
   mkdir css-to-inline
   cd css-to-inline
   composer require tijsverkoyen/css-to-inline-styles:1.5
+
+
+  cd productivity/www/profiles/productivity/composer
+  composer install
 }
 

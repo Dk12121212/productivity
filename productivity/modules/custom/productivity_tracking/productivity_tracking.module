@@ -61,12 +61,19 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
     'i' => 'field_issue_id',
     'gpi' => 'field_github_project_id',
     't' => 'field_track_log',
+    'st' => 'field_issue_status',
   ];
 
   foreach ($node_fields as $alias => $field) {
     $query
-      ->join("field_data_$field", $alias, "n.nid = $alias.entity_id");
+      ->leftjoin("field_data_$field", $alias, "n.nid = $alias.entity_id");
   }
+
+  $query
+    ->leftjoin("taxonomy_term_data", 'issue_status', 'issue_status.tid = st.field_issue_status_target_id');
+
+  $query
+    ->leftjoin("taxonomy_term_data", 'pr_status', 'pr_status.tid = t.field_track_log_field_issue_status_target_id');
 
   $query
     ->fields('n', array('title', 'nid', 'uid'))
@@ -74,6 +81,8 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
     ->fields('i', array('field_issue_id_value'))
     ->fields('gpi', array('field_github_project_id_value'))
     ->fields('t')
+    ->fields('issue_status', array('name'))
+    ->fields('pr_status', array('name'))
     ->fields('p', array('field_project_target_id'));
 
   if ($project_nid) {

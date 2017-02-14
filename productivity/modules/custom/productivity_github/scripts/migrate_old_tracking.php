@@ -51,22 +51,26 @@ while($track = $result->fetchAssoc()) {
   }
 
   $gh_ids = [];
-  $status = 'open';
   if ($pr_id) {
     // Try to complete the missing data:
     print("Looking up in GH for issue: {$pr_nid}.  \n");
     $pr_info = productivity_tracking_get_issue_info($clean_repo, $pr_id, $gh_user);
-    $status = $pr_info['issue']['state'];
 
     // Check if id is issue.
     if (!isset($pr_info['issue']['pull_request'])) {
-      $gh_ids[$pr_info['issue']['number']] = $pr_info['estimate'];
+      $gh_ids[$pr_info['issue']['number']] = array(
+        'estimate' => $pr_info['estimate'],
+        'status' => $pr_info['issue']['state'] ? $pr_info['issue']['state'] : 'closed',
+      );
     }
     else {
       foreach ($pr_info['related_issues'] as $issue_info) {
         // Found a related issue.
         if (!isset($issue_info['issue']['pull_request'])) {
-          $gh_ids[$issue_info['issue']['number']] = $issue_info['estimate'];
+          $gh_ids[$issue_info['issue']['number']] = array(
+            'estimate' => $issue_info['estimate'],
+            'status' => $issue_info['issue']['state'] ? $issue_info['issue']['state'] : 'closed',
+          );
         }
       }
     }
@@ -77,36 +81,42 @@ while($track = $result->fetchAssoc()) {
   if (empty($gh_ids)) {
     // Create one default item to make the loop run one time.
     $gh_ids[$old_track_nid] = 0;
+    $gh_ids[$old_track_nid] = array(
+      'estimate' => 0,
+      'status' => 'closed',
+    );
   }
 
   $total_time_spent = $track['field_issues_logs_field_time_spent_value'];
 
-  foreach ($gh_ids as $gh_issue_number => $estimate) {
+  foreach ($gh_ids as $gh_issue_number => $gh_issue_info) {
 
     // Set default estimate for non dev.
     if ($track['field_issues_logs_field_issue_type_value'] != 'dev') {
-      if (!$estimate) {
-        $estimate = $total_time_spent;
+      if (!$gh_issue_info['estimate']) {
+        $gh_issue_info['estimate'] = $total_time_spent;
       }
     }
+    // Get info from GH.
 
     $issue = array(
       'uid' => $logs['und'][0]['field_employee']['und'][0]['target_id'],
       // Use real nid as issue id to be able to reimport.
       'issue_id' => $gh_issue_number,
       'github_repo' => $default_repo,
-      'estimate' => $estimate,
+      'estimate' => $gh_issue_info['estimate'],
       'employee' => $logs['und'][0]['field_employee']['und'][0]['target_id'],
       'project' => $old_track_node_wrapper->field_project->getIdentifier(),
       'title' => $old_track_node_wrapper->field_project->label() . date('-c', $old_track_node_wrapper->field_work_date->value()),
+      'status' => $gh_issue_info['status'],
     );
 
-    $wrapper = get_new_tracking($issue, $status);
+    $wrapper = get_new_tracking($issue);
     $node = $wrapper->value();
 
     // Create log for time divided by number of issue related.
     $logs = array();
-    $logs['und'][] = create_multifields_track($track, $total_time_spent/ count($gh_ids));
+    $logs['und'][] = create_multifields_track($track, $total_time_spent/ count($gh_ids), $clean_repo, $gh_user);
 
     if (!isset($processed_tracking[$node->nid])) {
       // First time prossessing this node, errase all other tracking.
@@ -134,11 +144,12 @@ while($track = $result->fetchAssoc()) {
 /**
  * Create a well formated log track multifileld.
  */
-function create_multifields_track($track, $total_time_spent) {
+function create_multifields_track($track, $total_time_spent, $clean_repo, $gh_user) {
   $old_track_nid = $track['entity_id'];
   $old_track_node_wrapper = entity_metadata_wrapper('node', $old_track_nid);
   $pr_nid = $track['field_issues_logs_field_github_issue_target_id'];
   $pr_wrapper = entity_metadata_wrapper('node', $pr_nid);
+
 
   // Get last push
   $last_date = 0;
@@ -154,13 +165,20 @@ function create_multifields_track($track, $total_time_spent) {
   $old_track_node = $old_track_node_wrapper->value();
   $log['field_date']['und'][0]['value'] = $old_track_node->field_work_date['und'][0]['value'];
   $log['field_issue_label']['und'][0]['value'] = $track['field_issues_logs_field_issue_label_value'];
+  $status = 'closed';
   // PR id.
   if ($pr_node) {
     $log['field_issue_id']['und'][0]['value'] = $pr_wrapper->field_issue_id->value();
+    $pr_info = productivity_tracking_get_issue_info($clean_repo, $pr_wrapper->field_issue_id->value(), $gh_user);
+    $status =$pr_info['issue']['state'];
+
     if ($last_date) {
       $log['field_last_push']['und'][0]['value'] = $last_date;
     }
   }
+  $term = productivity_tracking_get_term_status($status);
+  $log['field_issue_status']['und'][0]['target_id'] = $term->tid;
+
   $log['field_github_username']['und'][0]['value'] = $old_track_node_wrapper->field_employee->field_github_username->value();
   $log['field_time_spent']['und'][0]['value'] = $total_time_spent;
   $log['field_issue_type']['und'][0]['value'] = $track['field_issues_logs_field_issue_type_value'];
@@ -238,7 +256,7 @@ function get_tracked_data($project_nid = FALSE, $repo = FALSE, $issue_id = FALSE
 /**
  * Get the issue by ID
  */
-function get_new_tracking($issue, $status = 'open') {
+function get_new_tracking($issue) {
   // List of issues for a project nid.
   $query = new EntityFieldQuery();
   $result = $query
@@ -281,7 +299,7 @@ function get_new_tracking($issue, $status = 'open') {
   $wrapper->field_github_project_id->set($issue['github_repo']);
 
 
-  $term = productivity_tracking_get_term_status($status);
+  $term = productivity_tracking_get_term_status($issue['status']);
 
   $wrapper->field_issue_status->set($term);
   return $wrapper;

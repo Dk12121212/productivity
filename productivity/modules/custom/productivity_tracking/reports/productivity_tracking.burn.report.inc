@@ -86,11 +86,13 @@ function productivity_tracking_burn_report($project_node) {
     $pr_developer_uid = $track_record['field_track_log_field_employee_target_id'];
     $pr_date = $track_record['field_track_log_field_date_value'];
     $track_id = $track_record['field_track_log_id'];
+    $pr_status = $track_record['pr_status_name'];
 
     // Issue data.
     $repo_id = $track_record['field_github_project_id_value'];
     $estimate = $track_record['field_time_estimate_value'];
     $issue_id = $track_record['field_issue_id_value'];
+    $issue_status = $track_record['name'];
     $nid = $track_record['nid'];
 
 
@@ -117,10 +119,11 @@ function productivity_tracking_burn_report($project_node) {
         $total_row['data']['actual'] += $totals[$last_nid];
         $total_row['data']['overtime'] = $total_row['data']['actual'] - $total_row['data']['estimate'];
       }
+
       // Create a new issue row.
       $main_track_id = $track_id;
       $issue_row = array(
-        'class' => '',
+        'class' => 'info',
         'data' => array(
           'issue_id' => $issue_link,
           'estimate' => $estimate,
@@ -128,8 +131,10 @@ function productivity_tracking_burn_report($project_node) {
           'developer' => l('Link to node', "node/$nid/edit", array('attributes' => array('target' => '_blank'))),
           'type' => '',
           'overtime' => 0,
-          // TODO: Followup - closing/opening issue should change this.
-          'status' => 'WIP',
+          'status' =>  array(
+            'class' => ($issue_status == 'closed' ? 'cell-bad-odd' : 'cell-ok-even'),
+            'data' => $issue_status,
+          ),
         ),
       );
       $table['rows']["nid_" . $nid] = $issue_row;
@@ -142,7 +147,7 @@ function productivity_tracking_burn_report($project_node) {
     }
     // Add sub rows for each PR.
     $pr_row = array(
-      'class' => '',
+      'class' => 'warning',
       'data' => array(
         'issue_id' => "pr-$pr_link",
         'estimate' => '',
@@ -150,8 +155,10 @@ function productivity_tracking_burn_report($project_node) {
         'developer' => $pr_developer,
         'type' => $pr_work_type,
         'overtime' => '-',
-        // TODO: Followup - closing/opening issue should change this.
-        'status' => 'PR',
+        'status' =>  array(
+          'class' => ($pr_status == 'closed' ? 'cell-bad-odd' : 'cell-ok-even'),
+          'data' => $pr_status,
+        ),
       ),
     );
 
@@ -163,27 +170,27 @@ function productivity_tracking_burn_report($project_node) {
   array_unshift($table['rows'], $total_row);
 
   // Final calculations.
-  $side = 'odd';
-  foreach($table['rows'] as &$row) {
-    $data = &$row['data'];
-
-
-    // Invert on each issue.
-    if ($data['status'] == 'WIP') {
-      $row['class'] = 'info';
-    }
-    else {
-      $row['class'] = 'warning';
-    }
-
-    // Add class only to overtime cells.
-    if ($data['overtime'] != '-') {
-      $data['overtime'] = array(
-        'class' => ($data['actual'] > $data['estimate'] ? 'cell-bad-' : 'cell-ok-') . $side,
-        'data' => $data['overtime'],
-      );
-    }
-  }
+//  $side = 'odd';
+//  foreach($table['rows'] as &$row) {
+//    $data = &$row['data'];
+//
+//
+//    // Invert on each issue.
+//    if ($data['status'] == 'WIP') {
+//      $row['class'] = 'info';
+//    }
+//    else {
+//      $row['class'] = 'warning';
+//    }
+//
+//    // Add class only to overtime cells.
+//    if ($data['overtime'] != '-') {
+//      $data['overtime'] = array(
+//        'class' => ($data['actual'] > $data['estimate'] ? 'cell-bad-' : 'cell-ok-') . $side,
+//        'data' => $data['overtime'],
+//      );
+//    }
+//  }
 
   return $table;
 }

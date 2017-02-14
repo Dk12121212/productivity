@@ -9,14 +9,15 @@
 $project_nid = drush_get_option('project', 33709);
 
 // Get all tracks for project.
-$tracks = productivity_tracking_get_tracking($project_nid);
+
+$tracking = productivity_tracking_get_tracking($project_nid);
 
 
 if (empty($count = $tracking->rowCount())) {
   print('No issues found for project: ' . $project_nid);
 }
 
-print "Going over $count tracking.";
+print "Going over $count tracking. \n";
 
 $processed = [];
 
@@ -45,7 +46,7 @@ while($track_record = $tracking->fetchAssoc()) {
 
   // Prevent duplicate
   if (!isset($processed["nid_$nid"]) && $issue_id) {
-    print "Updating node $nid";
+    print "Updating node $nid \n";
     $wrapper = entity_metadata_wrapper('node', $nid);
     $issue_info = productivity_tracking_get_issue_info($clean_repo, $issue_id, $gh_user);
     $wrapper->field_time_estimate->set($issue_info['estimate']);
@@ -60,16 +61,16 @@ while($track_record = $tracking->fetchAssoc()) {
   }
 
   if ($pr_gh_id) {
-    print "Checking track $track_id";
+    print "Checking track $track_id \n";
     $pr_info = productivity_tracking_get_issue_info($clean_repo, $pr_gh_id, $gh_user);
 
     // Save status.
     $term = productivity_tracking_get_term_status($pr_info['issue']['state']);
 
     $mf_update =
-      db_update('field_data_track_log')
+      db_update('field_data_field_track_log')
         ->fields(array(
-          'field_track_log_field_issue_status_target_id' => 1,
+          'field_track_log_field_issue_status_target_id' => $term->tid,
           )
         )
       ->condition('field_track_log_id', $track_id)
@@ -78,5 +79,5 @@ while($track_record = $tracking->fetchAssoc()) {
   }
 
   $count--;
-  print "$count tracking left.";
+  print "$count tracking left. \n";
 }

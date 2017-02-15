@@ -61,6 +61,7 @@ while($track = $result->fetchAssoc()) {
       $gh_ids[$pr_info['issue']['number']] = array(
         'estimate' => $pr_info['estimate'],
         'status' => $pr_info['issue']['state'] ? $pr_info['issue']['state'] : 'closed',
+        'title' => $pr_info['issue']['title'],
       );
     }
     else {
@@ -70,6 +71,7 @@ while($track = $result->fetchAssoc()) {
           $gh_ids[$issue_info['issue']['number']] = array(
             'estimate' => $issue_info['estimate'],
             'status' => $issue_info['issue']['state'] ? $issue_info['issue']['state'] : 'closed',
+            'title' => $issue_info['issue']['title'],
           );
         }
       }
@@ -84,6 +86,7 @@ while($track = $result->fetchAssoc()) {
     $gh_ids[$old_track_nid] = array(
       'estimate' => 0,
       'status' => 'closed',
+      'title' => $old_track_node_wrapper->label(),
     );
   }
 
@@ -106,7 +109,7 @@ while($track = $result->fetchAssoc()) {
       'estimate' => $gh_issue_info['estimate'],
       'employee' => $logs['und'][0]['field_employee']['und'][0]['target_id'],
       'project' => $old_track_node_wrapper->field_project->getIdentifier(),
-      'title' => $old_track_node_wrapper->field_project->label() . date('-c', $old_track_node_wrapper->field_work_date->value()),
+      'title' => $gh_issue_info['title'],
       'status' => $gh_issue_info['status'],
     );
 
@@ -297,6 +300,7 @@ function get_new_tracking($issue) {
 
   $wrapper = entity_metadata_wrapper('node', $node);
   $wrapper->field_project->set($issue['project']);
+  $wrapper->body->value->set($issue['title']);
   $wrapper->field_time_estimate->set($issue['estimate']);
   $wrapper->field_issue_id->set($issue['issue_id']);
   $wrapper->field_github_project_id->set($issue['github_repo']);

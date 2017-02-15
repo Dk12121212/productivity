@@ -131,9 +131,83 @@ function productivity_tracking_payload() {
  */
 function productivity_tracking_payload_pr($payload) {
   $action = $payload->action;
-  $uid = productivity_github_get_uid_by_github_username(check_plain($payload->sender->login));
+
+  $issues = productivity_tracking_parse_related_issue($payload->pull_request->body, $payload->repo->name, $payload->repo->owner->login);
+
+  foreach ($issues as $issue) {
+
+    $data_issue = [
+      'issue_id' => '',
+      'repo' => $payload->repo->full_name,
+      'title' => $issues['issue']['title'],
+      'project' => productivity_tracking_get_project_by_repository($payload->repo),
+      'issue_id' => '',
+      'estimate' => $issue['estimate'],
+      'state' => $issue['issue']['state'],
+      'uid' => productivity_github_get_uid_by_github_username(check_plain($payload->sender->login)),
+    ];
+
+
+    $wrapper = productivity_tracking_get_tracking_node($data);
+  }
 
 }
+
+/**
+ * Get the project ID from the repository name.
+ *
+ * @param $repository_info
+ *  A github repository names.
+ *
+ * @return int
+ *   Project node ID.
+ */
+function productivity_tracking_get_project_by_repository($repository_info) {
+  $values = array(
+    $repository_info->name,
+    $repository_info->owner->login,
+    $repository_info->full_name,
+  );
+
+  foreach ($values as $value) {
+    if ($nid = productivity_tracking_get_entity_id_by_field_value('field_github_repository_name', 'project', check_plain($value))) {
+      return $nid;
+    }
+  }
+  // Print error if no repo was found.
+  watchdog('productivity', t('No project with github repository: @repository', array('@repository' => print_r($repository_info, TRUE))));
+  return FALSE;
+}
+
+/**
+ * Fetch an entity ID by a unique field value.
+ *
+ * @param $field
+ *   Field name.
+ * @param $bundle
+ *   Entity bundle.
+ * @param $value
+ *   Field value.
+ *
+ * @return int
+ *   Entity ID.
+ */
+function productivity_tracking_get_entity_id_by_field_value($field, $bundle, $value) {
+  // Using db_select to allow this query for anonymous.
+  $result = db_select('field_data_' . $field, 'f')
+    ->fields('f', array('entity_id'))
+    ->condition('bundle', $bundle)
+    ->condition($field . '_value', $value)
+    ->range(0, 1)
+    ->execute()
+    ->fetchAssoc();
+
+  if (!empty($result['entity_id'])) {
+    return $result['entity_id'];
+  }
+}
+
+
 /**
  * Get entity reference connections.
  *
@@ -202,6 +276,38 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
 }
 
 /**
+ * Parse time estimation from string.
+ */
+function productivity_tracking_parse_time_estimate($string) {
+  // Get time estimate from title, if it has any.
+  $matches = array();
+  $estimate = 0;
+  if (preg_match('/\[([0-9]+)[h|H]\]|\[([0-9]+\.[0-9]+)[h|H]\]/', $string, $matches)) {
+    // The iss has a time estimate.
+    $estimate = empty($matches[1]) ? (empty($matches[2]) ? 0 : $matches[2]) : $matches[1];
+  }
+  return $estimate;
+}
+
+/**
+ * Parse related issue numnber.
+ *
+ * @return array().
+ *   An array with GH issue array with info from GH.
+ */
+function productivity_tracking_parse_related_issue($string, $repo, $user) {
+  $re = '/#(\d+)/';
+  $str = $string;
+  preg_match_all($re, $str, $matches);
+  $issues = [];
+  foreach ($matches[1] as $issue_id_from_body) {
+    $issues[] = productivity_tracking_get_issue_info($repo, $issue_id_from_body, $user, 1);
+  }
+
+  return $issues;
+}
+
+/**
  * Return estimate from github API.
  */
 function productivity_tracking_get_issue_info($repo, $issue_id, $user = 'Gizra', $level = 0) {
@@ -219,23 +325,11 @@ function productivity_tracking_get_issue_info($repo, $issue_id, $user = 'Gizra',
         $issue = $client->issue()->show($user, $repo, $issue_id);
 
         // Get time estimate from title, if it has any.
-        $matches = array();
-        $estimate = 0;
-        if (preg_match('/\[([0-9]+)[h|H]\]|\[([0-9]+\.[0-9]+)[h|H]\]/', $issue['title'], $matches)) {
-          // The iss has a time estimate.
-          $estimate = empty($matches[1]) ? (empty($matches[2]) ? 0 : $matches[2]) : $matches[1];
-        }
+        $estimate = productivity_tracking_parse_time_estimate($issue['title']);
 
         // Find issue connected.
         if ($level == 0) {
-          $re = '/#(\d+)/';
-          $str = $issue['body'];
-          preg_match_all($re, $str, $matches);
-          $issues = [];
-          foreach ($matches[1] as $issue_id_from_body) {
-            // Collect related issues info.
-            $issues[] = productivity_tracking_get_issue_info($repo, $issue_id_from_body, $user, 1);
-          }
+          $issues = productivity_tracking_parse_related_issue($issue['body'], $repo, $user);
         }
         $data = [
           'issue' => $issue,

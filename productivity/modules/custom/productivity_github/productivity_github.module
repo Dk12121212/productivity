@@ -39,6 +39,9 @@ function productivity_github_payload() {
     return;
   }
 
+  // Handle new tracking system.
+  productivity_tracking_payload($payload);
+
   // Debug param, add this to enable local debugging.
   //  $_SERVER['HTTP_X_GITHUB_EVENT'] = 'pull_request';
 

@@ -24,10 +24,11 @@ function productivity_tracking_burn_report_callback($project_node) {
     return $table;
   }
 
-  // Add a link to go to the project selection.
-  $go_back_link = '<div class="back-link">' . l(t('Back to project'), "node/{$project_node->nid}") . '</div>';
+  $variables = [];
+  $variables['backlink'] = l(t('Back to project'), "node/{$project_node->nid}");
+  $variables['table'] = theme('table', $table);
 
-  return $go_back_link . theme('table', $table);
+  return theme('tracking_burn_table', $variables);
 }
 
 /**
@@ -73,8 +74,7 @@ function productivity_tracking_burn_report($project_node) {
   );
 
   $totals = [];
-  $main_track_id = FALSE;
-  $last_nid = FALSE;
+
   // Prepare table for tracking data.
   while($track_record = $tracking->fetchAssoc()) {
     // Pr data.
@@ -109,42 +109,53 @@ function productivity_tracking_burn_report($project_node) {
 
     // First row of issue.
     if (!isset($totals[$nid])) {
-      // Set total to previous row.
-      if ($main_track_id) {
-        $table['rows']["nid_" . $last_nid]['data']['overtime'] = $totals[$last_nid] - $table['rows']["nid_" . $last_nid]['data']['estimate'];
-        $table['rows']["nid_" . $last_nid]['data']['actual'] = $totals[$last_nid];
-
-        // Total row.
-        $total_row['data']['estimate'] += $table['rows']["nid_" . $last_nid]['data']['estimate'];
-        $total_row['data']['actual'] += $totals[$last_nid];
-        $total_row['data']['overtime'] = $total_row['data']['actual'] - $total_row['data']['estimate'];
-      }
-
       // Create a new issue row.
-      $main_track_id = $track_id;
       $issue_row = array(
         'class' => 'info',
         'data' => array(
           'issue_id' => $issue_link,
           'estimate' => $estimate,
-          'actual' => 0,
+          'actual' => $pr_time,
           'developer' => l('Link to node', "node/$nid/edit", array('attributes' => array('target' => '_blank'))),
           'type' => '',
-          'overtime' => 0,
+          'overtime' =>  array(
+            'class' => ($pr_time - $estimate > 0 ? 'cell-bad-odd' : 'cell-ok-even'),
+            'data' => $pr_time - $estimate,
+          ),
           'status' =>  array(
-            'class' => ($issue_status == 'closed' ? 'cell-bad-odd' : 'cell-ok-even'),
+            'class' => ($issue_status == 'closed' ? 'cell-bad-even' : 'cell-ok-even'),
             'data' => $issue_status,
           ),
         ),
       );
+      // SAve row to table.
       $table['rows']["nid_" . $nid] = $issue_row;
+
+      // Init first total value.
       $totals[$nid] = floatval($pr_time);
-      $last_nid = $nid;
+      // Sum estimate.
+      $total_row['data']['estimate'] += $estimate;
     }
     else {
-      // Get total actual.
+      // Add up total work time.
       $totals[$nid] += floatval($pr_time);
+
+      // Update actual.
+      $table['rows']["nid_" . $nid]['data']['actual'] = $totals[$nid];
+
+      // Update overtime.
+      $overtime = $totals[$nid] - $table['rows']["nid_" . $nid]['data']['estimate'];
+
+      $table['rows']["nid_" . $nid]['data']['overtime'] =  array(
+        'class' => ($overtime > 0 ? 'cell-bad-odd' : 'cell-ok-even'),
+        'data' => $overtime,
+      );
+
     }
+    // Update sum row.
+    $total_row['data']['actual'] += $pr_time;
+    $total_row['data']['overtime'] = $total_row['data']['actual'] - $total_row['data']['estimate'];
+
     // Add sub rows for each PR.
     $pr_row = array(
       'class' => 'warning',
@@ -166,31 +177,8 @@ function productivity_tracking_burn_report($project_node) {
     $table['rows'][$track_id] = $pr_row;
   }
 
-  // Add total row.
+  // Add total row to top of the table.
   array_unshift($table['rows'], $total_row);
-
-  // Final calculations.
-//  $side = 'odd';
-//  foreach($table['rows'] as &$row) {
-//    $data = &$row['data'];
-//
-//
-//    // Invert on each issue.
-//    if ($data['status'] == 'WIP') {
-//      $row['class'] = 'info';
-//    }
-//    else {
-//      $row['class'] = 'warning';
-//    }
-//
-//    // Add class only to overtime cells.
-//    if ($data['overtime'] != '-') {
-//      $data['overtime'] = array(
-//        'class' => ($data['actual'] > $data['estimate'] ? 'cell-bad-' : 'cell-ok-') . $side,
-//        'data' => $data['overtime'],
-//      );
-//    }
-//  }
 
   return $table;
 }

@@ -28,10 +28,24 @@ function productivity_tracking_menu() {
 }
 
 /**
+ * Implements hook_theme().
+ */
+function productivity_tracking_theme($existing, $type, $theme, $path) {
+  $a = 1;
+  return array(
+    'tracking_burn_table' => array(
+      'variables' => array(),
+      'template' => 'productivity_tracking_burn_table',
+      'path' => $path . '/reports',
+    ),
+  );
+}
+
+/**
  * Github endpoint callback
  */
 function productivity_tracking_payload($payload) {
-
+  // Some code to create a new tracking record.
 }
 /**
  * Get entity reference connections.
@@ -99,7 +113,6 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
 
   return $result;
 }
-
 
 /**
  * Return estimate from github API.
@@ -264,7 +277,7 @@ function productivity_tracking_get_tracking_node($data) {
 }
 
 /**
- * Get or create status term
+ * Get or create status term.
  */
 function productivity_tracking_get_term_status($name) {
   $vocab = taxonomy_vocabulary_machine_name_load('issue_status');

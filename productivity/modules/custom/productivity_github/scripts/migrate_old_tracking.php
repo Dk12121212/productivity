@@ -97,7 +97,6 @@ while($track = $result->fetchAssoc()) {
         $gh_issue_info['estimate'] = $total_time_spent;
       }
     }
-    // Get info from GH.
 
     $issue = array(
       'uid' => $logs['und'][0]['field_employee']['und'][0]['target_id'],
@@ -116,7 +115,7 @@ while($track = $result->fetchAssoc()) {
 
     // Create log for time divided by number of issue related.
     $logs = array();
-    $logs['und'][] = create_multifields_track($track, $total_time_spent/ count($gh_ids), $clean_repo, $gh_user);
+    $logs['und'][] = create_multifields_track($track, $total_time_spent/ count($gh_ids), $clean_repo, $gh_user, $pr_id);
 
     if (!isset($processed_tracking[$node->nid])) {
       // First time prossessing this node, errase all other tracking.
@@ -144,7 +143,7 @@ while($track = $result->fetchAssoc()) {
 /**
  * Create a well formated log track multifileld.
  */
-function create_multifields_track($track, $total_time_spent, $clean_repo, $gh_user) {
+function create_multifields_track($track, $total_time_spent, $clean_repo, $gh_user, $pr_id) {
   $old_track_nid = $track['entity_id'];
   $old_track_node_wrapper = entity_metadata_wrapper('node', $old_track_nid);
   $pr_nid = $track['field_issues_logs_field_github_issue_target_id'];
@@ -168,14 +167,18 @@ function create_multifields_track($track, $total_time_spent, $clean_repo, $gh_us
   $status = 'closed';
   // PR id.
   if ($pr_node) {
-    $log['field_issue_id']['und'][0]['value'] = $pr_wrapper->field_issue_id->value();
-    $pr_info = productivity_tracking_get_issue_info($clean_repo, $pr_wrapper->field_issue_id->value(), $gh_user);
-    $status =$pr_info['issue']['state'];
+    // pr_id is the pr we found in title name or ref from node.
+    $pr_info = productivity_tracking_get_issue_info($clean_repo, $pr_id, $gh_user);
+    $status = $pr_info['issue']['state'];
 
     if ($last_date) {
       $log['field_last_push']['und'][0]['value'] = $last_date;
     }
   }
+  if ($pr_id) {
+    $log['field_issue_id']['und'][0]['value'] = $pr_id;
+  }
+
   $term = productivity_tracking_get_term_status($status);
   $log['field_issue_status']['und'][0]['target_id'] = $term->tid;
 

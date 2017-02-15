@@ -137,18 +137,17 @@ function productivity_tracking_payload_pr($payload) {
   foreach ($issues as $issue) {
 
     $data_issue = [
-      'issue_id' => '',
+      'issue_id' => $issues['issue']['id'],
       'repo' => $payload->repo->full_name,
       'title' => $issues['issue']['title'],
       'project' => productivity_tracking_get_project_by_repository($payload->repo),
-      'issue_id' => '',
       'estimate' => $issue['estimate'],
-      'state' => $issue['issue']['state'],
-      'uid' => productivity_github_get_uid_by_github_username(check_plain($payload->sender->login)),
+      'status' => $issue['issue']['state'],
+      'uid' => productivity_tracking_get_uid_by_github_username(check_plain($payload->sender->login)),
     ];
 
 
-    $wrapper = productivity_tracking_get_tracking_node($data);
+    $wrapper = productivity_tracking_get_tracking_node($data_issue);
   }
 
 }
@@ -178,6 +177,24 @@ function productivity_tracking_get_project_by_repository($repository_info) {
   watchdog('productivity', t('No project with github repository: @repository', array('@repository' => print_r($repository_info, TRUE))));
   return FALSE;
 }
+
+/**
+ * Get user ID from the GitHub username.
+ *
+ * @param string $github_username
+ *   A github username.
+ *
+ * @return int
+ *   Account ID.
+ */
+function productivity_tracking_get_uid_by_github_username($github_username) {
+  if ($uid = productivity_tracking_get_entity_id_by_field_value('field_github_username', 'user', $github_username)) {
+    return $uid;
+  }
+
+  watchdog('productivity', t('No user with github username: @username', array('@username' => $github_username)));
+}
+
 
 /**
  * Fetch an entity ID by a unique field value.
@@ -407,6 +424,7 @@ function productivity_tracking_create_multifields_track($track, $total_time_spen
  *  'project' - Required for new
  *  'estimate' -  Required for new
  *  'uid' -  Required for new
+ *  'status' -  Required for new
  */
 function productivity_tracking_get_tracking_node($data) {
 
@@ -452,6 +470,9 @@ function productivity_tracking_get_tracking_node($data) {
     $wrapper->field_time_estimate->set($data['estimate']);
     $wrapper->field_issue_id->set($data['issue_id']);
     $wrapper->field_github_project_id->set($data['repo']);
+    $term = productivity_tracking_get_term_status($data['status']);
+
+    $wrapper->field_issue_status->set($term);
   }
 
   return $wrapper;

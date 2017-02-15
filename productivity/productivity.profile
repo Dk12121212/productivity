@@ -150,7 +150,7 @@ function productivity_setup_set_variables() {
     'productivity_time_tracking_hours_count_as_day' => 7,
     'site_frontpage' => 'dashboard',
     'composer_manager_vendor_dir' => 'profiles/productivity/composer/vendor',
-    'composer_manager_file_dir' => 'profiles/productivity/composer',
+    'composer_manager_file_dir' => 'sites/default/files',
   );
 
   foreach ($variables as $key => $value) {

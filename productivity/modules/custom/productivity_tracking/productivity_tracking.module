@@ -27,17 +27,12 @@ function productivity_tracking_menu() {
   return $items;
 }
 
-
 /**
- * Implements hook_menu().
+ * Github endpoint callback
  */
-function productivity_tracking_init() {
-  // Set composer dir.
-  global $conf;
-  $conf['composer_manager_vendor_dir'] = 'profiles/productivity/composer/vendor';
-  $conf['composer_manager_file_dir'] = 'profiles/productivity/composer';
-}
+function productivity_tracking_payload($payload) {
 
+}
 /**
  * Get entity reference connections.
  *

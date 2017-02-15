@@ -16,17 +16,26 @@
  */
 function productivity_tracking_burn_report_callback($project_node) {
 
-  drupal_set_title(t('@project issue tracking table', array('@project' => $project_node->title)));
-
-  $table = productivity_tracking_burn_report($project_node);
-  if (!is_array($table)) {
-    // Table returned an error message.
-    return $table;
-  }
+  drupal_set_title(t('@project burn table', array('@project' => $project_node->title)));
 
   $variables = [];
-  $variables['backlink'] = l(t('Back to project'), "node/{$project_node->nid}");
-  $variables['table'] = theme('table', $table);
+  $variables['backlink'] = l(t('<< Back to project'), "node/{$project_node->nid}");
+  $wrapper = entity_metadata_wrapper('node', $project_node);
+  $active =  'active';
+  // Create one table per type.
+  if (isset($project_node->field_table_rate['und'])) {
+    foreach ($wrapper->field_table_rate as $type) {
+      $rate_code = $type->field_issue_type->value();
+      $table = productivity_tracking_burn_report($project_node, $rate_code);
+      $variables['tables'][$rate_code] = [
+        'title' => $type->field_issue_type->label(),
+        'table' => theme('table', $table['table']),
+        'totals' => $table['totals'],
+        'class' => $active,
+      ];
+      $active = '';
+    }
+  }
 
   return theme('tracking_burn_table', $variables);
 }
@@ -34,17 +43,28 @@ function productivity_tracking_burn_report_callback($project_node) {
 /**
  * Display tracking table for issues.
  */
-function productivity_tracking_burn_report($project_node) {
-  $project_wrapper = entity_metadata_wrapper('node', $project_node);
+function productivity_tracking_burn_report($project_node, $work_type = FALSE) {
+  $tracking = productivity_tracking_get_tracking($project_node->nid, $work_type);
 
-  // TODO: for QA and management create separate tables.
-  $tracking = productivity_tracking_get_tracking($project_node->nid);
+  $total_row = array(
+    'class' => 'success',
+    'data' => array(
+      'issue_id' => 'Summary',
+      'estimate' => 0,
+      'actual' => 0,
+      'developer' => '',
+      'type' => '',
+      'overtime' => 0,
+      'status' => 'TOTAL',
+    )
+  );
 
   if (empty($count = $tracking->rowCount())) {
-    return t('No issues found for project @project.', array('@project' => $project_wrapper->label()));
-  }
-  else {
-    print "Rendering $count tracking.";
+    return [
+      'table' => '',
+      'totals' => $total_row,
+      'count' => $count
+    ];
   }
 
   // Header.
@@ -59,18 +79,6 @@ function productivity_tracking_burn_report($project_node) {
       t('Status'),
     ),
     'attributes' => array('class' => array('per-issue-table')),
-  );
-
-  $total_row = array(
-    'data' => array(
-      'issue_id' => 'TOTALs',
-      'estimate' => '',
-      'actual' => '',
-      'developer' => '',
-      'type' => '',
-      'overtime' => '',
-      'status' => 'TOTAL',
-    )
   );
 
   $totals = [];
@@ -154,7 +162,11 @@ function productivity_tracking_burn_report($project_node) {
     }
     // Update sum row.
     $total_row['data']['actual'] += $pr_time;
-    $total_row['data']['overtime'] = $total_row['data']['actual'] - $total_row['data']['estimate'];
+    $total_overtime = $total_row['data']['actual'] - $total_row['data']['estimate'];
+    $total_row['data']['overtime'] = array(
+      'class' => ($total_overtime > 0 ? 'cell-bad-odd' : 'cell-ok-even'),
+      'data' => $total_overtime,
+    );
 
     // Add sub rows for each PR.
     $pr_row = array(
@@ -180,5 +192,9 @@ function productivity_tracking_burn_report($project_node) {
   // Add total row to top of the table.
   array_unshift($table['rows'], $total_row);
 
-  return $table;
+  return [
+    'table' => $table,
+    'totals' => $total_row,
+    'count' => $count
+  ];
 }

@@ -106,7 +106,7 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
     ->orderBy('i.field_issue_id_value');
 
   if ($work_type) {
-    $query->condition('t.field_issue_type_value', $work_type);
+    $query->condition('t.field_track_log_field_issue_type_value', $work_type);
   }
 
   $result = $query->execute();

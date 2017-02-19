@@ -166,10 +166,10 @@ function productivity_tracking_gh_payload($payload, $event) {
   foreach ($issues as $issue) {
     $uid = productivity_tracking_get_uid_by_github_username(check_plain($payload['sender']['login']));
     $data_issue = [
-      'issue_id' => $issue['issue']['id'],
-      'repo' => $payload['repo']['full_name'],
+      'issue_id' => $issue['issue']['number'],
+      'repo' => $payload['repository']['full_name'],
       'title' => $issue['issue']['title'],
-      'project' => productivity_tracking_get_project_by_repository($payload['repo']),
+      'project' => productivity_tracking_get_project_by_repository($payload['repository']),
       'estimate' => $issue['estimate'],
       'status' => $issue['issue']['state'],
       'uid' => $uid,
@@ -182,21 +182,50 @@ function productivity_tracking_gh_payload($payload, $event) {
     // This wil be later used to prepopulate the tracking for developers.
     if ($pr) {
       $node = $wrapper->value();
-
       $logs = array();
-      $data = [
-        'date' => time(),
-        'label' => '',
-        'last_push' => time(),
-        'issue_id' => 0,
-        'status' => 'closed',
-        'github_username' => '',
-        'time_spent' => 0,
-        'issue_type' => 'dev',
-        'uid' => $uid,
-      ];
 
-      $logs['und'][] = productivity_tracking_create_multifields_track($data, $wrapper);
+      // We should create one stub log per day per user per issue numnber.
+      // issue_id.
+      $found_log = FALSE;
+      if (isset($node->field_track_log['und'])) {
+        foreach ($node->field_track_log['und'] as $existing_log) {
+          // Convert date.
+
+          $pr_date = $existing_log['field_date']['und'][0]['value'];
+          $pr_end_date = $existing_log['field_date']['und'][0]['value2'];
+          if (
+            $existing_log['field_github_username']['und'][0]['value'] == $payload['sender']['login'] &&
+            $existing_log['field_issue_id']['und'][0]['value'] == $pr['number'] &&
+            $existing_log['field_date']['und'][0]['value'] == $pr['number']) {
+
+          }
+          $logs['und'][] = $existing_log;
+        }
+      }
+
+      if ($found_log) {
+        // Update info that might change.
+        $existing_log['label'] = $pr['title'];
+        $existing_log['last_push'] = $pr['updated_at'];
+        $existing_log['status'] = $pr['state'];
+      }
+      else {
+
+        // TODO: Fix date, use filed_date to collect first and last timestamp of
+        // same day tracking.
+        $data = [
+          'date' => $pr['created_at'],
+          'label' => $pr['title'],
+          'last_push' => $pr['updated_at'],
+          'issue_id' => $pr['number'],
+          'status' => $pr['state'],
+          'github_username' => $payload['sender']['login'],
+          'time_spent' => 0,
+          'issue_type' => '',
+          'uid' => $uid,
+        ];
+        $logs['und'][] = productivity_tracking_create_multifields_track($data, $wrapper);
+      }
 
       // Rebuild structure with previous logs.
       if (isset($node->field_track_log['und'])) {
@@ -478,7 +507,7 @@ function productivity_tracking_create_multifields_track($data) {
     'status' => 'closed',
     'github_username' => '',
     'time_spent' => 0,
-    'issue_type' => 'dev',
+    'issue_type' => '',
     'uid' => 0,
   ];
 
@@ -496,6 +525,7 @@ function productivity_tracking_create_multifields_track($data) {
 
   return $log;
 }
+
 /**
  * Try to find a matching tacking node, or create one.
  *

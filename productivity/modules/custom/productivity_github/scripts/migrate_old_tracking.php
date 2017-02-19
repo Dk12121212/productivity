@@ -79,21 +79,20 @@ while($track = $result->fetchAssoc()) {
 
   }
 
+  $total_time_spent = $track['field_issues_logs_field_time_spent_value'];
   // No PR was found, use olf log id as identifier.
   if (empty($gh_ids)) {
     // Create one default item to make the loop run one time.
+    // Default is is this case match to actual.
     $gh_ids[$old_track_nid] = 0;
     $gh_ids[$old_track_nid] = array(
-      'estimate' => 0,
+      'estimate' => $total_time_spent,
       'status' => 'closed',
       'title' => $old_track_node_wrapper->label(),
     );
   }
 
-  $total_time_spent = $track['field_issues_logs_field_time_spent_value'];
-
   foreach ($gh_ids as $gh_issue_number => $gh_issue_info) {
-
     // Set default estimate for non dev.
     if ($track['field_issues_logs_field_issue_type_value'] != 'dev') {
       if (!$gh_issue_info['estimate']) {

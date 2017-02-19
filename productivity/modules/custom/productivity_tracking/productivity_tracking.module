@@ -103,13 +103,12 @@ function productivity_tracking_payload() {
 
   # Payload structure depends on triggered event
   # https://developer.github.com/v3/activity/events/types/
-  $payload = json_decode($json);
+  $payload = json_decode($json, TRUE);
 
   switch ($event = strtolower($_SERVER['HTTP_X_GITHUB_EVENT'])) {
     // Issue event https://developer.github.com/v3/activity/events/types/#issuesevent
     // https://developer.github.com/v3/activity/events/types/#pullrequestevent.
     case 'issues' || 'pull_request':
-      $action = $payload->action;
       productivity_tracking_gh_payload($payload, $event);
       break;
     default:
@@ -125,33 +124,49 @@ function productivity_tracking_payload() {
  * Handle PR event.
  */
 function productivity_tracking_gh_payload($payload, $event) {
-  $action = $payload->action;
 
-  if ($event = 'pull_request') {
-    $issues = productivity_tracking_parse_related_issue($payload->pull_request->body, $payload->repo->name, $payload->repo->owner->login);
+  // Get related issue from PR body.
+  if ($event == 'pull_request') {
+    $issues = productivity_tracking_parse_related_issue($payload['pull_request']['body'], $payload['repo']['name'], $payload['repo']['owner']['login']);
   }
+  // Issue event.
   else {
-    // Take issue info,
+    // Take issue info straight from payload.
     $issues[] = [
-      'issue' => $payload->issue,
-      'estimate' => $estimate,
-      'related_issues' => $issues,
+      'issue' => $payload['issue'],
+      'estimate' => productivity_tracking_parse_time_estimate($payload['issue']['title']),
+      'related_issues' => [],
     ];
   }
 
   // No issue connected.
   if (empty($issue)) {
     // Send message about no issue related to pr.
-    // TODO add orphan mechanism.
-    return FALSE;
+    // TODO add orphan mechanism, we shoud create a stub to enable smart track
+    // report.
+
+    // If PR is orphan and Pr has an estimate in title, then create a tracking.
+    if ($estimate = productivity_tracking_parse_time_estimate($payload['issue']['title'])) {
+
+      // TODO deal with the case where this tracking have an issue related in
+      // the future.
+      $issues[] = [
+        'issue' => $payload['pull_request'],
+        'estimate' => $estimate,
+        'related_issues' => [],
+      ];
+    }
+    else {
+      return FALSE;
+    }
   }
   foreach ($issues as $issue) {
-    $uid = productivity_tracking_get_uid_by_github_username(check_plain($payload->sender->login));
+    $uid = productivity_tracking_get_uid_by_github_username(check_plain($payload['sender']['login']));
     $data_issue = [
-      'issue_id' => $issues['issue']['id'],
-      'repo' => $payload->repo->full_name,
-      'title' => $issues['issue']['title'],
-      'project' => productivity_tracking_get_project_by_repository($payload->repo),
+      'issue_id' => $issue['issue']['id'],
+      'repo' => $payload['repo']['full_name'],
+      'title' => $issue['issue']['title'],
+      'project' => productivity_tracking_get_project_by_repository($payload['repo']),
       'estimate' => $issue['estimate'],
       'status' => $issue['issue']['state'],
       'uid' => $uid,
@@ -162,7 +177,7 @@ function productivity_tracking_gh_payload($payload, $event) {
     $node = $wrapper->value();
 
     $logs = array();
-    $logs['und'][] = productivity_tracking_create_multifields_track($payload->pull_request, $uid);
+    $logs['und'][] = productivity_tracking_create_multifields_track($payload['pull_request'], $uid);
 
     // Rebuild structure with previous logs.
     if (isset($node->field_track_log['und'])) {
@@ -190,9 +205,9 @@ function productivity_tracking_gh_payload($payload, $event) {
  */
 function productivity_tracking_get_project_by_repository($repository_info) {
   $values = array(
-    $repository_info->name,
-    $repository_info->owner->login,
-    $repository_info->full_name,
+    $repository_info['name'],
+    $repository_info['owner']['login'],
+    $repository_info['full_name'],
   );
 
   foreach ($values as $value) {
@@ -345,17 +360,20 @@ function productivity_tracking_parse_related_issue($string, $repo, $user) {
   preg_match_all($re, $str, $matches);
   $issues = [];
   foreach ($matches[1] as $issue_id_from_body) {
-    $issues[] = productivity_tracking_get_issue_info($repo, $issue_id_from_body, $user, 1);
+    $issue = productivity_tracking_get_issue_info($repo, $issue_id_from_body, $user, FALSE);
+    if (!isset($issue['issue']['pull_request'])) {
+      // Only adds non PRs
+      $issues[] = $issue;
+    }
   }
-
   return $issues;
 }
 
 /**
- * Return estimate from github API.
+ * Return PR or issue info from github API.
  */
-function productivity_tracking_get_issue_info($repo, $issue_id, $user = 'Gizra', $level = 0) {
-  $cid = "$user/$repo/$issue_id-$level";
+function productivity_tracking_get_issue_info($repo, $issue_id, $user = 'Gizra', $with_related = TRUE) {
+  $cid = "$user/$repo/$issue_id-$with_related";
   $data = &drupal_static($cid);
 
   if (!isset($data)) {
@@ -371,8 +389,9 @@ function productivity_tracking_get_issue_info($repo, $issue_id, $user = 'Gizra',
         // Get time estimate from title, if it has any.
         $estimate = productivity_tracking_parse_time_estimate($issue['title']);
 
+        $issues = [];
         // Find issue connected.
-        if ($level == 0) {
+        if ($with_related) {
           $issues = productivity_tracking_parse_related_issue($issue['body'], $repo, $user);
         }
         $data = [

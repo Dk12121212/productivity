@@ -80,15 +80,14 @@ while($track = $result->fetchAssoc()) {
   }
 
   $total_time_spent = $track['field_issues_logs_field_time_spent_value'];
-  // No PR was found, use olf log id as identifier.
+  // No Issue was found, use old log id as identifier.
   if (empty($gh_ids)) {
     // Create one default item to make the loop run one time.
     // Default is is this case match to actual.
-    $gh_ids[$old_track_nid] = 0;
-    $gh_ids[$old_track_nid] = array(
+    $gh_ids[$track['field_issues_logs_id']] = array(
       'estimate' => $total_time_spent,
       'status' => 'closed',
-      'title' => $old_track_node_wrapper->label(),
+      'title' => $track['field_issues_logs_field_issue_label_value'],
     );
   }
 
@@ -101,12 +100,11 @@ while($track = $result->fetchAssoc()) {
     }
 
     $issue = array(
-      'uid' => $logs['und'][0]['field_employee']['und'][0]['target_id'],
+      'uid' => $old_track_node_wrapper->author->getIdentifier(),
       // Use real nid as issue id to be able to reimport.
       'issue_id' => $gh_issue_number,
       'github_repo' => $default_repo,
       'estimate' => $gh_issue_info['estimate'],
-      'employee' => $logs['und'][0]['field_employee']['und'][0]['target_id'],
       'project' => $old_track_node_wrapper->field_project->getIdentifier(),
       'title' => $gh_issue_info['title'],
       'status' => $gh_issue_info['status'],
@@ -216,44 +214,6 @@ function get_all_tracked_data($project_nid = FALSE) {
   if ($project_nid) {
     $query
       ->condition('p.field_project_target_id', $project_nid);
-  }
-  return $query->execute();
-}
-
-/**
- * Get old tracking logs.
- */
-function get_tracked_data($project_nid = FALSE, $repo = FALSE, $issue_id = FALSE) {
-  $query = db_select('field_data_field_issues_logs', 'il');
-  // PR -> Issue
-  $query
-    ->leftJoin('field_data_field_issue_reference', 'gh', 'gh.entity_id = il.field_issues_logs_field_github_issue_target_id');
-
-  // Project.
-  $query
-    ->leftJoin('field_data_field_project', 'p', 'gh.entity_id = p.entity_id');
-
-  // Issue -> info
-  $query
-    ->leftJoin('field_data_field_issue_id', 'g_id', 'gh.field_issue_reference_target_id = g_id.entity_id');
-  $query
-    ->leftJoin('field_data_field_github_project_id', 'repo', 'gh.field_issue_reference_target_id = repo.entity_id');
-
-  $query
-    ->fields('il')
-    // GH issue nid.
-    ->fields('gh', array('field_issue_reference_target_id'))
-    ->orderBy('il.field_issues_logs_id', 'DESC');
-
-  if ($project_nid) {
-    $query
-      ->condition('p.field_project_target_id', $project_nid);
-  }
-
-  if ($issue_id) {
-    $query
-      ->condition('g_id.field_issue_id_value', $issue_id)
-      ->condition('repo.field_github_project_id_value', $repo);
   }
   return $query->execute();
 }

@@ -336,6 +336,7 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
     'gpi' => 'field_github_project_id',
     't' => 'field_track_log',
     'st' => 'field_issue_status',
+    'b' => 'body',
   ];
 
   foreach ($node_fields as $alias => $field) {
@@ -355,6 +356,7 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
     ->fields('i', array('field_issue_id_value'))
     ->fields('gpi', array('field_github_project_id_value'))
     ->fields('t')
+    ->fields('b')
     ->fields('issue_status', array('name'))
     ->fields('pr_status', array('name'))
     ->fields('p', array('field_project_target_id'));

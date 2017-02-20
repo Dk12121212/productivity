@@ -50,6 +50,7 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE) {
     'class' => 'success',
     'data' => array(
       'issue_id' => 'Summary',
+      'date' => '',
       'estimate' => 0,
       'actual' => 0,
       'developer' => '',
@@ -71,6 +72,7 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE) {
   $table = array(
     'header' => array(
       t('Issue ID'),
+      t('Date'),
       t('Time estimate'),
       t('Actual time'),
       t('Developer'),
@@ -173,6 +175,7 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE) {
       'class' => 'warning',
       'data' => array(
         'issue_id' => "pr-$pr_link",
+        'date' => date("d-m-Y", strtotime($pr_date)),
         'estimate' => '',
         'actual' => $pr_time,
         'developer' => $pr_developer,

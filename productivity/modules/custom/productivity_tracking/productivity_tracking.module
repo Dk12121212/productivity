@@ -54,7 +54,9 @@ function productivity_tracking_payload() {
 
   set_exception_handler(function($e) {
     header('HTTP/1.1 500 Internal Server Error');
-    echo "Error on line {$e->getLine()}: " . htmlSpecialChars($e->getMessage());
+    $msg =  "Error on line {$e->getLine()}: " . htmlSpecialChars($e->getMessage());
+    watchdog('productivity_tracking', $msg, array(), WATCHDOG_ERROR);
+    echo $msg;
     die();
   });
 
@@ -128,7 +130,11 @@ function productivity_tracking_gh_payload($payload, $event) {
   // Get related issue from PR body.
   if ($event == 'pull_request') {
     $pr = $payload['pull_request'];
+    // Look in body for issue.
     $issues = productivity_tracking_parse_related_issue($payload['pull_request']['body'], $payload['repository']['name'], $payload['repository']['owner']['login']);
+    // Look in title for issue.
+    $issues += productivity_tracking_parse_related_issue($payload['pull_request']['title'], $payload['repository']['name'], $payload['repository']['owner']['login'], TRUE);
+
   }
   // Issue event.
   else {
@@ -142,16 +148,9 @@ function productivity_tracking_gh_payload($payload, $event) {
   }
 
   // No issue connected.
-  if (empty($issue)) {
-    // Send message about no issue related to pr.
-    // TODO: Add orphan mechanism, we should create a stub to enable smart track
-    // report.
-
+  if (empty($issues)) {
     // If PR is orphan and Pr has an estimate in title, then create a tracking.
-    if ($estimate = productivity_tracking_parse_time_estimate($payload['issue']['title'])) {
-
-      // TODO: Deal with the case where this tracking have an issue related in
-      // the future.
+    if ($estimate = productivity_tracking_parse_time_estimate($payload['pull_request']['title'])) {
       $issues[] = [
         'issue' => $payload['pull_request'],
         'estimate' => $estimate,
@@ -159,6 +158,7 @@ function productivity_tracking_gh_payload($payload, $event) {
       ];
     }
     else {
+      // TODO: Send message to account manager about no issue and no estimate.
       return FALSE;
     }
   }
@@ -179,7 +179,7 @@ function productivity_tracking_gh_payload($payload, $event) {
     $wrapper = productivity_tracking_get_tracking_node($data_issue);
 
     // Only create tracking stub if a PR was pushed.
-    // This wil be later used to prepopulate the tracking for developers.
+    // This will be later used to prepopulate the tracking for developers.
     if ($pr) {
       $node = $wrapper->value();
       $logs = array();
@@ -190,33 +190,28 @@ function productivity_tracking_gh_payload($payload, $event) {
       if (isset($node->field_track_log['und'])) {
         foreach ($node->field_track_log['und'] as $existing_log) {
           // Convert date.
+          $pr_day = date('Ymd', $existing_log['field_date']['und'][0]['value']);
+          $today = date('Ymd');
 
-          $pr_date = $existing_log['field_date']['und'][0]['value'];
-          $pr_end_date = $existing_log['field_date']['und'][0]['value2'];
-          if (
-            $existing_log['field_github_username']['und'][0]['value'] == $payload['sender']['login'] &&
-            $existing_log['field_issue_id']['und'][0]['value'] == $pr['number'] &&
-            $existing_log['field_date']['und'][0]['value'] == $pr['number']) {
-
+          // Check if we have a match for same PR, same day, Same user.
+          if ($existing_log['field_github_username']['und'][0]['value'] == $payload['sender']['login'] && $existing_log['field_issue_id']['und'][0]['value'] == $pr['number'] && $pr_day == $today) {
+            $found_log = &$existing_log;
           }
-          $logs['und'][] = $existing_log;
         }
       }
-
+      // Update existing log, with new info.
       if ($found_log) {
         // Update info that might change.
-        $existing_log['label'] = $pr['title'];
-        $existing_log['last_push'] = $pr['updated_at'];
-        $existing_log['status'] = $pr['state'];
+        $found_log['field_issue_label']['und'][0]['value'] = $pr['title'];
+        $found_log['field_date']['und'][0]['value2'] = date("Y-m-d H:i:s",strtotime($pr['updated_at']));
+        $term = productivity_tracking_get_term_status($pr['state']);
+        $found_log['field_issue_status']['und'][0]['target_id'] = $term->tid;
       }
       else {
-
-        // TODO: Fix date, use filed_date to collect first and last timestamp of
-        // same day tracking.
         $data = [
-          'date' => $pr['created_at'],
+          'date_start' => date("Y-m-d H:i:s",strtotime($pr['updated_at'])),
+          'date_end' => date("Y-m-d H:i:s",strtotime($pr['updated_at'])),
           'label' => $pr['title'],
-          'last_push' => $pr['updated_at'],
           'issue_id' => $pr['number'],
           'status' => $pr['state'],
           'github_username' => $payload['sender']['login'],
@@ -224,16 +219,17 @@ function productivity_tracking_gh_payload($payload, $event) {
           'issue_type' => '',
           'uid' => $uid,
         ];
+        // Create a new tracking data.
         $logs['und'][] = productivity_tracking_create_multifields_track($data, $wrapper);
-      }
 
-      // Rebuild structure with previous logs.
-      if (isset($node->field_track_log['und'])) {
-        foreach ($node->field_track_log['und'] as $existing_log) {
-          $logs['und'][] = $existing_log;
+        // Rebuild structure with previous logs.
+        if (isset($node->field_track_log['und'])) {
+          foreach ($node->field_track_log['und'] as $existing_log) {
+            $logs['und'][] = $existing_log;
+          }
         }
+        $node->field_track_log = $logs;
       }
-      $node->field_track_log = $logs;
     }
 
     // Save node.
@@ -400,11 +396,19 @@ function productivity_tracking_parse_time_estimate($string) {
 /**
  * Parse related issue numnber.
  *
+ * @param $no_hash
+ *   Search fo issue number without # too.
+ *
  * @return array().
  *   An array with GH issue array with info from GH.
  */
-function productivity_tracking_parse_related_issue($string, $repo, $user) {
-  $re = '/#(\d+)/';
+function productivity_tracking_parse_related_issue($string, $repo, $user, $no_hash = FALSE) {
+  if ($no_hash) {
+    $re = '/(\d+)/';
+  }
+  else {
+    $re = '/#(\d+)/';
+  }
   $str = $string;
   preg_match_all($re, $str, $matches);
   $issues = [];
@@ -412,7 +416,7 @@ function productivity_tracking_parse_related_issue($string, $repo, $user) {
     $issue = productivity_tracking_get_issue_info($repo, $issue_id_from_body, $user, FALSE);
     if (!isset($issue['issue']['pull_request'])) {
       // Only adds non PRs
-      $issues[] = $issue;
+      $issues[$issue_id_from_body] = $issue;
     }
   }
   return $issues;
@@ -500,7 +504,8 @@ function productivity_tracking_get_issue($repo, $issue_id, $user = 'Gizra') {
  */
 function productivity_tracking_create_multifields_track($data) {
   $data += [
-    'date' => time(),
+    'date_start' => time(),
+    'date_end' => time(),
     'label' => '',
     'last_push' => time(),
     'issue_id' => 0,
@@ -512,9 +517,12 @@ function productivity_tracking_create_multifields_track($data) {
   ];
 
   $log = array();
-  $log['field_date']['und'][0]['value'] = $data['date'];
+  $log['field_date']['und'][0]['value'] = $data['date_start'];
+  $log['field_date']['und'][0]['value2'] = $data['date_end'];
   $log['field_issue_label']['und'][0]['value'] =  $data['label'];
-  $log['field_last_push']['und'][0]['value'] =  $data['last_push'];
+  // TODO: Remove last push from schema.
+  // Removed since we user date end of field_date instead.
+//  $log['field_last_push']['und'][0]['value'] =  $data['last_push'];
   $log['field_issue_id']['und'][0]['value'] =  $data['issue_id'];
   $term = productivity_tracking_get_term_status( $data['status']);
   $log['field_issue_status']['und'][0]['target_id'] = $term->tid;

@@ -173,7 +173,7 @@ class ProductivityGithubAuthAuthentication extends \RestfulAccessTokenAuthentica
    */
   protected function checkMembership($data, $options) {
     try {
-      productivity_github_http_request('orgs/' . variable_get('productivity_github_organization', 'Gizra') . '/members/' . $data['login'], array(), FALSE);
+      productivity_github_http_request('orgs/' . variable_get('productivity_github_organization', 'Gizra') . '/members/' . $data['login'], $options, FALSE);
     }
     catch (RestfulException $e) {
       // https://developer.github.com/v3/orgs/members/#check-membership

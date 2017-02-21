@@ -31,7 +31,6 @@ function productivity_tracking_menu() {
  * Implements hook_theme().
  */
 function productivity_tracking_theme($existing, $type, $theme, $path) {
-  $a = 1;
   return array(
     'tracking_burn_table' => array(
       'variables' => array(),

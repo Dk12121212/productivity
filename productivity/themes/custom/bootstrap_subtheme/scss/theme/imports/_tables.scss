@@ -83,6 +83,9 @@
 	}
 
 	&.per-issue-table.table-striped {
+		td:first-child {
+			text-align:left;
+		}
 
 		th, td {
 			text-align:center;

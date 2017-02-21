@@ -2026,6 +2026,9 @@ blockquote.pull-right:before {
 .table a.table-link.danger:hover {
   color: #c0392b;
 }
+.table.per-issue-table.table-striped td:first-child {
+  text-align: left;
+}
 .table.per-issue-table.table-striped th, .table.per-issue-table.table-striped td {
   text-align: center;
   vertical-align: middle;

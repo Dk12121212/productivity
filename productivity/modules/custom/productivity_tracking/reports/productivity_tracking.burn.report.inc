@@ -124,6 +124,7 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE) {
         'class' => 'info',
         'data' => array(
           'issue_id' => $issue_link,
+          'date' => '',
           'estimate' => $estimate,
           'actual' => $pr_time,
           'developer' => l('Link to node', "node/$nid/edit", array('attributes' => array('target' => '_blank'))),

@@ -10,7 +10,7 @@
         <div class="row">
 
           <div class="col-xs-12" ng-if="githubClientId">
-            <a class="btn btn-block btn-social btn-lg btn-github text-center" ng-href="https://github.com/login/oauth/authorize?client_id={{ githubClientId }}&scope=user:email">
+            <a class="btn btn-block btn-social btn-lg btn-github text-center" ng-href="https://github.com/login/oauth/authorize?client_id={{ githubClientId }}&scope=user:email,read:org">
               <i class="fa fa-github"></i> Login with GitHub account
             </a>
             <div class="alert alert-danger" ng-if="loginErrorMessage">

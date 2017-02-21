@@ -12,7 +12,7 @@ include_once 'productivity_tracking.features.inc';
  */
 function productivity_tracking_menu() {
   $items['node/%node/issues-tracking'] = array(
-    'title' => t('Burn Report'),
+    'title' => t('Tracking Report'),
     'page callback' => 'productivity_tracking_burn_report_callback',
     'page arguments' => array(1),
     'access callback' => 'node_access',

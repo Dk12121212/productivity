@@ -1,9 +1,9 @@
 <div class="report-container">
-  <div class="back-link">
+  <div class="back-link noprint">
     <?php print $backlink; ?>
   </div>
   <div>
-    <ul class="nav nav-tabs" role="tablist">
+    <ul class="nav nav-tabs noprint" role="tablist">
       <?php foreach ($tables as $name => $data): ?>
         <!-- Nav tabs -->
         <li role="presentation" class="<?php print $data['class']; ?>">
@@ -26,28 +26,34 @@
 <style>
   @media print {
     .report-container {
-      margin: 0 10px; }
+      margin: 0 10px;
+    }
 
     .table {
-      font-size: 9pt; }
+      font-size: 9pt;
+    }
     .table > tbody > tr > td {
-      padding: 2px !important; }
+      padding: 2px !important;
+    }
 
-    .mop-manager {
-      float: left; }
-
-    .employee-signature {
-      float: right;
-      width: 50%; }
+    thead {
+      margin-top: 15px;
+    }
 
     @page {
       size: auto;
       margin-top: -20px;
       margin-right: 10px;
       margin-bottom: 10px;
-      margin-left: 10px; }
-    #search-filter, .page-header, #nav-col, #footer-copyright, .noprint, .sticky-header {
-      display: none; }
+      margin-left: 10px;
+    }
+    #search-filter, .page-header, #nav-col, #footer-copyright, .noprint, .sticky-header, .tabs--primary {
+      display: none;
+    }
+
+    .sticky-header {
+       position: relative !important;
+    }
 
     a[href]:after {
       content: none !important; }
@@ -56,10 +62,12 @@
       display: block !important; }
 
     #header {
-      position: relative; }
+      position: relative;
+    }
 
     .table-striped > tbody > tr:nth-child(odd) > td, .table-striped > tbody > tr:nth-child(odd) > th {
-      background-color: #f9f9f9 !important; }
+      background-color: #f9f9f9 !important;
+    }
 
     .well {
       border: none !important; }

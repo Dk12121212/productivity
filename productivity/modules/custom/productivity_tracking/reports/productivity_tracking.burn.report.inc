@@ -29,7 +29,7 @@ function productivity_tracking_burn_report_callback($project_node) {
       $table = productivity_tracking_burn_report($project_node, $rate_code);
       $variables['tables'][$rate_code] = [
         'title' => $type->field_issue_type->label(),
-        'table' => theme('table', $table['table']),
+        'table' => $table['table'] ? theme('table', $table['table']) : t('No tracking for project yet.'),
         'totals' => $table['totals'],
         'class' => $active,
       ];
@@ -181,7 +181,7 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE) {
         'actual' => $pr_time,
         'developer' => $pr_developer,
         'type' => $pr_work_type,
-        'overtime' => '-',
+        'overtime' => '',
         'status' =>  array(
           'class' => ($pr_status == 'closed' ? 'cell-bad-odd' : 'cell-ok-even'),
           'data' => $pr_status,

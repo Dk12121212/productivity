@@ -117,10 +117,9 @@ while($track = $result->fetchAssoc()) {
     $logs = array();
     $logs['und'][] = create_multifields_track($track, $total_time_spent/ count($gh_ids), $clean_repo, $gh_user, $pr_id);
 
-    if (!isset($processed_tracking[$node->nid])) {
-      // First time prossessing this node, errase all other tracking.
-      $processed_tracking[$node->nid] = TRUE;
-      $node->field_track_log = $logs;
+    if (!isset($processed_tracking[$gh_issue_number])) {
+      // First time processing this node, erase all other tracking.
+      $processed_tracking[$gh_issue_number] = TRUE;
     }
     else {
       if (isset($node->field_track_log['und'])) {
@@ -128,8 +127,8 @@ while($track = $result->fetchAssoc()) {
           $logs['und'][] = $existing_log;
         }
       }
-      $node->field_track_log = $logs;
     }
+    $node->field_track_log = $logs;
 
 
     $wrapper->save();
@@ -233,29 +232,29 @@ function get_new_tracking($issue) {
     ->range(0, 1)
     ->execute();
 
-    if (!empty($result['node'])) {
-      $nid = reset($result['node']);
-      $node = node_load($nid->nid);
-      print("Found existing new tracking {$node->title} \n");
+  if (!empty($result['node'])) {
+    $nid = reset($result['node']);
+    $node = node_load($nid->nid);
+    print("Found existing new tracking {$node->title} \n");
+  }
+  else {
+    // If stub issue or not found before create a new node.
+    if ($issue['github_repo'] != 'no-repo') {
+      $title = "Tracking for issue {$issue['github_repo']}/{$issue['issue_id']}";
     }
     else {
-      // If stub issue or not found before create a new node.
-      if ($issue['github_repo'] != 'no-repo') {
-        $title = "Tracking for issue {$issue['github_repo']}/{$issue['issue_id']}";
-      }
-      else {
-        $title = "Tracking for project: {$issue['title']}";
-      }
-      $values = array(
-        'title' => $title,
-        'type' => 'tracking',
-        'uid' => $issue['uid'],
-        'status' => 1,
-      );
-      print("Creating new $title \n");
-      $node = entity_create('node', $values);
-
+      $title = "Tracking for project: {$issue['title']}";
     }
+    $values = array(
+      'title' => $title,
+      'type' => 'tracking',
+      'uid' => $issue['uid'],
+      'status' => 1,
+    );
+    print("Creating new $title \n");
+    $node = entity_create('node', $values);
+
+  }
 
   $wrapper = entity_metadata_wrapper('node', $node);
   $wrapper->field_project->set($issue['project']);

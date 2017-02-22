@@ -75,10 +75,6 @@ class ProductivityGithubAuthAuthentication extends \RestfulAccessTokenAuthentica
       ->range(0, 1)
       ->execute();
 
-    if (!$this->checkMembership($data, $options)) {
-      throw new \RestfulUnauthorizedException('You are not authorized to access this organization.');
-    }
-
     if (empty($result['user'])) {
       // Create a new user.
       $account = $this->createUser($data, $options, $access_token);
@@ -158,29 +154,5 @@ class ProductivityGithubAuthAuthentication extends \RestfulAccessTokenAuthentica
 
       return $row['email'];
     }
-  }
-
-  /**
-   * Checks if the user is the member of the managed organization.
-   *
-   * @param array $data
-   *   Array with the user's data from GitHub.
-   * @param array $options
-   *   Options array as passed to drupal_http_request().
-   *
-   * @return bool
-   *   TRUE only if the user is member of the organization.
-   */
-  protected function checkMembership($data, $options) {
-    try {
-      productivity_github_http_request('orgs/' . variable_get('productivity_github_organization', 'Gizra') . '/members/' . $data['login'], $options, FALSE);
-    }
-    catch (RestfulException $e) {
-      // https://developer.github.com/v3/orgs/members/#check-membership
-      // @see productivity_github_check_response_http_error()
-      // If we have a 2XX status code, it's a member, otherwise not.
-      return FALSE;
-    }
-    return TRUE;
   }
 }

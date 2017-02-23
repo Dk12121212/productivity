@@ -45,19 +45,7 @@ function productivity_tracking_theme($existing, $type, $theme, $path) {
  */
 function productivity_tracking_payload() {
   // set NULL to disable check
-  $hookSecret = variable_get('productivity_github_secret', 'd00vde');
-
-  set_error_handler(function($severity, $message, $file, $line) {
-    throw new \ErrorException($message, 0, $severity, $file, $line);
-  });
-
-  set_exception_handler(function($e) {
-    header('HTTP/1.1 500 Internal Server Error');
-    $msg =  "Error on line {$e->getLine()}: " . htmlSpecialChars($e->getMessage());
-    watchdog('productivity_tracking', $msg, array(), WATCHDOG_ERROR);
-    echo $msg;
-    die();
-  });
+  $hookSecret = variable_get('productivity_github_secret', '1234');
 
   $rawPost = NULL;
   // Check security secret.
@@ -579,7 +567,7 @@ function productivity_tracking_get_tracking_node($data) {
   if (!$node) {
     // If it's a GH related tracking.
     if ($data['issue_id'] != '') {
-      $title = "Tracking for issue {$data['issue_id']}/{$data['repo']}";
+      $title = "Tracking for issue {$data['repo']}/{$data['issue_id']}";
     }
     else {
       $title = "Tracking for project: {$data['title']}";

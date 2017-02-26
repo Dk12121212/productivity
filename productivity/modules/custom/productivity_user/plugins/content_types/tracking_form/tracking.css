@@ -1,0 +1,153 @@
+body {
+  font-family: Arial, sans-serif; }
+  body .container .btn-github {
+    color: white;
+    background: #478484;
+    padding-left: 0;
+    transition: .4s ease-in-out all;
+    width: 320px;
+    margin: 0 auto 20px; }
+  body .container .tracking-table-page h2 a:hover {
+    text-decoration: none; }
+  body .container .tracking-table-page h2 a:active {
+    color: red; }
+  body .container .tracking-table-page .track-item-table {
+    font-size: 16px; }
+    body .container .tracking-table-page .track-item-table li a {
+      height: 36px; }
+    body .container .tracking-table-page .track-item-table td {
+      white-space: nowrap; }
+  body .container .tracking-table-page .track-item td {
+    padding: 10px 0 0 0;
+    width: 28px; }
+  body .container .tracking-table-page .track-item a {
+    padding: 10px;
+    color: #470000; }
+  body .container .tracking-table-page .track-item .empty {
+    background-color: white; }
+  body .container .tracking-table-page .track-item .regular {
+    background-color: #478484; }
+    body .container .tracking-table-page .track-item .regular a {
+      color: #226666; }
+  body .container .tracking-table-page .track-item .sick {
+    background-color: #AA3939;
+    margin-left: 5px; }
+  body .container .tracking-table-page .track-item .vacation {
+    background-color: #DB7676;
+    margin-left: 5px; }
+  body .container .tracking-table-page .track-item .holiday {
+    background-color: #DBA476; }
+  body .container .tracking-table-page .track-item .funday, body .container .tracking-table-page .track-item .special {
+    background-color: #AA8439; }
+  body .container .tracking-table-page .track-item .miluim {
+    background-color: #AA8439;
+    margin-left: 5px; }
+  body .container .tracking-table-page .track-item .convention {
+    background-color: #645582;
+    color: white; }
+  body .container .tracking-table-page .track-item .weekend {
+    background-color: #DBA476; }
+  body .container .tracking-table-page .track-item .summary {
+    background-color: #4784B1; }
+  body .container .tracking-table-page .track-item .global {
+    background-color: #a784B1; }
+  body .container .tracking-page .axis path, body .container .tracking-page .axis line {
+    fill: none;
+    stroke: #b6b6b6;
+    shape-rendering: crispEdges; }
+  body .container .tracking-page .tick text {
+    fill: #999; }
+  body .container .tracking-page g.journal circle {
+    fill: #e60f0d; }
+    body .container .tracking-page g.journal circle.regular {
+      fill: #e6b9d5; }
+    body .container .tracking-page g.journal circle.sick {
+      fill: #28b90d; }
+    body .container .tracking-page g.journal circle.vacation {
+      fill: #64000d; }
+    body .container .tracking-page g.journal circle.holiday {
+      fill: #00550d; }
+    body .container .tracking-page g.journal circle.funday {
+      fill: #c8b90d; }
+    body .container .tracking-page g.journal circle.miluim {
+      fill: #64550d; }
+    body .container .tracking-page g.journal circle.convention {
+      fill: #645582; }
+  body .container .tracking-page g.journal:hover {
+    cursor: pointer; }
+  body .container .tracking-page text.label {
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer; }
+  body .container .tracking-page text.value {
+    font-size: 12px;
+    font-weight: bold; }
+  body .container .tracking-form-page .calendar-btn {
+    float: right; }
+  body .container .tracking-form-page #calendar .fc-state-highlight {
+    background-color: #f8f8f8; }
+  body .container .tracking-form-page #calendar .fc-event {
+    border: 0 none;
+    padding: 1px;
+    color: white; }
+    body .container .tracking-form-page #calendar .fc-event .fc-event-title {
+      text-transform: capitalize; }
+    body .container .tracking-form-page #calendar .fc-event.empty-event {
+      background-color: transparent;
+      color: black; }
+    body .container .tracking-form-page #calendar .fc-event.regular-event {
+      background-color: #478484; }
+    body .container .tracking-form-page #calendar .fc-event.sick-event {
+      background-color: #AA3939; }
+    body .container .tracking-form-page #calendar .fc-event.vacation-event {
+      background-color: #DB7676; }
+    body .container .tracking-form-page #calendar .fc-event.holiday-event {
+      background-color: #DBA476; }
+    body .container .tracking-form-page #calendar .fc-event.funday-event, body .container .tracking-form-page #calendar .fc-event.special-event {
+      background-color: #AA8439; }
+    body .container .tracking-form-page #calendar .fc-event.miluim-event {
+      background-color: #AA8439; }
+    body .container .tracking-form-page #calendar .fc-event.convention-event {
+      background-color: #645582; }
+    body .container .tracking-form-page #calendar .fc-event.weekend-event {
+      background-color: #DBA476; }
+    body .container .tracking-form-page #calendar .fc-event.global-event {
+      background-color: #a784B1; }
+  body .container .tracking-form-page .month-nav {
+    font-size: 30px;
+    padding-left: 60px; }
+    body .container .tracking-form-page .month-nav a:hover {
+      text-decoration: none; }
+  body .container .tracking-form-page .tracking-form {
+    margin-top: 30px; }
+    body .container .tracking-form-page .tracking-form.form-horizontal .control-label {
+      text-align: left; }
+    body .container .tracking-form-page .tracking-form .issues-row {
+      margin-bottom: 5px; }
+      body .container .tracking-form-page .tracking-form .issues-row > div {
+        padding-left: 5px;
+        padding-right: 5px; }
+        body .container .tracking-form-page .tracking-form .issues-row > div .issue-time {
+          text-align: center;
+          width: 60%;
+          display: inline-block;
+          float: left; }
+        body .container .tracking-form-page .tracking-form .issues-row > div:first-child {
+          padding-left: 15px; }
+        body .container .tracking-form-page .tracking-form .issues-row > div .fa {
+          margin: 4px 0 0 5px;
+          float: left;
+          cursor: pointer; }
+          body .container .tracking-form-page .tracking-form .issues-row > div .fa.fa-plus-circle {
+            color: #4784B1; }
+          body .container .tracking-form-page .tracking-form .issues-row > div .fa.fa-minus-circle {
+            color: #4784B1; }
+    body .container .tracking-form-page .tracking-form .total-hours {
+      text-align: right; }
+      body .container .tracking-form-page .tracking-form .total-hours span {
+        display: inline-block;
+        margin: 2px 9% 0 0;
+        font-size: 20px;
+        font-weight: bold; }
+
+/*# sourceMappingURL=tracking.css.map */

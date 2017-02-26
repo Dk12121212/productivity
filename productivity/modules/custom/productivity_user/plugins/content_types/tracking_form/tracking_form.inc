@@ -16,7 +16,11 @@ $plugin = array(
  * Render callback.
  */
 function productivity_user_tracking_form_content_type_render($subtype, $conf, $args, $context) {
+  drupal_add_css(drupal_get_path('module', 'productivity_user') . '/plugins/content_types/tracking_form/tracking.css');
   $variables = [];
+  $variables['tracking'] = [];
+  $variables['days'] = [];
+
 
   $block = new stdClass();
   $block->module = 'productivity_user';

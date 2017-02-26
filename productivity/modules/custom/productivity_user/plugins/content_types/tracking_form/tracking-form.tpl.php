@@ -93,24 +93,25 @@
   <thead>
   <tr>
     <th>#</th>
-    <th ng-repeat="item in days">{{ item }}</th>
+    <?php foreach($days as $item): ?>
+      <th>item</th>
+    <?php endforeach; ?>
   </tr>
   </thead>
   <tbody>
   <tr class="track-item">
     <th scope="row"> {{ name }}</th>
-    <td ng-repeat="tracks in tracking">
+    <?php foreach($tracking as $tracks): ?>
+    <td>
       <ul class="list-unstyled">
-        <li ng-repeat="track in tracks">
-          <a ui-sref="dashboard.tracking-form({username: track.employee, year: year, month: month, day: track.day, id: track.id})"
-             popover-trigger="mouseenter"
-             popover="{{ track.projectName }}"
-             class="{{ track.type }}">
-            {{ track.length }}
-          </a>
+      <?php foreach($tracks as $track): ?>
+        <li>
+          <a href="LINK TO TRACKING DAY" popover-trigger="mouseenter" popover="project name" class="dev">8hours</a>
         </li>
+      <?php endforeach; ?>
       </ul>
     </td>
+    <?php endforeach; ?>
   </tr>
   </tbody>
 </table>

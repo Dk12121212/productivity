@@ -12,7 +12,7 @@ include_once 'productivity_tracking.features.inc';
  */
 function productivity_tracking_menu() {
   $items['node/%node/issues-tracking'] = array(
-    'title' => t('Burn Report'),
+    'title' => t('Tracking Report'),
     'page callback' => 'productivity_tracking_burn_report_callback',
     'page arguments' => array(1),
     'access callback' => 'node_access',
@@ -27,16 +27,277 @@ function productivity_tracking_menu() {
   return $items;
 }
 
+/**
+ * Implements hook_theme().
+ */
+function productivity_tracking_theme($existing, $type, $theme, $path) {
+  return array(
+    'tracking_burn_table' => array(
+      'variables' => array(),
+      'template' => 'productivity_tracking_burn_table',
+      'path' => $path . '/reports',
+    ),
+  );
+}
 
 /**
- * Implements hook_menu().
+ * Github endpoint callback
  */
-function productivity_tracking_init() {
-  // Set composer dir.
-  global $conf;
-  $conf['composer_manager_vendor_dir'] = 'profiles/productivity/composer/vendor';
-  $conf['composer_manager_file_dir'] = 'profiles/productivity/composer';
+function productivity_tracking_payload() {
+  // set NULL to disable check
+  $hookSecret = variable_get('productivity_github_secret', '1234');
+
+  $rawPost = NULL;
+  // Check security secret.
+  if ($hookSecret !== NULL) {
+    if (!isset($_SERVER['HTTP_X_HUB_SIGNATURE'])) {
+      throw new \Exception("HTTP header 'X-Hub-Signature' is missing.");
+    }
+    elseif (!extension_loaded('hash')) {
+      throw new \Exception("Missing 'hash' extension to check the secret code validity.");
+    }
+
+    // Separate algo and hash.
+    list($algo, $hash) = explode('=', $_SERVER['HTTP_X_HUB_SIGNATURE'], 2) + array('', '');
+    if (!in_array($algo, hash_algos(), TRUE)) {
+      throw new \Exception("Hash algorithm '$algo' is not supported.");
+    }
+
+    // Check hash.
+    $rawPost = file_get_contents('php://input');
+    if ($hash !== hash_hmac($algo, $rawPost, $hookSecret)) {
+      throw new \Exception('Hook secret does not match.');
+    }
+  };
+
+  // Check event header.
+  if (!isset($_SERVER['CONTENT_TYPE'])) {
+    throw new \Exception("Missing HTTP 'Content-Type' header.");
+  }
+  elseif (!isset($_SERVER['HTTP_X_GITHUB_EVENT'])) {
+    throw new \Exception("Missing HTTP 'X-Github-Event' header.");
+  }
+
+
+  switch ($_SERVER['CONTENT_TYPE']) {
+    case 'application/json':
+      $json = $rawPost ?: file_get_contents('php://input');
+      break;
+    case 'application/x-www-form-urlencoded':
+      $json = $_POST['payload'];
+      break;
+    default:
+      throw new \Exception("Unsupported content type: $_SERVER[HTTP_CONTENT_TYPE]");
+  }
+
+  # Payload structure depends on triggered event
+  # https://developer.github.com/v3/activity/events/types/
+  $payload = json_decode($json, TRUE);
+
+  switch ($event = strtolower($_SERVER['HTTP_X_GITHUB_EVENT'])) {
+    // Issue event https://developer.github.com/v3/activity/events/types/#issuesevent
+    // https://developer.github.com/v3/activity/events/types/#pullrequestevent.
+    case 'issues' || 'pull_request':
+      productivity_tracking_gh_payload($payload, $event);
+      break;
+    default:
+      header('HTTP/1.0 404 Not Found');
+      echo "Event:{$_SERVER['HTTP_X_GITHUB_EVENT']} Payload:\n";
+      watchdog('productivity_tracking', t('@event is not supported', array('@event' => $_SERVER['HTTP_X_GITHUB_EVENT'])));
+      die();
+  }
 }
+
+
+/**
+ * Handle PR event.
+ */
+function productivity_tracking_gh_payload($payload, $event) {
+
+  // Get related issue from PR body.
+  if ($event == 'pull_request') {
+    $pr = $payload['pull_request'];
+    // Look in body for issue.
+    $issues = productivity_tracking_parse_related_issue($payload['pull_request']['body'], $payload['repository']['name'], $payload['repository']['owner']['login']);
+    // Look in title for issue.
+    $issues += productivity_tracking_parse_related_issue($payload['pull_request']['title'], $payload['repository']['name'], $payload['repository']['owner']['login'], TRUE);
+
+  }
+  // Issue event.
+  else {
+    // Take issue info straight from payload.
+    $pr = FALSE;
+    $issues[] = [
+      'issue' => $payload['issue'],
+      'estimate' => productivity_tracking_parse_time_estimate($payload['issue']['title']),
+      'related_issues' => [],
+    ];
+  }
+
+  // No issue connected.
+  if (empty($issues)) {
+    // If PR is orphan and Pr has an estimate in title, then create a tracking.
+    if ($estimate = productivity_tracking_parse_time_estimate($payload['pull_request']['title'])) {
+      $issues[] = [
+        'issue' => $payload['pull_request'],
+        'estimate' => $estimate,
+        'related_issues' => [],
+      ];
+    }
+    else {
+      // TODO: Send message to account manager about no issue and no estimate.
+      return FALSE;
+    }
+  }
+
+  foreach ($issues as $issue) {
+    $uid = productivity_tracking_get_uid_by_github_username(check_plain($payload['sender']['login']));
+    $data_issue = [
+      'issue_id' => $issue['issue']['number'],
+      'repo' => $payload['repository']['full_name'],
+      'title' => $issue['issue']['title'],
+      'project' => productivity_tracking_get_project_by_repository($payload['repository']),
+      'estimate' => $issue['estimate'],
+      'status' => $issue['issue']['state'],
+      'uid' => $uid,
+    ];
+
+
+    $wrapper = productivity_tracking_get_tracking_node($data_issue);
+
+    // Only create tracking stub if a PR was pushed.
+    // This will be later used to prepopulate the tracking for developers.
+    if ($pr) {
+      $node = $wrapper->value();
+      $logs = array();
+
+      // We should create one stub log per day per user per issue numnber.
+      // issue_id.
+      $found_log = FALSE;
+      if (isset($node->field_track_log['und'])) {
+        foreach ($node->field_track_log['und'] as $existing_log) {
+          // Convert date.
+          $pr_day = date('Ymd', $existing_log['field_date']['und'][0]['value']);
+          $today = date('Ymd');
+
+          // Check if we have a match for same PR, same day, Same user.
+          if ($existing_log['field_github_username']['und'][0]['value'] == $payload['sender']['login'] && $existing_log['field_issue_id']['und'][0]['value'] == $pr['number'] && $pr_day == $today) {
+            $found_log = &$existing_log;
+          }
+        }
+      }
+      // Update existing log, with new info.
+      if ($found_log) {
+        // Update info that might change.
+        $found_log['field_issue_label']['und'][0]['value'] = $pr['title'];
+        $found_log['field_date']['und'][0]['value2'] = date("Y-m-d H:i:s",strtotime($pr['updated_at']));
+        $term = productivity_tracking_get_term_status($pr['state']);
+        $found_log['field_issue_status']['und'][0]['target_id'] = $term->tid;
+      }
+      else {
+        $data = [
+          'date_start' => date("Y-m-d H:i:s",strtotime($pr['updated_at'])),
+          'date_end' => date("Y-m-d H:i:s",strtotime($pr['updated_at'])),
+          'label' => $pr['title'],
+          'issue_id' => $pr['number'],
+          'status' => $pr['state'],
+          'github_username' => $payload['sender']['login'],
+          'time_spent' => 0,
+          'issue_type' => '',
+          'uid' => $uid,
+        ];
+        // Create a new tracking data.
+        $logs['und'][] = productivity_tracking_create_multifields_track($data, $wrapper);
+
+        // Rebuild structure with previous logs.
+        if (isset($node->field_track_log['und'])) {
+          foreach ($node->field_track_log['und'] as $existing_log) {
+            $logs['und'][] = $existing_log;
+          }
+        }
+        $node->field_track_log = $logs;
+      }
+    }
+
+    // Save node.
+    $wrapper->save();
+  }
+
+}
+
+/**
+ *
+ * Get the project ID from the repository name.
+ *
+ * @param $repository_info
+ *  A github repository names.
+ *
+ * @return int
+ *   Project node ID.
+ */
+function productivity_tracking_get_project_by_repository($repository_info) {
+  $values = array(
+    $repository_info['name'],
+    $repository_info['owner']['login'],
+    $repository_info['full_name'],
+  );
+
+  foreach ($values as $value) {
+    if ($nid = productivity_tracking_get_entity_id_by_field_value('field_github_repository_name', 'project', check_plain($value))) {
+      return $nid;
+    }
+  }
+  // Print error if no repo was found.
+  watchdog('productivity', t('No project with github repository: @repository', array('@repository' => print_r($repository_info, TRUE))));
+  return FALSE;
+}
+
+/**
+ * Get user ID from the GitHub username.
+ *
+ * @param string $github_username
+ *   A github username.
+ *
+ * @return int
+ *   Account ID.
+ */
+function productivity_tracking_get_uid_by_github_username($github_username) {
+  if ($uid = productivity_tracking_get_entity_id_by_field_value('field_github_username', 'user', $github_username)) {
+    return $uid;
+  }
+
+  watchdog('productivity', t('No user with github username: @username', array('@username' => $github_username)));
+}
+
+
+/**
+ * Fetch an entity ID by a unique field value.
+ *
+ * @param $field
+ *   Field name.
+ * @param $bundle
+ *   Entity bundle.
+ * @param $value
+ *   Field value.
+ *
+ * @return int
+ *   Entity ID.
+ */
+function productivity_tracking_get_entity_id_by_field_value($field, $bundle, $value) {
+  // Using db_select to allow this query for anonymous.
+  $result = db_select('field_data_' . $field, 'f')
+    ->fields('f', array('entity_id'))
+    ->condition('bundle', $bundle)
+    ->condition($field . '_value', $value)
+    ->range(0, 1)
+    ->execute()
+    ->fetchAssoc();
+
+  if (!empty($result['entity_id'])) {
+    return $result['entity_id'];
+  }
+}
+
 
 /**
  * Get entity reference connections.
@@ -62,6 +323,7 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
     'gpi' => 'field_github_project_id',
     't' => 'field_track_log',
     'st' => 'field_issue_status',
+    'b' => 'body',
   ];
 
   foreach ($node_fields as $alias => $field) {
@@ -81,6 +343,7 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
     ->fields('i', array('field_issue_id_value'))
     ->fields('gpi', array('field_github_project_id_value'))
     ->fields('t')
+    ->fields('b')
     ->fields('issue_status', array('name'))
     ->fields('pr_status', array('name'))
     ->fields('p', array('field_project_target_id'));
@@ -97,7 +360,7 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
     ->orderBy('i.field_issue_id_value');
 
   if ($work_type) {
-    $query->condition('t.field_issue_type_value', $work_type);
+    $query->condition('t.field_track_log_field_issue_type_value', $work_type);
   }
 
   $result = $query->execute();
@@ -105,12 +368,87 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
   return $result;
 }
 
+/**
+ * Parse time estimation from string.
+ */
+function productivity_tracking_parse_time_estimate($string) {
+  // Get time estimate from title, if it has any.
+  $matches = array();
+  $estimate = 0;
+  if (preg_match('/\[([0-9]+)[h|H]\]|\[([0-9]+\.[0-9]+)[h|H]\]/', $string, $matches)) {
+    // The iss has a time estimate.
+    $estimate = empty($matches[1]) ? (empty($matches[2]) ? 0 : $matches[2]) : $matches[1];
+  }
+  return $estimate;
+}
 
 /**
- * Return estimate from github API.
+ * Parse related issue numnber.
+ *
+ * @param $no_hash
+ *   Search fo issue number without # too.
+ *
+ * @return array().
+ *   An array with GH issue array with info from GH.
  */
-function productivity_tracking_get_issue_info($repo, $issue_id, $user = 'Gizra', $level = 0) {
-  $cid = "$user/$repo/$issue_id-$level";
+function productivity_tracking_parse_related_issue($string, $repo, $user, $no_hash = FALSE) {
+  if ($no_hash) {
+    $re = '/(\d+)/';
+  }
+  else {
+    $re = '/#(\d+)/';
+  }
+  $str = $string;
+  preg_match_all($re, $str, $matches);
+  $issues = [];
+  foreach ($matches[1] as $issue_id_from_body) {
+    $issue = productivity_tracking_get_issue_info($repo, $issue_id_from_body, $user, FALSE);
+    if (!isset($issue['issue']['pull_request'])) {
+      // Only adds non PRs
+      $issues[$issue_id_from_body] = $issue;
+    }
+  }
+  return $issues;
+}
+
+/**
+ * Return PR or issue info with estimate from github API.
+ */
+function productivity_tracking_get_issue_info($repo, $issue_id, $user = 'Gizra', $with_related = TRUE) {
+  // Get ifo from GH.
+  $issue = productivity_tracking_get_issue($repo, $issue_id, $user);
+
+  if (empty($issue)) {
+    return [
+      'issue' => [],
+      'estimate' => 0,
+      'related_issues' => [],
+    ];
+  }
+
+  // Get time estimate from title, if it has any.
+  $estimate = productivity_tracking_parse_time_estimate($issue['title']);
+
+  $issues = [];
+  // Find issue connected.
+  if ($with_related) {
+    $issues = productivity_tracking_parse_related_issue($issue['body'], $repo, $user);
+  }
+
+  $data = [
+    'issue' => $issue,
+    'estimate' => $estimate,
+    'related_issues' => $issues,
+  ];
+
+  return $data;
+}
+
+/**
+ * Return PR or issue info from github API.
+ */
+function productivity_tracking_get_issue($repo, $issue_id, $user = 'Gizra') {
+  $cid = "$user/$repo/$issue_id";
   $data = &drupal_static($cid);
 
   if (!isset($data)) {
@@ -121,45 +459,14 @@ function productivity_tracking_get_issue_info($repo, $issue_id, $user = 'Gizra',
       $client = github_api_client();
       try {
         // Get ifo from GH.
-        $issue = $client->issue()->show($user, $repo, $issue_id);
-
-        // Get time estimate from title, if it has any.
-        $matches = array();
-        $estimate = 0;
-        if (preg_match('/\[([0-9]+)[h|H]\]|\[([0-9]+\.[0-9]+)[h|H]\]/', $issue['title'], $matches)) {
-          // The iss has a time estimate.
-          $estimate = empty($matches[1]) ? (empty($matches[2]) ? 0 : $matches[2]) : $matches[1];
-        }
-
-        // Find issue connected.
-        if ($level == 0) {
-          $re = '/#(\d+)/';
-          $str = $issue['body'];
-          preg_match_all($re, $str, $matches);
-          $issues = [];
-          foreach ($matches[1] as $issue_id_from_body) {
-            // Collect related issues info.
-            $issues[] = productivity_tracking_get_issue_info($repo, $issue_id_from_body, $user, 1);
-          }
-        }
-        $data = [
-          'issue' => $issue,
-          'estimate' => $estimate,
-          'related_issues' => $issues,
-        ];
-
+        $data =  $client->issue()->show($user, $repo, $issue_id);
         cache_set($cid, $data);
 
       } catch (Exception $exception) {
         watchdog('productivity_github', 'looking for @cid : @exception', array('@cid' => $cid, '@exception' => $exception->getMessage()), WATCHDOG_ERROR);
         // CAche nit found.
         if ($exception->getCode() == 404){
-          $data = [
-            'issue' => [],
-            'estimate' => 0,
-            'related_issues' => [],
-          ];
-          cache_set($cid, $data);
+          cache_set($cid, []);
         }
         return [];
       }
@@ -170,38 +477,48 @@ function productivity_tracking_get_issue_info($repo, $issue_id, $user = 'Gizra',
 
 /**
  * Create a well formated log track multifileld.
+ *
+ * @param $data
+ *  array().
+ *
+ *   'date' => time(),
+ *   'label' => '',
+ *   'last_push' => time(),
+ *   'issue_id' => 0,
+ *   'status' => 'closed',
+ *   'github_username' => '',
+ *   'time_spent' => 0,
+ *   'issue_type' => 'dev',
+ *   'uid' => 0,
  */
-function productivity_tracking_create_multifields_track($track, $total_time_spent) {
-  $old_track_nid = $track['entity_id'];
-  $old_track_node_wrapper = entity_metadata_wrapper('node', $old_track_nid);
-  $pr_nid = $track['field_issues_logs_field_github_issue_target_id'];
-  $pr_wrapper = entity_metadata_wrapper('node', $pr_nid);
-
-  // Get last push
-  $last_date = 0;
-  $pr_node = $pr_wrapper->value();
-
-  if ($pr_node && $pr_node->field_push_date['und']) {
-    foreach ($pr_node->field_push_date['und'] as $date) {
-      $last_date = $date['value'];
-    }
-  }
+function productivity_tracking_create_multifields_track($data) {
+  $data += [
+    'date_start' => time(),
+    'date_end' => time(),
+    'label' => '',
+    'last_push' => time(),
+    'issue_id' => 0,
+    'status' => 'closed',
+    'github_username' => '',
+    'time_spent' => 0,
+    'issue_type' => '',
+    'uid' => 0,
+  ];
 
   $log = array();
-  $old_track_node = $old_track_node_wrapper->value();
-  $log['field_date']['und'][0]['value'] = $old_track_node->field_work_date['und'][0]['value'];
-  $log['field_issue_label']['und'][0]['value'] = $track['field_issues_logs_field_issue_label_value'];
-  // PR id.
-  if ($pr_node) {
-    $log['field_issue_id']['und'][0]['value'] = $pr_wrapper->field_issue_id->value();
-    if ($last_date) {
-      $log['field_last_push']['und'][0]['value'] = $last_date;
-    }
-  }
-  $log['field_github_username']['und'][0]['value'] = $old_track_node_wrapper->field_employee->field_github_username->value();
-  $log['field_time_spent']['und'][0]['value'] = $total_time_spent;
-  $log['field_issue_type']['und'][0]['value'] = $track['field_issues_logs_field_issue_type_value'];
-  $log['field_employee']['und'][0]['target_id'] = $old_track_node_wrapper->field_employee->getIdentifier();
+  $log['field_date']['und'][0]['value'] = $data['date_start'];
+  $log['field_date']['und'][0]['value2'] = $data['date_end'];
+  $log['field_issue_label']['und'][0]['value'] =  $data['label'];
+  // TODO: Remove last push from schema.
+  // Removed since we user date end of field_date instead.
+//  $log['field_last_push']['und'][0]['value'] =  $data['last_push'];
+  $log['field_issue_id']['und'][0]['value'] =  $data['issue_id'];
+  $term = productivity_tracking_get_term_status( $data['status']);
+  $log['field_issue_status']['und'][0]['target_id'] = $term->tid;
+  $log['field_github_username']['und'][0]['value'] =  $data['github_username'];
+  $log['field_time_spent']['und'][0]['value'] = $data['time_spent'];
+  $log['field_issue_type']['und'][0]['value'] = $data['issue_type'];
+  $log['field_employee']['und'][0]['target_id'] = $data['uid'];
 
   return $log;
 }
@@ -218,6 +535,7 @@ function productivity_tracking_create_multifields_track($track, $total_time_spen
  *  'project' - Required for new
  *  'estimate' -  Required for new
  *  'uid' -  Required for new
+ *  'status' -  Required for new
  */
 function productivity_tracking_get_tracking_node($data) {
 
@@ -238,13 +556,18 @@ function productivity_tracking_get_tracking_node($data) {
       $nid = reset($result['node']);
       $node = node_load($nid->nid);
       $wrapper = entity_metadata_wrapper('node', $node);
+
+      // Update estimate and status.
+      $wrapper->field_time_estimate->set($data['estimate']);
+      $term = productivity_tracking_get_term_status($data['status']);
+      $wrapper->field_issue_status->set($term);
     }
   }
   // Not found, create a new one.
-  if ($node) {
-    // If stub issue or not found before create a new node.
-    if ($data['repo'] != '') {
-      $title = "Tracking for issue {$data['issue_id']}/{$data['repo']}";
+  if (!$node) {
+    // If it's a GH related tracking.
+    if ($data['issue_id'] != '') {
+      $title = "Tracking for issue {$data['repo']}/{$data['issue_id']}";
     }
     else {
       $title = "Tracking for project: {$data['title']}";
@@ -260,16 +583,20 @@ function productivity_tracking_get_tracking_node($data) {
 
     $wrapper = entity_metadata_wrapper('node', $node);
     $wrapper->field_project->set($data['project']);
-    $wrapper->field_time_estimate->set($data['estimate']);
     $wrapper->field_issue_id->set($data['issue_id']);
     $wrapper->field_github_project_id->set($data['repo']);
+    $wrapper->body->value->set($data['title']);
+
+    $wrapper->field_time_estimate->set($data['estimate']);
+    $term = productivity_tracking_get_term_status($data['status']);
+    $wrapper->field_issue_status->set($term);
   }
 
   return $wrapper;
 }
 
 /**
- * Get or create status term
+ * Get or create status term.
  */
 function productivity_tracking_get_term_status($name) {
   $vocab = taxonomy_vocabulary_machine_name_load('issue_status');

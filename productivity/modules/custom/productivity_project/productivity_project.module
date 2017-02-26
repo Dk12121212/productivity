@@ -61,7 +61,7 @@ function productivity_project_menu() {
   );
 
   $items['node/%node/project-work-report'] = array(
-    'title' => t('Tracking report'),
+    'title' => t('Tracking report per month'),
     'page callback' => 'productivity_time_tracking_project_table',
     'page arguments' => array(1),
     'access callback' => 'node_access',

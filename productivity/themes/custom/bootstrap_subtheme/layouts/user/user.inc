@@ -9,5 +9,7 @@ $plugin = array(
   'regions' => array(
     'top' => t('Top'),
     'bottom' => t('Bottom'),
+    'attendance' => t('Attendance'),
+    'tracking' => t('Tracking'),
   ),
 );

@@ -14,11 +14,21 @@ function productivity_user_init() {
   if (!productivity_user_is_live()) {
     global $conf;
     foreach (mailsystem_get() as $system => $class) {
-      // All systems should be overriden.
+      // All systems should be overridden.
       $conf['mail_system'][$system] = 'CatchTestMailSystem';
     }
   }
 }
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function productivity_user_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools') {
+    return 'plugins/' . $plugin;
+  }
+}
+
 
 /**
  * Implements hook_permission().

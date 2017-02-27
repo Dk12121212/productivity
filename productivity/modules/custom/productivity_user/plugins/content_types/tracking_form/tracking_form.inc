@@ -18,8 +18,12 @@ $plugin = array(
 function productivity_user_tracking_form_content_type_render($subtype, $conf, $args, $context) {
   drupal_add_css(drupal_get_path('module', 'productivity_user') . '/plugins/content_types/tracking_form/tracking.css');
   $variables = [];
-  $variables['tracking'] = [];
-  $variables['days'] = productivity_user_tracking_form_get_days(1, 2017, 230);
+
+  $month = 1;
+  $year = 2017;
+  $uid =230;
+  $variables['tracking'] = productivity_user_tracking_form_get_days($month, $year, $uid);;
+  $variables['last_day'] =  date('t', strtotime('1.' . $month . '.' . $year));
 
   $block = new stdClass();
   $block->module = 'productivity_user';
@@ -126,6 +130,9 @@ function productivity_user_tracking_form_get_days($month, $year, $uid, $weekend 
     $day['projectName'] = $repo_id;
     $day['length'] = $pr_time;
     $day['day'] = date('d', strtotime($pr_date));
+    $day['href'] = $pr_url;
+    $day['type'] = $pr_work_type;
+    $day['title'] = $pr_title;
 
     $key = $day['day'];
     $new_data[$uid][$key][] = $day;
@@ -139,6 +146,10 @@ function productivity_user_tracking_form_get_days($month, $year, $uid, $weekend 
     $day['projectName'] = '';
     $day['length'] = strtoupper(substr($wrapper->field_session_type->label(), 0, 1));
     $day['day'] = date('d', strtotime($wrapper->field_session_date->value->value()));
+    $day['href'] = url('node/123');
+    $day['type'] = $wrapper->field_session_type->label();
+    $day['title'] = $wrapper->field_special_day_name->value();
+
 
     $key = $day['day'];
     $new_data[$uid][$key][] = $day;

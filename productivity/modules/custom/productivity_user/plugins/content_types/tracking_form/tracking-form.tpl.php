@@ -93,20 +93,21 @@
   <thead>
   <tr>
     <th>#</th>
-    <?php foreach($days as $item): ?>
-      <th>item</th>
-    <?php endforeach; ?>
+    <?php for($i=1; $i<=$last_day; $i++): ?>
+      <th><?php print $i; ?></th>
+    <?php endfor; ?>
   </tr>
   </thead>
   <tbody>
   <tr class="track-item">
-    <th scope="row"> {{ name }}</th>
     <?php foreach($tracking as $tracks): ?>
     <td>
       <ul class="list-unstyled">
       <?php foreach($tracks as $track): ?>
         <li>
-          <a href="LINK TO TRACKING DAY" popover-trigger="mouseenter" popover="project name" class="dev">8hours</a>
+          <a href=" <?php print $track['href']; ?>" data-toggle="tooltip" title="<?php print $track['title']; ?>" class=" <?php print $track['type']; ?>">
+            <?php print $track['length']; ?>
+          </a>
         </li>
       <?php endforeach; ?>
       </ul>

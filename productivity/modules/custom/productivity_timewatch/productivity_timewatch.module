@@ -221,7 +221,7 @@ function productivity_timewatch_form_work_session_node_form_alter(&$form, &$form
  * @return $node_keys
  *  All the nodes return from the query.
  */
-function productivity_timewatch_get_user_sessions($uid, $year, $month) {
+function productivity_timewatch_get_user_sessions($uid, $year, $month, $non_regular_only = FALSE) {
 
   if ($month == 'all') {
     $project_start_month = format_string("01-01-@year", array('@year' => $year));
@@ -243,6 +243,12 @@ function productivity_timewatch_get_user_sessions($uid, $year, $month) {
     ->entityCondition('entity_type', 'node')
     ->propertyCondition('type', 'work_session')
     ->fieldCondition('field_employee', 'target_id', $uid);
+
+  if ($non_regular_only) {
+    $tids = taxonomy_get_term_by_name('Regular', 'session_types');
+    $query
+      ->fieldCondition('field_session_type', 'tid',  array_keys($tids), 'NOT IN');
+  }
 
   // Return all time.
   if ($year != 'all') {

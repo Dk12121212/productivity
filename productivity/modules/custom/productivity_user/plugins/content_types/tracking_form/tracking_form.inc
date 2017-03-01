@@ -19,14 +19,15 @@ function productivity_user_tracking_form_content_type_render($subtype, $conf, $a
   drupal_add_css(drupal_get_path('module', 'productivity_user') . '/plugins/content_types/tracking_form/tracking.css');
   $variables = [];
 
-  $month = 1;
-  $year = 2017;
-  $uid =230;
-  $day = 28;
+  $month = isset($_REQUEST['month']) ? $_REQUEST['month'] : date('m', time());
+  $year = isset($_REQUEST['year']) ? $_REQUEST['year'] : date('Y', time());
+  $day = isset($_REQUEST['day']) ? $_REQUEST['day'] : date('d', time());
+  $uid = isset($_REQUEST['uid']) ? $_REQUEST['uid'] : $args[0];
 
   $variables['month'] = $month;
   $variables['year'] = $year;
   $variables['day'] = $day;
+  $variables['projects'] = productivity_project_get_all_projects();
   $variables['tracking'] = productivity_user_tracking_form_get_days($month, $year, $uid);
   $variables['last_day'] =  date('t', strtotime('1.' . $month . '.' . $year));
 

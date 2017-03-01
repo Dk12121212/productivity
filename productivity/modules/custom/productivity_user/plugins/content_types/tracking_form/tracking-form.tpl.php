@@ -1,4 +1,4 @@
-<h2>{{ month }} - {{ year }}</h2>
+<h2><?php print $month; ?> - <?php print $year; ?></h2>
 <div class="row clearfix">
   <div class="col-md-12 column">
     <table class="table table-striped table-hover track-item-table table-condensed">
@@ -37,7 +37,7 @@
       <fieldset>
 
         <!-- Form Name -->
-        <legend>Tracking for 1/1/2017</legend>
+        <legend>Tracking for <?php print "$day/$month/$year"; ?></legend>
 
         <!-- Select Basic -->
         <div class="form-group">
@@ -79,32 +79,6 @@
       </tr>
       </thead>
       <tbody>
-      <tr id='addr0'>
-        <td>
-          1
-        </td>
-        <td>
-          <select id="selectbasic" name="selectbasic" class="form-control">
-            <option value="regular">Regular</option>
-            <option value="sick">Sick</option>
-            <option value="vacation">Vacation</option>
-            <option value="miluim">Miluim</option>
-            <option value="convention">Convention</option>
-          </select>
-        </td>
-        <td>
-          <input type="text" name='mail0' placeholder='#' class="form-control"/>
-        </td>
-        <td>
-          <input type="text" name='mail0' placeholder='#' class="form-control"/>
-        </td>
-        <td>
-          <input type="text" name='mobile0' placeholder='Description' class="form-control" disabled/>
-        </td>
-        <td>
-          <input name="issue-time" type="number" step="0.10" min="0" placeholder="4" class="form-control input-md issue-time">
-        </td>
-      </tr>
       </tbody>
     </table>
   </div>
@@ -117,6 +91,7 @@
 <script>
 
 jQuery(document).ready(function(){
+  jQuery('#tab_logic').append(jQuery("#templateRow").clone().attr('id', 'addr0'));
   var i=1;
   jQuery("#add_row").click(function(){
     jQuery('#tab_logic').append(jQuery("#templateRow").clone().attr('id', 'addr'+(i)));
@@ -141,11 +116,9 @@ jQuery(document).ready(function(){
       </td>
       <td>
         <select id="selectbasic" name="selectbasic" class="form-control">
-          <option value="regular">Regular</option>
-          <option value="sick">Sick</option>
-          <option value="vacation">Vacation</option>
-          <option value="miluim">Miluim</option>
-          <option value="convention">Convention</option>
+          <?php foreach ($projects as $key => $project): ?>
+            <option value="<?php print $key; ?><"><?php print $project; ?></option>
+          <?php endforeach; ?>
         </select>
       </td>
       <td>

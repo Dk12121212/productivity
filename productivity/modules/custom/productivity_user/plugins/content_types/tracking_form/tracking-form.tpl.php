@@ -1,13 +1,19 @@
-<h2><?php print $month; ?> - <?php print $year; ?></h2>
+<div style="font-size:26px; text-align: center;">
+  <a href="<?php print $urls['previous_month']; ?>" class=""><i class="fa fa-caret-left"></i></a>
+  <span><?php print $month; ?> - <?php print $year; ?></span>
+  <a href="<?php print $urls['next_month']; ?>" class=""><i class="fa fa-caret-right"></i></a>
+</div>
+
+
 <div class="row clearfix">
   <div class="col-md-12 column">
     <table class="table table-striped table-hover track-item-table table-condensed">
       <thead>
       <tr>
         <th>#</th>
-        <?php for($i=1; $i<=$last_day; $i++): ?>
-          <th><?php print $i; ?></th>
-        <?php endfor; ?>
+        <?php foreach($days_link as $link): ?>
+          <th><?php print $link; ?></th>
+        <?php endforeach; ?>
       </tr>
       </thead>
       <tbody>

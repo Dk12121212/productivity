@@ -24,12 +24,49 @@ function productivity_user_tracking_form_content_type_render($subtype, $conf, $a
   $day = isset($_REQUEST['day']) ? $_REQUEST['day'] : date('d', time());
   $uid = isset($_REQUEST['uid']) ? $_REQUEST['uid'] : $args[0];
 
+  $variables['day'] = $day;
   $variables['month'] = $month;
   $variables['year'] = $year;
-  $variables['day'] = $day;
+
+
+  $date = "$day.$month.$year";
+
+  $date_relative = [
+    'next_day' => strtotime($date . "+1 days"),
+    'previous_day' => strtotime($date . "-1 days"),
+    'next_month' => strtotime($date . "+1 month"),
+    'previous_month' => strtotime($date . "-1 month"),
+  ];
+
+  // Create links with relative query string.
+  foreach ($date_relative as $key => $timestamp) {
+    $variables['urls'][$key] = url('user', [
+        'query' => [
+          'uid' => $uid,
+          'day' => date('d', $timestamp),
+          'month' => date('m', $timestamp),
+          'year' => date('Y', $timestamp)
+        ]
+      ]);
+  }
+
   $variables['projects'] = productivity_project_get_all_projects();
   $variables['tracking'] = productivity_user_tracking_form_get_days($month, $year, $uid);
-  $variables['last_day'] =  date('t', strtotime('1.' . $month . '.' . $year));
+  $variables['days_link'] = [];
+  // URLS for each day
+  for ($i = 1; $i <= date('t', strtotime('1.' . $month . '.' . $year)); $i++) {
+    $timestamp = strtotime($i . '.' . $month . '.' . $year);
+    $variables['days_link'][$i] = l($i, 'user', [
+      'query' => [
+        'uid' => $uid,
+        'day' => date('d', $timestamp),
+        'month' => date('m', $timestamp),
+        'year' => date('Y', $timestamp)
+      ]
+    ]);
+  }
+
+  dpm($variables);
 
   $block = new stdClass();
   $block->module = 'productivity_user';

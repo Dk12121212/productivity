@@ -22,7 +22,12 @@ function productivity_user_tracking_form_content_type_render($subtype, $conf, $a
   $month = 1;
   $year = 2017;
   $uid =230;
-  $variables['tracking'] = productivity_user_tracking_form_get_days($month, $year, $uid);;
+  $day = 28;
+
+  $variables['month'] = $month;
+  $variables['year'] = $year;
+  $variables['day'] = $day;
+  $variables['tracking'] = productivity_user_tracking_form_get_days($month, $year, $uid);
   $variables['last_day'] =  date('t', strtotime('1.' . $month . '.' . $year));
 
   $block = new stdClass();

@@ -17,40 +17,6 @@ body {
       height: 36px; }
     body .container .tracking-table-page .track-item-table td {
       white-space: nowrap; }
-  body .container .tracking-table-page .track-item td {
-    padding: 10px 0 0 0;
-    width: 28px; }
-  body .container .tracking-table-page .track-item a {
-    padding: 10px;
-    color: #470000; }
-  body .container .tracking-table-page .track-item .empty {
-    background-color: white; }
-  body .container .tracking-table-page .track-item .regular {
-    background-color: #478484; }
-    body .container .tracking-table-page .track-item .regular a {
-      color: #226666; }
-  body .container .tracking-table-page .track-item .sick {
-    background-color: #AA3939;
-    margin-left: 5px; }
-  body .container .tracking-table-page .track-item .vacation {
-    background-color: #DB7676;
-    margin-left: 5px; }
-  body .container .tracking-table-page .track-item .holiday {
-    background-color: #DBA476; }
-  body .container .tracking-table-page .track-item .funday, body .container .tracking-table-page .track-item .special {
-    background-color: #AA8439; }
-  body .container .tracking-table-page .track-item .miluim {
-    background-color: #AA8439;
-    margin-left: 5px; }
-  body .container .tracking-table-page .track-item .convention {
-    background-color: #645582;
-    color: white; }
-  body .container .tracking-table-page .track-item .weekend {
-    background-color: #DBA476; }
-  body .container .tracking-table-page .track-item .summary {
-    background-color: #4784B1; }
-  body .container .tracking-table-page .track-item .global {
-    background-color: #a784B1; }
   body .container .tracking-page .axis path, body .container .tracking-page .axis line {
     fill: none;
     stroke: #b6b6b6;
@@ -129,7 +95,6 @@ body {
         padding-right: 5px; }
         body .container .tracking-form-page .tracking-form .issues-row > div .issue-time {
           text-align: center;
-          width: 60%;
           display: inline-block;
           float: left; }
         body .container .tracking-form-page .tracking-form .issues-row > div:first-child {

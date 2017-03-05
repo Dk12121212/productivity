@@ -23,7 +23,7 @@
             <ul class="list-unstyled">
               <?php foreach($tracks as $track): ?>
                 <li>
-                  <a href=" <?php print $track['href']; ?>" data-toggle="tooltip" title="<?php print $track['title']; ?>" class=" <?php print $track['type']; ?>">
+                  <a href=" <?php print $track['href']; ?>" data-toggle="tooltip" title="<?php print $track['title']; ?>" class=" <?php print $track['type']; ?>" target="_blank">
                     <?php print $track['length']; ?>
                   </a>
                 </li>
@@ -85,6 +85,12 @@
       </tr>
       </thead>
       <tbody>
+      <?php foreach($tracking[$day] as $track): ?>
+        <?php if ($track['tracking']): ?>
+          <?php dpm(['tracking' => $track, 'projects' => $projects]); ?>
+          <?php print theme('productivity_user_tracking_table_row', ['tracking' => $track, 'projects' => $projects]); ?>
+        <?php endif; ?>
+      <?php endforeach; ?>
       </tbody>
     </table>
   </div>
@@ -116,29 +122,6 @@ jQuery(document).ready(function(){
 
 <table style="display: none;">
   <tbody>
-    <tr id="templateRow">
-      <td>
-        1
-      </td>
-      <td>
-        <select id="selectbasic" name="selectbasic" class="form-control">
-          <?php foreach ($projects as $key => $project): ?>
-            <option value="<?php print $key; ?><"><?php print $project; ?></option>
-          <?php endforeach; ?>
-        </select>
-      </td>
-      <td>
-        <input type="text" name='mail0' placeholder='#' class="form-control"/>
-      </td>
-      <td>
-        <input type="text" name='mail0' placeholder='#' class="form-control"/>
-      </td>
-      <td>
-        <input type="text" name='mobile0' placeholder='Description' class="form-control" disabled/>
-      </td>
-      <td>
-        <input name="issue-time" type="number" step="0.10" min="0" placeholder="4" class="form-control input-md issue-time">
-      </td>
-    </tr>
+   <?php print theme('productivity_user_tracking_table_row'); ?>
   </tbody>
 </table>

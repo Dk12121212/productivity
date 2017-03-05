@@ -61,70 +61,6 @@ body {
         }
       }
 
-      .track-item {
-
-        td {
-          padding: 10px 0 0 0;
-          width: 28px;
-        }
-
-        a {
-          padding: 10px;
-          color: $color3_dark;
-        }
-
-        .empty {
-          background-color: white;
-        }
-
-        .regular {
-          background-color: $color4_light;
-
-          a {
-            color: $color4;
-          }
-        }
-
-        .sick {
-          background-color: $color3;
-          margin-left: 5px;
-        }
-
-        .vacation {
-          background-color: $color3_light;
-          margin-left: 5px;
-        }
-
-        .holiday {
-          background-color: $color1_light;
-        }
-
-        .funday, .special {
-          background-color: $color2_light;
-        }
-
-        .miluim {
-          background-color: $color2_light;
-          margin-left: 5px;
-        }
-
-        .convention {
-          background-color: $color7;
-          color: white;
-        }
-
-        .weekend {
-          background-color: $color1_light;
-        }
-
-        .summary {
-          background-color: $color5;
-        }
-
-        .global {
-          background-color: $color6;
-        }
-      }
     }
 
     .tracking-page {
@@ -286,7 +222,6 @@ body {
 
             .issue-time {
               text-align: center;
-              width: 60%;
               display: inline-block;
               float: left;
             }

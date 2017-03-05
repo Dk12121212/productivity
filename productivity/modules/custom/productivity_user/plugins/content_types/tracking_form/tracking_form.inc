@@ -52,6 +52,7 @@ function productivity_user_tracking_form_content_type_render($subtype, $conf, $a
 
   $variables['projects'] = productivity_project_get_all_projects();
   $variables['tracking'] = productivity_user_tracking_form_get_days($month, $year, $uid);
+
   $variables['days_link'] = [];
   // URLS for each day
   for ($i = 1; $i <= date('t', strtotime('1.' . $month . '.' . $year)); $i++) {
@@ -101,6 +102,16 @@ function productivity_user_tracking_form_get_days($month, $year, $uid, $weekend 
     $key = str_pad($i, 2, '0', STR_PAD_LEFT);
     $new_data[$uid][$key]  = array();
 
+    $timestamp = strtotime($key . '.' . $month . '.' . $year);
+    $default_url = url('user', [
+      'query' => [
+        'uid' => $uid,
+        'day' => date('d', $timestamp),
+        'month' => date('m', $timestamp),
+        'year' => date('Y', $timestamp)
+      ]
+    ]);
+
     // Mark weekends.
     $week_day = date( "w", strtotime($i . '.' . $month . '.' . $year));
 
@@ -123,6 +134,8 @@ function productivity_user_tracking_form_get_days($month, $year, $uid, $weekend 
         'length' => 'W',
         'projectName' => 'Weekend',
         'employee' => $uid,
+        'tracking' => FALSE,
+        'href' => $default_url,
       );
       // Add item for weekend.
       $new_data[$uid][$key][] = $day_item;
@@ -157,6 +170,7 @@ function productivity_user_tracking_form_get_days($month, $year, $uid, $weekend 
     $issue_status = $track_record['name'];
     $nid = $track_record['nid'];
     $issue_title = $track_record['body_value'];
+    $project_nid = $track_record['field_project_target_id'];
 
     $pr_url = "https://github.com/$repo_id/issues/$pr_gh_id";
     $pr_link = l("$repo_id/$pr_gh_id", $pr_url, array(
@@ -176,6 +190,11 @@ function productivity_user_tracking_form_get_days($month, $year, $uid, $weekend 
     $day['href'] = $pr_url;
     $day['type'] = $pr_work_type;
     $day['title'] = $pr_title;
+    $day['tracking'] = TRUE;
+    $day['pr'] = $pr_gh_id;
+    $day['issue'] = $issue_id;
+    $day['mdid'] = $track_id;
+    $day['project_nid'] = $project_nid;
 
     $key = $day['day'];
     $new_data[$uid][$key][] = $day;
@@ -189,9 +208,10 @@ function productivity_user_tracking_form_get_days($month, $year, $uid, $weekend 
     $day['projectName'] = '';
     $day['length'] = strtoupper(substr($wrapper->field_session_type->label(), 0, 1));
     $day['day'] = date('d', strtotime($wrapper->field_session_date->value->value()));
-    $day['href'] = url('node/123');
+    $day['href'] = url('node/' . $wrapper->getIdentifier() . '/edit');
     $day['type'] = $wrapper->field_session_type->label();
     $day['title'] = $wrapper->field_special_day_name->value();
+    $day['tracking'] = FALSE;
 
 
     $key = $day['day'];
@@ -205,6 +225,16 @@ function productivity_user_tracking_form_get_days($month, $year, $uid, $weekend 
         continue;
       }
       if (empty($empty_day)) {
+        $timestamp = strtotime($key . '.' . $month . '.' . $year);
+        $default_url = url('user', [
+          'query' => [
+            'uid' => $uid,
+            'day' => date('d', $timestamp),
+            'month' => date('m', $timestamp),
+            'year' => date('Y', $timestamp)
+          ]
+        ]);
+
         $empty_day[] = array(
           // Set id to new to get the proper link on angular.
           'id' => 'new',
@@ -213,6 +243,8 @@ function productivity_user_tracking_form_get_days($month, $year, $uid, $weekend 
           'length' => 'E',
           'projectName' => 'Log work',
           'employee' => $employee,
+          'tracking' => FALSE,
+          'href' => $default_url,
         );
       }
       // Sums per employee and project.
@@ -249,5 +281,11 @@ function productivity_user_tracking_form_theme(&$theme, $plugin) {
     ),
     'path' => $plugin['path'],
     'template' => 'tracking-form',
+  );
+  $theme['productivity_user_tracking_table_row'] = array(
+    'variables' => array(
+    ),
+    'path' => $plugin['path'],
+    'template' => 'tracking-table-row',
   );
 }

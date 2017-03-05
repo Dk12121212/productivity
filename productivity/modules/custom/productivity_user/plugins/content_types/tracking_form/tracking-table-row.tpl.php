@@ -1,6 +1,6 @@
-<tr id="templateRow">
+<tr id="attr<?php print $row_number; ?>">
   <td>
-    1
+    <?php print $row_number; ?>
   </td>
   <td width="30%">
     <select id="selectbasic" name="selectbasic" class="form-control" value="<?php print $tracking['project_nid']; ?>">

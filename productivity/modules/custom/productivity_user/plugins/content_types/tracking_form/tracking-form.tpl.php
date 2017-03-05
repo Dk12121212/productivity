@@ -85,11 +85,8 @@
       </tr>
       </thead>
       <tbody>
-      <?php foreach($tracking[$day] as $track): ?>
-        <?php if ($track['tracking']): ?>
-          <?php dpm(['tracking' => $track, 'projects' => $projects]); ?>
-          <?php print theme('productivity_user_tracking_table_row', ['tracking' => $track, 'projects' => $projects]); ?>
-        <?php endif; ?>
+      <?php foreach($rows as $track_row): ?>
+          <?php print $track_row; ?>
       <?php endforeach; ?>
       </tbody>
     </table>
@@ -103,15 +100,18 @@
 <script>
 
 jQuery(document).ready(function(){
-  jQuery('#tab_logic').append(jQuery("#templateRow").clone().attr('id', 'addr0'));
-  var i=1;
+
+  var i=Drupal.settings.rowNumber;
+  jQuery('#tab_logic').append(jQuery("#attr").clone().attr('id', 'attr'+(i)));
+  i++;
+
   jQuery("#add_row").click(function(){
-    jQuery('#tab_logic').append(jQuery("#templateRow").clone().attr('id', 'addr'+(i)));
+    jQuery('#tab_logic').append(jQuery("#attr").clone().attr('id', 'attr'+(i)));
     i++;
   });
   jQuery("#delete_row").click(function(){
-    if(i>1){
-      jQuery("#addr"+(i-1)).remove();
+    if(i>Drupal.settings.rowNumber){
+      jQuery("#attr"+(i-1)).remove();
       i--;
     }
   });
@@ -122,6 +122,6 @@ jQuery(document).ready(function(){
 
 <table style="display: none;">
   <tbody>
-   <?php print theme('productivity_user_tracking_table_row'); ?>
+   <?php print theme('productivity_user_tracking_table_row', ['id' => '']); ?>
   </tbody>
 </table>

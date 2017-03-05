@@ -67,6 +67,21 @@ function productivity_user_tracking_form_content_type_render($subtype, $conf, $a
     ]);
   }
 
+  $variables['rows'] = [];
+  // Prepare existing tracking.
+  $row_number = 0;
+  foreach($variables['tracking'][$day] as $track) {
+    if ($track['tracking']) {
+      $variables['rows'][] = theme('productivity_user_tracking_table_row', [
+        'tracking' => $track,
+        'projects' => $variables['projects'],
+        'row_number' => $row_number,
+      ]);
+      $row_number++;
+    }
+  }
+
+  drupal_add_js(['rowNumber' => $row_number], 'setting');
   dpm($variables);
 
   $block = new stdClass();

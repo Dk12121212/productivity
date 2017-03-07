@@ -80,6 +80,9 @@
           Description
         </th>
         <th class="text-center">
+          Type
+        </th>
+        <th class="text-center">
           Time (0)
         </th>
       </tr>

@@ -68,12 +68,23 @@ function productivity_user_tracking_form_content_type_render($subtype, $conf, $a
   }
 
   $variables['rows'] = [];
+  // TODO: Set this to be dynamic and per project.
+  $types = [
+    'dev' => 'Development',
+    'qa' => 'QA',
+    'migrate' => 'Management',
+    'designer' => 'Designer',
+    'installation_setup' => 'Installation Setup',
+    'support' => 'Support',
+    'review' => 'Review',
+  ];
   // Prepare existing tracking.
   $row_number = 0;
   foreach($variables['tracking'][$day] as $track) {
     if ($track['tracking']) {
       $variables['rows'][] = theme('productivity_user_tracking_table_row', [
         'tracking' => $track,
+        'types' => $types,
         'projects' => $variables['projects'],
         'row_number' => $row_number,
       ]);
@@ -208,7 +219,7 @@ function productivity_user_tracking_form_get_days($month, $year, $uid, $weekend 
     $day['tracking'] = TRUE;
     $day['pr'] = $pr_gh_id;
     $day['issue'] = $issue_id;
-    $day['mdid'] = $track_id;
+    $day['mlid'] = $track_id;
     $day['project_nid'] = $project_nid;
 
     $key = $day['day'];

@@ -47,6 +47,7 @@ dependencies[] = migrate_extras
 dependencies[] = mimemail
 dependencies[] = module_filter
 dependencies[] = multifield
+dependencies[] = oauthconnector
 dependencies[] = page_manager
 dependencies[] = panels
 dependencies[] = pathauto

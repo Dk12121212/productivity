@@ -20,13 +20,6 @@ projects[content_access][version] = "1.2-beta2"
 projects[composer_manager][subdir] = "contrib"
 projects[composer_manager][version] = "1.8"
 
-projects[connector][subdir] = "contrib"
-projects[connector][download][type] = git
-projects[connector][download][revision] = da2435171aca85d82db7cc60ebd8b0731a0a65f5
-projects[connector][download][branch] = 7.x-1.x
-projects[connector][patch][] = "https://www.drupal.org/files/connector-undefined-function-user_profile_form_validate-1664696-2.patch"
-projects[connector][patch][] = "https://www.drupal.org/files/connector-theme_fix-1837638-1.patch"
-
 projects[ctools][subdir] = "contrib"
 projects[ctools][version] = "1.12"
 
@@ -77,12 +70,6 @@ projects[file_entity][version] = "2.0-beta3"
 projects[github_api][subdir] = "contrib"
 projects[github_api][version] = "1.0-beta2"
 
-projects[http_client][subdir] = "contrib"
-projects[http_client][download][type] = git
-projects[http_client][download][revision] = d96ce35a13ae3fbc90024270e8b8d41c1a58c740
-projects[http_client][download][branch] = 7.x-2.x
-projects[http_client][patch][] = "https://www.drupal.org/files/issues/empty_body-2827729-1.patch"
-
 projects[interval][subdir] = "contrib"
 projects[interval][version] = "1.0"
 
@@ -128,16 +115,6 @@ projects[multifield][patch][] = "https://www.drupal.org/files/issues/multifield-
 projects[multifield][patch][] = "https://www.drupal.org/files/issues/2041531-23-entity-api-support.patch"
 ; Fix feature integration.
 
-projects[oauth][subdir] = "contrib"
-projects[oauth][version] = "3.4"
-
-projects[oauthconnector][subdir] = "contrib"
-projects[oauthconnector][version] = "1.0-beta2"
-projects[oauthconnector][patch][] = "https://www.drupal.org/files/1746386-11-hardcode-json-accept-header.patch"
-projects[oauthconnector][patch][] = "https://www.drupal.org/files/issues/oauth2-menu-wildcard-2850713-2.patch"
-projects[oauthconnector][patch][] = "https://www.drupal.org/files/issues/oauth_connector-156551-12.patch"
-projects[oauthconnector][patch][] = "https://www.drupal.org/files/issues/oauthconnector-2255185-1.patch"
-
 projects[panels][version] = "3.8"
 projects[panels][subdir] = "contrib"
 
@@ -146,6 +123,14 @@ projects[profile2][version] = "1.3"
 
 projects[pathauto][subdir] = "contrib"
 projects[pathauto][version] = "1.3"
+
+projects[openid_connect][subdir] = "contrib"
+projects[openid_connect][version] = "1.0-beta8"
+
+projects[openid_connect_github][subdir] = "contrib"
+projects[openid_connect_github][download][type] = "git"
+projects[openid_connect_github][download][revision] = 56760f0519882348f48903194699b17ec83def25
+projects[openid_connect_github][download][branch] = "7.x-1.x"
 
 projects[restful][subdir] = "contrib"
 projects[restful][download][type] = "git"

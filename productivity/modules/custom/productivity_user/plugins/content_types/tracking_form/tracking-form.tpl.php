@@ -61,28 +61,28 @@
       </fieldset>
     </form>
 
-    <table class="table table-bordered table-hover" id="tab_logic">
+    <table id="table-tracking" class="table table-bordered table-hover">
       <thead>
-      <tr >
-        <th class="text-center">
+      <tr>
+        <th class="text-center" data-override="mlid">
           #
         </th>
-        <th class="text-center">
+        <th class="text-center" data-override="project_nid">
           Project
         </th>
-        <th class="text-center">
+        <th class="text-center" data-override="issue">
           Issues #
         </th>
-        <th class="text-center">
+        <th class="text-center" data-override="pr">
           PR #
         </th>
-        <th class="text-center">
+        <th class="text-center" data-override="description">
           Description
         </th>
-        <th class="text-center">
+        <th class="text-center" data-override="type" >
           Type
         </th>
-        <th class="text-center">
+        <th class="text-center" data-override="time_spent">
           Time (0)
         </th>
       </tr>

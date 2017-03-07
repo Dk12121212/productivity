@@ -126,6 +126,7 @@ projects[pathauto][version] = "1.3"
 
 projects[openid_connect][subdir] = "contrib"
 projects[openid_connect][version] = "1.0-beta8"
+projects[openid_connect][patch][] = "https://www.drupal.org/files/issues/add_pre_login_hook-2559543-5.patch"
 
 projects[openid_connect_github][subdir] = "contrib"
 projects[openid_connect_github][download][type] = "git"

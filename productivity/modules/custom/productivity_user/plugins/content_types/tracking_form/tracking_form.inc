@@ -16,9 +16,12 @@ $plugin = array(
  * Render callback.
  */
 function productivity_user_tracking_form_content_type_render($subtype, $conf, $args, $context) {
-  drupal_add_css(drupal_get_path('module', 'productivity_user') . '/plugins/content_types/tracking_form/tracking.css');
+  drupal_add_css(drupal_get_path('module', 'productivity_user') . '/plugins/content_types/tracking_form/css/tracking.css');
+  drupal_add_js(drupal_get_path('module', 'productivity_user') . '/plugins/content_types/tracking_form/js/jquery.tabletojson.min.js');
+  drupal_add_js(drupal_get_path('module', 'productivity_user') . '/plugins/content_types/tracking_form/js/tracking-table.js');
   $variables = [];
 
+  // Build date links.
   $month = isset($_REQUEST['month']) ? $_REQUEST['month'] : date('m', time());
   $year = isset($_REQUEST['year']) ? $_REQUEST['year'] : date('Y', time());
   $day = isset($_REQUEST['day']) ? $_REQUEST['day'] : date('d', time());
@@ -50,6 +53,8 @@ function productivity_user_tracking_form_content_type_render($subtype, $conf, $a
       ]);
   }
 
+
+  // Build  project list.
   $variables['projects'] = productivity_project_get_all_projects();
   $variables['tracking'] = productivity_user_tracking_form_get_days($month, $year, $uid);
 
@@ -69,7 +74,7 @@ function productivity_user_tracking_form_content_type_render($subtype, $conf, $a
 
   $variables['rows'] = [];
   // TODO: Set this to be dynamic and per project.
-  $types = [
+  $variables['types'] = [
     'dev' => 'Development',
     'qa' => 'QA',
     'migrate' => 'Management',
@@ -84,7 +89,7 @@ function productivity_user_tracking_form_content_type_render($subtype, $conf, $a
     if ($track['tracking']) {
       $variables['rows'][] = theme('productivity_user_tracking_table_row', [
         'tracking' => $track,
-        'types' => $types,
+        'types' => $variables['types'],
         'projects' => $variables['projects'],
         'row_number' => $row_number,
       ]);

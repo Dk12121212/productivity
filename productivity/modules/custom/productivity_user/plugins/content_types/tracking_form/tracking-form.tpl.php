@@ -23,7 +23,7 @@
             <ul class="list-unstyled">
               <?php foreach($tracks as $track): ?>
                 <li>
-                  <a href=" <?php print $track['href']; ?>" data-toggle="tooltip" title="<?php print $track['title']; ?>" class=" <?php print $track['type']; ?>" target="_blank">
+                  <a href="<?php print $track['href']; ?>" data-toggle="tooltip" title="<?php print $track['title']; ?>" class="<?php print $track['type']; ?>" target="_blank">
                     <?php print $track['length']; ?>
                   </a>
                 </li>
@@ -100,31 +100,9 @@
 <a id='delete_row' class="pull-right btn btn-default"><i class="fa fa-minus-circle"></i> Delete Row</a>
 <button id="submit" name="submit" type="submit" class="pull-left btn btn-primary"><i class="fa fa-check"></i> Save</button>
 
-<script>
-
-jQuery(document).ready(function(){
-
-  var i=Drupal.settings.rowNumber;
-  jQuery('#tab_logic').append(jQuery("#attr").clone().attr('id', 'attr'+(i)));
-  i++;
-
-  jQuery("#add_row").click(function(){
-    jQuery('#tab_logic').append(jQuery("#attr").clone().attr('id', 'attr'+(i)));
-    i++;
-  });
-  jQuery("#delete_row").click(function(){
-    if(i>Drupal.settings.rowNumber){
-      jQuery("#attr"+(i-1)).remove();
-      i--;
-    }
-  });
-
-});
-
-</script>
-
+<!-- Stub row -->
 <table style="display: none;">
   <tbody>
-   <?php print theme('productivity_user_tracking_table_row', ['id' => '']); ?>
+   <?php print theme('productivity_user_tracking_table_row', ['id' => '', 'types' => $variables['types'],  'projects' => $variables['projects']]); ?>
   </tbody>
 </table>

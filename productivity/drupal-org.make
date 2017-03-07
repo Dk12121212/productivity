@@ -113,7 +113,18 @@ projects[multifield][subdir] = "contrib"
 projects[multifield][version] = "1.0-alpha4"
 projects[multifield][patch][] = "https://www.drupal.org/files/issues/multifield-features-integration-fix-api-2102265-32.patch"
 projects[multifield][patch][] = "https://www.drupal.org/files/issues/2041531-23-entity-api-support.patch"
-# Fix feature integration.
+; Fix feature integration.
+
+projects[oauth][subdir] = "contrib"
+projects[oauth][version] = "3.4"
+
+projects[oauthconnector][subdir] = "contrib"
+projects[oauthconnector][version] = "1.0-beta2"
+projects[oauthconnector][patch][] = "https://www.drupal.org/files/1746386-11-hardcode-json-accept-header.patch"
+projects[oauthconnector][patch][] = "https://www.drupal.org/files/issues/oauth2-menu-wildcard-2850713-2.patch"
+projects[oauthconnector][patch][] = "https://www.drupal.org/files/issues/oauth_connector-156551-12.patch"
+projects[oauthconnector][patch][] = "https://www.drupal.org/files/issues/oauthconnector-wrong_dependencies-1500178-7-10.patch"
+projects[oauthconnector][patch][] = "https://www.drupal.org/files/issues/oauthconnector-2255185-1.patch"
 
 projects[panels][version] = "3.8"
 projects[panels][subdir] = "contrib"

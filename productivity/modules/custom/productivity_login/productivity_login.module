@@ -31,7 +31,7 @@ function productivity_openid_connect_pre_login($tokens, $account, $userinfo, $cl
     ],
   ];
   try {
-    productivity_github_http_request('orgs/' . variable_get('productivity_github_organization', 'Gizra') . '/members/' . $userinfo['name'], $options, FALSE);
+    productivity_github_http_request('orgs/' . variable_get('productivity_github_organization', 'Gizra') . '/members/' . $userinfo['preferred_username'], $options, FALSE);
   }
   catch (RestfulException $e) {
     return FALSE;

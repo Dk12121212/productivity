@@ -5,7 +5,7 @@ Feature: Login test
   Scenario: Check login form when not logged in.
     Given I visit the "/" page
     Then  I see the text "Username"
-    Then  I see the text "Login with GitHub"
+    Then  I see the text "Log in with GitHub"
 
 
   @api

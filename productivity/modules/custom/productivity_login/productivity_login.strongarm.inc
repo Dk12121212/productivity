@@ -26,7 +26,7 @@ function productivity_login_strongarm() {
   $strongarm->value = array(
     'client_id' => 'TO FILL',
     'client_secret' => 'TO FILL',
-    'github_scopes' => 'user:email',
+    'github_scopes' => 'user:email,read:org',
   );
   $export['openid_connect_client_github'] = $strongarm;
 
@@ -36,7 +36,8 @@ function productivity_login_strongarm() {
   $strongarm->name = 'openid_connect_userinfo_mapping_claims';
   $strongarm->value = array(
     0 => 'name',
-    1 => 'zoneinfo',
+    1 => 'preferred_username',
+    2 => 'zoneinfo',
   );
   $export['openid_connect_userinfo_mapping_claims'] = $strongarm;
 
@@ -44,7 +45,7 @@ function productivity_login_strongarm() {
   $strongarm->disabled = FALSE; /* Edit this to true to make a default strongarm disabled initially */
   $strongarm->api_version = 1;
   $strongarm->name = 'openid_connect_userinfo_mapping_property_field_github_username';
-  $strongarm->value = 'name';
+  $strongarm->value = 'preferred_username';
   $export['openid_connect_userinfo_mapping_property_field_github_username'] = $strongarm;
 
   $strongarm = new stdClass();

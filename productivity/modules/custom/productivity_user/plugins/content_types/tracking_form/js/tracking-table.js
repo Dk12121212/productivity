@@ -28,31 +28,47 @@
 
             $("#submit").click(function () {
                 var table = $('#table-tracking').tableToJSON({
-                    textExtractor : {
-                        0 : function(cellIndex, $cell) {
+                    textExtractor: {
+                        0: function (cellIndex, $cell) {
                             return $cell.parent('tr').attr('mlid');
                         },
-                        1 : function(cellIndex, $cell) {
+                        1: function (cellIndex, $cell) {
                             return $cell.find('select').val();
                         },
-                        2 : function(cellIndex, $cell) {
+                        2: function (cellIndex, $cell) {
                             return $cell.find('input').val();
                         },
-                        3 : function(cellIndex, $cell) {
+                        3: function (cellIndex, $cell) {
                             return $cell.find('input').val();
                         },
-                        4 : function(cellIndex, $cell) {
+                        4: function (cellIndex, $cell) {
                             return $cell.find('input').val();
                         },
-                        5 : function(cellIndex, $cell) {
+                        5: function (cellIndex, $cell) {
                             return $cell.find('select').val();
                         },
-                        6 : function(cellIndex, $cell) {
+                        6: function (cellIndex, $cell) {
                             return $cell.find('input').val();
                         }
                     }
                 });
-                console.log(table);
+
+
+                $.ajax({
+                    type: "post",
+                    url: "http://localhost/productivity/www/tracking/save-tracking?XDEBUG_SESSION_START=15921",
+                    data: JSON.stringify(table),
+                    xhrFields: {
+                        withCredentials: true
+                    },
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log(data);
+                        console.log(table);
+                    }
+                });
+
+
 
 
             });

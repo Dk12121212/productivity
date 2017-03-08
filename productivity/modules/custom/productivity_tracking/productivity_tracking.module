@@ -24,6 +24,13 @@ function productivity_tracking_menu() {
     'file' => 'reports/productivity_tracking.burn.report.inc',
   );
 
+
+  $items['tracking/save-tracking'] = array(
+    'title' => t('Tracking Report Save Service'),
+    'page callback' => 'productivity_tracking_save_callback',
+    'access arguments' => array('create tracking content'),
+  );
+
   return $items;
 }
 
@@ -40,6 +47,12 @@ function productivity_tracking_theme($existing, $type, $theme, $path) {
   );
 }
 
+function productivity_tracking_save_callback() {
+
+  $json = file_get_contents('php://input');
+  $payload = json_decode($json, TRUE);
+
+}
 /**
  * Github endpoint callback
  */

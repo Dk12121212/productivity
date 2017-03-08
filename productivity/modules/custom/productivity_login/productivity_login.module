@@ -16,7 +16,7 @@ include_once 'productivity_login.features.inc';
  */
 function productivity_github_form_user_login_alter(&$form, $form_state) {
   $block = module_invoke('openid_connect', 'block_view', 'openid_connect_login');
-  $form['#suffix'] = drupal_render($block['content']);
+  $form['#prefix'] = drupal_render($block['content']);
 }
 
 /**

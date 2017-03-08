@@ -13,3 +13,5 @@ features[variable][] = openid_connect_userinfo_mapping_claims
 features[variable][] = openid_connect_userinfo_mapping_property_field_github_username
 features[variable][] = openid_connect_userinfo_mapping_property_timezone
 features[variable][] = site_403
+features[variable][] = user_email_verification
+features[variable][] = user_register

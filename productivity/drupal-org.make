@@ -113,7 +113,7 @@ projects[multifield][subdir] = "contrib"
 projects[multifield][version] = "1.0-alpha4"
 projects[multifield][patch][] = "https://www.drupal.org/files/issues/multifield-features-integration-fix-api-2102265-32.patch"
 projects[multifield][patch][] = "https://www.drupal.org/files/issues/2041531-23-entity-api-support.patch"
-# Fix feature integration.
+; Fix feature integration.
 
 projects[panels][version] = "3.8"
 projects[panels][subdir] = "contrib"
@@ -123,6 +123,15 @@ projects[profile2][version] = "1.3"
 
 projects[pathauto][subdir] = "contrib"
 projects[pathauto][version] = "1.3"
+
+projects[openid_connect][subdir] = "contrib"
+projects[openid_connect][version] = "1.0-beta8"
+projects[openid_connect][patch][] = "https://www.drupal.org/files/issues/add_pre_login_hook-2559543-5.patch"
+
+projects[openid_connect_github][subdir] = "contrib"
+projects[openid_connect_github][download][type] = "git"
+projects[openid_connect_github][download][revision] = 56760f0519882348f48903194699b17ec83def25
+projects[openid_connect_github][download][branch] = "7.x-1.x"
 
 projects[restful][subdir] = "contrib"
 projects[restful][download][type] = "git"

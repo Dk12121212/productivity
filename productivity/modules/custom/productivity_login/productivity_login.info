@@ -1,0 +1,17 @@
+name = Productivity Login
+core = 7.x
+package = productivity
+dependencies[] = ctools
+dependencies[] = openid_connect
+dependencies[] = openid_connect_github
+dependencies[] = strongarm
+features[ctools][] = strongarm:strongarm:1
+features[features_api][] = api:2
+features[variable][] = openid_connect_client_github
+features[variable][] = openid_connect_clients_enabled
+features[variable][] = openid_connect_userinfo_mapping_claims
+features[variable][] = openid_connect_userinfo_mapping_property_field_github_username
+features[variable][] = openid_connect_userinfo_mapping_property_timezone
+features[variable][] = site_403
+features[variable][] = user_email_verification
+features[variable][] = user_register

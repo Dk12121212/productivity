@@ -1,0 +1,66 @@
+<?php
+
+/**
+ * @file
+ * Code for the Productivity Login feature.
+ *
+ * Provides GitHub-based OAuth login for Drupal.
+ */
+
+include_once 'productivity_login.features.inc';
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Appends the GitHub connect to login form.
+ */
+function productivity_github_form_user_login_alter(&$form, $form_state) {
+  $block = module_invoke('openid_connect', 'block_view', 'openid_connect_login');
+  $form['#prefix'] = drupal_render($block['content']);
+}
+
+/**
+ * Implements hook_OPENID_CONNECT_PRE_LOGIN().
+ *
+ * Prevent users outside of the organization to register.
+ */
+function productivity_login_openid_connect_pre_login($tokens, $account, $userinfo, $client_name) {
+  $options = [
+    'headers' => [
+      'Authorization' => 'token ' . $tokens['access_token'],
+    ],
+  ];
+  try {
+    productivity_github_http_request('orgs/' . variable_get('productivity_github_organization', 'Gizra') . '/members/' . $userinfo['preferred_username'], $options, FALSE);
+  }
+  catch (RestfulException $e) {
+    return FALSE;
+  }
+  return TRUE;
+}
+
+/**
+ * Implements hook_OPENID_CONNECT_PRE_LOGIN().
+ *
+ * Stores the access token on the profile for future use.
+ */
+function productivity_login_openid_connect_post_authorize($tokens, $account, $userinfo, $client_name) {
+  $account_wrapper = entity_metadata_wrapper('user', $account);
+  $account_wrapper->field_github_access_token->set($tokens['access_token']);
+  $account_wrapper->save();
+}
+
+/**
+ * Implements hook_COMPONENT_alter().
+ *
+ * Injects GitHub client id and secret into another variable, inside an array.
+ *
+ * To expose it to OpenID Connect.
+ */
+function productivity_login_strongarm_alter(&$items) {
+  if (empty($items['openid_connect_client_github'])) {
+    return;
+  }
+  $items['openid_connect_client_github']->value['client_id'] = variable_get('github_public', '');
+  $items['openid_connect_client_github']->value['client_secret'] = variable_get('github_secret', '');
+}

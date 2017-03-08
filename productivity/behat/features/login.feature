@@ -2,9 +2,10 @@ Feature: Login test
   Test login and default actions.
 
   @api
-  Scenario: Check access denied when not logged in.
+  Scenario: Check login form when not logged in.
     Given I visit the "/" page
-    Then  I see the text "Access denied"
+    Then  I see the text "Username"
+    Then  I see the text "Log in with GitHub"
 
 
   @api

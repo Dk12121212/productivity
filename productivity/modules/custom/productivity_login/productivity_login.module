@@ -22,9 +22,9 @@ function productivity_github_form_user_login_alter(&$form, $form_state) {
 /**
  * Implements hook_OPENID_CONNECT_PRE_LOGIN().
  *
- * Prevent users outside of the organization to register..
+ * Prevent users outside of the organization to register.
  */
-function productivity_openid_connect_pre_login($tokens, $account, $userinfo, $client_name) {
+function productivity_login_openid_connect_pre_login($tokens, $account, $userinfo, $client_name) {
   $options = [
     'headers' => [
       'Authorization' => 'token ' . $tokens['access_token'],
@@ -37,4 +37,15 @@ function productivity_openid_connect_pre_login($tokens, $account, $userinfo, $cl
     return FALSE;
   }
   return TRUE;
+}
+
+/**
+ * Implements hook_OPENID_CONNECT_PRE_LOGIN().
+ *
+ * Stores the access token on the profile for future use.
+ */
+function productivity_login_openid_connect_post_authorize($tokens, $account, $userinfo, $client_name) {
+  $account_wrapper = entity_metadata_wrapper('user', $account);
+  $account_wrapper->field_github_access_token->set($tokens['access_token']);
+  $account_wrapper->save();
 }

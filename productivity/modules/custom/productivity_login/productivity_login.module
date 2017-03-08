@@ -49,3 +49,18 @@ function productivity_login_openid_connect_post_authorize($tokens, $account, $us
   $account_wrapper->field_github_access_token->set($tokens['access_token']);
   $account_wrapper->save();
 }
+
+/**
+ * Implements hook_COMPONENT_alter().
+ *
+ * Injects GitHub client id and secret into another variable, inside an array.
+ *
+ * To expose it to OpenID Connect.
+ */
+function productivity_login_strongarm_alter(&$items) {
+  if (empty($items['openid_connect_client_github'])) {
+    return;
+  }
+  $items['openid_connect_client_github']->value['client_id'] = variable_get('github_public', '');
+  $items['openid_connect_client_github']->value['client_secret'] = variable_get('github_secret', '');
+}

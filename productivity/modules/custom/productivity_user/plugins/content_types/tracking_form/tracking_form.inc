@@ -97,7 +97,13 @@ function productivity_user_tracking_form_content_type_render($subtype, $conf, $a
     }
   }
 
-  drupal_add_js(['rowNumber' => $row_number], 'setting');
+  drupal_add_js([
+    'rowNumber' => $row_number,
+    'tracking' => [
+      'uid' => $uid,
+      'date_str' => "$day.$month.$year",
+    ],
+  ], 'setting');
   dpm($variables);
 
   $block = new stdClass();
@@ -222,6 +228,7 @@ function productivity_user_tracking_form_get_days($month, $year, $uid, $weekend 
     $day['type'] = $pr_work_type;
     $day['title'] = $pr_title;
     $day['tracking'] = TRUE;
+    $day['repo'] = $repo_id;
     $day['pr'] = $pr_gh_id;
     $day['issue'] = $issue_id;
     $day['mlid'] = $track_id;

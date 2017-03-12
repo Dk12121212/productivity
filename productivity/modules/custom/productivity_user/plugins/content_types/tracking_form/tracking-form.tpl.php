@@ -70,6 +70,9 @@
         <th class="text-center" data-override="project_nid">
           Project
         </th>
+        <th class="text-center" data-override="repo">
+          Repo
+        </th>
         <th class="text-center" data-override="issue">
           Issues #
         </th>

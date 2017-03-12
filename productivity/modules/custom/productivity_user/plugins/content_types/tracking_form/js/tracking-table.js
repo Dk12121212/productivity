@@ -32,32 +32,42 @@
                         0: function (cellIndex, $cell) {
                             return $cell.parent('tr').attr('mlid');
                         },
+                        // Project nid.
                         1: function (cellIndex, $cell) {
                             return $cell.find('select').val();
                         },
+                        // Repo.
                         2: function (cellIndex, $cell) {
                             return $cell.find('input').val();
                         },
+                        // Issue.
                         3: function (cellIndex, $cell) {
                             return $cell.find('input').val();
                         },
+                        // PR.
                         4: function (cellIndex, $cell) {
                             return $cell.find('input').val();
                         },
+                        // Description.
                         5: function (cellIndex, $cell) {
+                            return $cell.find('input').val();
+                        },
+                        // Work type.
+                        6: function (cellIndex, $cell) {
                             return $cell.find('select').val();
                         },
-                        6: function (cellIndex, $cell) {
+                        // Time
+                        7: function (cellIndex, $cell) {
                             return $cell.find('input').val();
                         }
                     }
                 });
 
-
+                var tracking_data = {"tracking": table, 'data': Drupal.settings.tracking}
                 $.ajax({
                     type: "post",
-                    url: "http://localhost/productivity/www/tracking/save-tracking?XDEBUG_SESSION_START=15921",
-                    data: JSON.stringify(table),
+                    url: "http://localhost/productivity/www/tracking/save-tracking?XDEBUG_SESSION_START=12472",
+                    data: JSON.stringify(tracking_data),
                     xhrFields: {
                         withCredentials: true
                     },
@@ -67,10 +77,6 @@
                         console.log(table);
                     }
                 });
-
-
-
-
             });
         }
     };

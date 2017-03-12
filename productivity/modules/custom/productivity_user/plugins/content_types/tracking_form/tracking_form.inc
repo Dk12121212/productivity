@@ -233,6 +233,8 @@ function productivity_user_tracking_form_get_days($month, $year, $uid, $weekend 
     $day['issue'] = $issue_id;
     $day['mlid'] = $track_id;
     $day['project_nid'] = $project_nid;
+    // Don't allow to edit the fields outside of the PR.
+    $day['disabled'] = 'disabled';
 
     $key = $day['day'];
     $new_data[$uid][$key][] = $day;

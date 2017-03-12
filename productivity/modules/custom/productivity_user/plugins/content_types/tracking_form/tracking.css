@@ -7,6 +7,10 @@ body {
     transition: .4s ease-in-out all;
     width: 320px;
     margin: 0 auto 20px; }
+  body .container .btn-save-icon {
+    -webkit-animation: rotating 3s linear infinite;
+    -ms-animation: rotating 3s linear infinite;
+    animation: rotating 3s linear infinite; }
   body .container .tracking-table-page h2 a:hover {
     text-decoration: none; }
   body .container .tracking-table-page h2 a:active {

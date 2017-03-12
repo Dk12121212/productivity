@@ -6,12 +6,8 @@
 
     Drupal.behaviors.trackingTable = {
         attach: function (context, settings) {
-
+            // Get counter.
             var i = Drupal.settings.rowNumber;
-
-            $('#table-tracking')
-              .append($("#attr").clone().attr('id', 'attr' + (i)));
-            i++;
 
             $("#add_row").click(function () {
                 $('#table-tracking')
@@ -66,13 +62,14 @@
                 var tracking_data = {"tracking": table, 'data': Drupal.settings.tracking}
                 $.ajax({
                     type: "post",
-                    url: "http://localhost/productivity/www/tracking/save-tracking?XDEBUG_SESSION_START=12472",
+                    url: "http://localhost/productivity/www/tracking/save-tracking?XDEBUG_SESSION_START=11945",
                     data: JSON.stringify(tracking_data),
                     xhrFields: {
                         withCredentials: true
                     },
                     dataType: 'json',
                     success: function (data) {
+                        window.location.target();
                         console.log(data);
                         console.log(table);
                     }

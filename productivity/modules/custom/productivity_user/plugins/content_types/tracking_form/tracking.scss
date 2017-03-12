@@ -29,6 +29,12 @@ body {
       margin: 0 auto 20px;
     }
 
+    .btn-save-icon {
+      -webkit-animation: rotating 3s linear infinite;
+      -ms-animation: rotating 3s linear infinite;
+      animation: rotating 3s linear infinite;
+    }
+
     .tracking-table-page {
 
       h2 {

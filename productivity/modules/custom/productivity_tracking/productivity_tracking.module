@@ -48,7 +48,7 @@ function productivity_tracking_theme($existing, $type, $theme, $path) {
 }
 
 function productivity_tracking_save_callback() {
-
+  $results = [];
   $json = file_get_contents('php://input');
   $tracking = json_decode($json, TRUE);
   foreach ($tracking['tracking'] as $track) {
@@ -56,6 +56,18 @@ function productivity_tracking_save_callback() {
     if ($track['mlid'] != 'new') {
       // TODO: Update existing track.
       // Update info that might change.
+      $results[$track['mlid']] =
+        db_update('field_data_field_track_log')
+          ->fields(array(
+              'field_track_log_field_issue_id_value' => $track['pr'],
+              'field_track_log_field_issue_label_value' => $track['description'],
+              'field_track_log_field_issue_type_value' => $track['type'],
+              'field_track_log_field_time_spent_value' => $track['time_spent'],
+            )
+          )
+          ->condition('field_track_log_id', $track['mlid'])
+          ->execute();
+        // TODO: check if we need to update field_revision_field_track_log too.
     }
     // New tracking.
     else {
@@ -102,9 +114,11 @@ function productivity_tracking_save_callback() {
       $node->field_track_log = $logs;
       // Save node.
       $wrapper->save();
+      $results[$logs['mlid']] = 1;
     }
   }
 
+  drupal_json_output($results);
 }
 /**
  * Github endpoint callback

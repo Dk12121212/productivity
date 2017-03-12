@@ -3,17 +3,17 @@
     <?php print $row_number; ?>
   </td>
   <td width="20%">
-    <select id="selectProject" name="project" class="form-control" value="<?php print $tracking['project_nid']; ?>">
+    <select id="selectProject" name="project" class="form-control" value="<?php print $tracking['project_nid']; ?>" <?php print $tracking['disabled']; ?>>
       <?php foreach ($projects as $key => $project): ?>
         <option value="<?php print $key; ?>"><?php print $project; ?></option>
       <?php endforeach; ?>
     </select>
   </td>
   <td width="12%">
-    <input value="<?php print $tracking['repo']; ?>" type="text" name='repo' placeholder='Gizra/some-repo' class="form-control"/>
+    <input value="<?php print $tracking['repo']; ?>" type="text" name='repo' placeholder='Gizra/some-repo' class="form-control" <?php print $tracking['disabled']; ?>/>
   </td>
   <td width="7%">
-    <input value="<?php print $tracking['issue']; ?>" type="text" name='issue' placeholder='#' class="form-control"/>
+    <input value="<?php print $tracking['issue']; ?>" type="text" name='issue' placeholder='#' class="form-control" <?php print $tracking['disabled']; ?>/>
   </td>
   <td width="7%">
     <input value="<?php print $tracking['pr']; ?>" type="text" name='pr' placeholder='#' class="form-control"/>

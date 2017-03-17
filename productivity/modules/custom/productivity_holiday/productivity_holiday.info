@@ -1,0 +1,4 @@
+name = Productivity Holiday
+description = Provides on-the-fly calculation of holidays in various countries.
+core = 7.x
+dependencies[] = composer_manager

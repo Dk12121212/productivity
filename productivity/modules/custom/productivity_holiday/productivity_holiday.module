@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @file
+ * Nationwide holiday handling for Productivity.
+ */
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+use Yasumi\Yasumi;
+
+/**
+ * Returns the list of holidays for a country in a given month.
+ *
+ * @param int $month
+ *   Numerical, 0-11, month of the year.
+ * @param int $year
+ *   The given year on 4 digits.
+ * @param string $location
+ *   Two letter ISO code of the country.
+ *
+ * @return array
+ *   A numerically indexed array with the holidays.
+ *   Example:
+ *     [
+ *        'date' => '2017-01-01',
+ *        'label' => 'New Year',
+ *     ]
+ */
+function productvity_holidays_per_month($month, $year, $location = 'Israel') {
+  $holidays = [];
+  $holiday_provider = Yasumi::create($location, $year);
+  $holidays_month = $holiday_provider->between(new DateTime($month . '/01/' . $year), new DateTime($month . '/31/' . $year));
+  foreach ($holidays_month as $holiday) {
+    $holidays[] = [
+      'date' => $holiday->format('Y-m-d'),
+      'label' => $holiday->getName(),
+    ];
+  }
+  return $holidays;
+}

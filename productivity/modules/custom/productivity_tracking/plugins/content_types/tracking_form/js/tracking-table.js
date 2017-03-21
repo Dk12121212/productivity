@@ -23,6 +23,8 @@
             });
 
             $("#submit").click(function () {
+                $('#submit i').addClass('fa-spin');
+
                 var table = $('#table-tracking').tableToJSON({
                     textExtractor: {
                         0: function (cellIndex, $cell) {
@@ -62,14 +64,15 @@
                 var tracking_data = {"tracking": table, 'data': Drupal.settings.tracking}
                 $.ajax({
                     type: "post",
-                    url: "http://localhost/productivity/www/tracking/save-tracking?XDEBUG_SESSION_START=11217",
+                    url: "http://localhost/productivity/www/tracking/save-tracking?XDEBUG_SESSION_START=15982",
                     data: JSON.stringify(tracking_data),
                     xhrFields: {
                         withCredentials: true
                     },
                     dataType: 'json',
                     success: function (data) {
-                        window.location.target();
+//                        location.reload();
+                        $("#submit i").removeClass('fa-spin');
                         console.log(data);
                         console.log(table);
                     }

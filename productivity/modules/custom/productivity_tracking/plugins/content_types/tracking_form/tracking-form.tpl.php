@@ -101,7 +101,7 @@
 
 <a id="add_row" class="btn btn-success"><i class="fa fa-plus-circle"></i> Add Row</a>
 <a id='delete_row' class="pull-right btn btn-default"><i class="fa fa-minus-circle"></i> Delete Row</a>
-<button id="submit" name="submit" type="submit" class="pull-left btn btn-primary"><i class="fa fa-check"></i> Save</button>
+<button id="submit" name="submit" type="submit" class="pull-left btn btn-primary "><i class="fa fa-circle-o-notch"></i> Save</button>
 
 <!-- Stub row -->
 <table style="display: none;">

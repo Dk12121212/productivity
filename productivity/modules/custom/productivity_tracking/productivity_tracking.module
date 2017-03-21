@@ -70,10 +70,10 @@ function productivity_tracking_save_callback() {
       $results[$track['mlid']] =
         db_update('field_data_field_track_log')
           ->fields(array(
-              'field_track_log_field_issue_id_value' => $track['pr'],
+              'field_track_log_field_issue_id_value' => $track['pr'] ? $track['pr'] : NULL,
               'field_track_log_field_issue_label_value' => $track['description'],
               'field_track_log_field_issue_type_value' => $track['type'],
-              'field_track_log_field_time_spent_value' => $track['time_spent'],
+              'field_track_log_field_time_spent_value' => $track['time_spent'] ? $track['time_spent'] : 0,
             )
           )
           ->condition('field_track_log_id', $track['mlid'])

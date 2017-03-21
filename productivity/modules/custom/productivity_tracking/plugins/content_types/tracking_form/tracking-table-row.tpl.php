@@ -1,6 +1,6 @@
 <tr id="attr<?php print $row_number; ?>" mlid="<?php print $tracking['mlid'] ? $tracking['mlid'] : 'new'; ?>">
   <td>
-    <?php print $row_number; ?>
+    <?php print $tracking['nodelink']; ?>
   </td>
   <td width="20%">
     <select id="selectProject" name="project" class="form-control" value="<?php print $tracking['project_nid']; ?>" <?php print $tracking['disabled']; ?>>
@@ -24,7 +24,7 @@
   <td width="14%">
     <select id="selectType" name="type" class="form-control" value="<?php print $tracking['type']; ?>">
       <?php foreach ($types as $key => $type): ?>
-        <option value="<?php print $key; ?>"><?php print $type; ?></option>
+        <option value="<?php print $key; ?>" <?php print ($key==$tracking['type']) ? 'selected="selected"' : ''; ?>><?php print $type; ?></option>
       <?php endforeach; ?>
     </select>
   </td>

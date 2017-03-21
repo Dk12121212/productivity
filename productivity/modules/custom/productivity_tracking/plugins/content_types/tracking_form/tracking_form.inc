@@ -206,6 +206,7 @@ function productivity_tracking_tracking_form_get_days($month, $year, $uid, $week
     $issue_id = $track_record['field_issue_id_value'];
     $issue_status = $track_record['name'];
     $nid = $track_record['nid'];
+    $node_link = l('#', 'node/' . $nid . '/edit', array('attributes' => array('target' => '_blank')));
     $issue_title = $track_record['body_value'];
     $project_nid = $track_record['field_project_target_id'];
 
@@ -235,6 +236,7 @@ function productivity_tracking_tracking_form_get_days($month, $year, $uid, $week
     $day['project_nid'] = $project_nid;
     // Don't allow to edit the fields outside of the PR.
     $day['disabled'] = 'disabled';
+    $day['nodelink'] = $node_link;
 
     $key = $day['day'];
     $new_data[$uid][$key][] = $day;

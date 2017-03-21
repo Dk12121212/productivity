@@ -34,6 +34,17 @@ function productivity_tracking_menu() {
   return $items;
 }
 
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function productivity_tracking_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools') {
+    return 'plugins/' . $plugin;
+  }
+}
+
+
 /**
  * Implements hook_theme().
  */

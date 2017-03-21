@@ -9,16 +9,16 @@ $plugin = array(
   'title' => t('Tracking form'),
   'description' => t('Display tracking form'),
   'category' => t('Productivity'),
-  'hook theme' => 'productivity_user_tracking_form_theme',
+  'hook theme' => 'productivity_tracking_form_theme',
 );
 
 /**
  * Render callback.
  */
-function productivity_user_tracking_form_content_type_render($subtype, $conf, $args, $context) {
-  drupal_add_css(drupal_get_path('module', 'productivity_user') . '/plugins/content_types/tracking_form/css/tracking.css');
-  drupal_add_js(drupal_get_path('module', 'productivity_user') . '/plugins/content_types/tracking_form/js/jquery.tabletojson.min.js');
-  drupal_add_js(drupal_get_path('module', 'productivity_user') . '/plugins/content_types/tracking_form/js/tracking-table.js');
+function productivity_tracking_tracking_form_content_type_render($subtype, $conf, $args, $context) {
+  drupal_add_css(drupal_get_path('module', 'productivity_tracking') . '/plugins/content_types/tracking_form/css/tracking.css');
+  drupal_add_js(drupal_get_path('module', 'productivity_tracking') . '/plugins/content_types/tracking_form/js/jquery.tabletojson.min.js');
+  drupal_add_js(drupal_get_path('module', 'productivity_tracking') . '/plugins/content_types/tracking_form/js/tracking-table.js');
   $variables = [];
 
   // Build date links.
@@ -56,7 +56,7 @@ function productivity_user_tracking_form_content_type_render($subtype, $conf, $a
 
   // Build  project list.
   $variables['projects'] = productivity_project_get_all_projects();
-  $variables['tracking'] = productivity_user_tracking_form_get_days($month, $year, $uid);
+  $variables['tracking'] = productivity_tracking_tracking_form_get_days($month, $year, $uid);
 
   $variables['days_link'] = [];
   // URLS for each day
@@ -87,7 +87,7 @@ function productivity_user_tracking_form_content_type_render($subtype, $conf, $a
   $row_number = 0;
   foreach($variables['tracking'][$day] as $track) {
     if ($track['tracking']) {
-      $variables['rows'][] = theme('productivity_user_tracking_table_row', [
+      $variables['rows'][] = theme('productivity_tracking_table_row', [
         'tracking' => $track,
         'types' => $variables['types'],
         'projects' => $variables['projects'],
@@ -107,9 +107,9 @@ function productivity_user_tracking_form_content_type_render($subtype, $conf, $a
   dpm($variables);
 
   $block = new stdClass();
-  $block->module = 'productivity_user';
+  $block->module = 'productivity_tracking';
   $block->title = '';
-  $block->content = theme('productivity_user_tracking_form', $variables);
+  $block->content = theme('productivity_tracking_form', $variables);
 
   return $block;
 }
@@ -122,7 +122,7 @@ function productivity_user_tracking_form_content_type_render($subtype, $conf, $a
  *
  * @return array|mixed
  */
-function productivity_user_tracking_form_get_days($month, $year, $uid, $weekend = 'FS') {
+function productivity_tracking_tracking_form_get_days($month, $year, $uid, $weekend = 'FS') {
   // Global days
   $last_day_this_month  = date('t', strtotime('1.' . $month . '.' . $year));
 
@@ -308,21 +308,21 @@ function productivity_user_tracking_form_get_days($month, $year, $uid, $weekend 
 /**
  * Edit form.
  */
-function productivity_user_tracking_form_content_type_edit_form($form, &$form_state) {
+function productivity_tracking_tracking_form_content_type_edit_form($form, &$form_state) {
   return $form;
 }
 
 /**
  * Delegated hook_theme().
  */
-function productivity_user_tracking_form_theme(&$theme, $plugin) {
-  $theme['productivity_user_tracking_form'] = array(
+function productivity_tracking_form_theme(&$theme, $plugin) {
+  $theme['productivity_tracking_form'] = array(
     'variables' => array(
     ),
     'path' => $plugin['path'],
     'template' => 'tracking-form',
   );
-  $theme['productivity_user_tracking_table_row'] = array(
+  $theme['productivity_tracking_table_row'] = array(
     'variables' => array(
     ),
     'path' => $plugin['path'],

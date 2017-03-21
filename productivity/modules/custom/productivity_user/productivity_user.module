@@ -21,16 +21,6 @@ function productivity_user_init() {
 }
 
 /**
- * Implements hook_ctools_plugin_directory().
- */
-function productivity_user_ctools_plugin_directory($module, $plugin) {
-  if ($module == 'ctools') {
-    return 'plugins/' . $plugin;
-  }
-}
-
-
-/**
  * Implements hook_permission().
  */
 function  productivity_user_permission() {

@@ -72,7 +72,25 @@ function productivity_tracking_save_callback() {
     $delete = $ids[2];
     $track['mlid'] = $ids[0];
 
-    if ($track['mlid'] != 'new') {
+
+    // Delete.
+    if ($delete) {
+      // Make sure delete is not on a new item that was never saved.
+      if ($track['mlid'] != 'new') {
+        $results[] = array(
+          'mlid' => $track['mlid'],
+          'new' => 0,
+          'delete' => $delete,
+          'attr' => $attr,
+          'result' => db_delete('field_data_field_track_log')
+            ->condition('field_track_log_id', $track['mlid'])
+            ->execute(),
+        );
+      }
+      // TODO: check if we need to update field_revision_field_track_log too.
+    }
+    // Update.
+    elseif ($track['mlid'] != 'new') {
       // Update info that might change.
       $results[] = array(
         'mlid' => $track['mlid'],

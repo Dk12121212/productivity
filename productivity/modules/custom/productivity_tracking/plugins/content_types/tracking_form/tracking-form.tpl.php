@@ -102,8 +102,11 @@
   </div>
 </div>
 
-<a id="add_row" class="btn btn-success"><i class="fa fa-plus-circle"></i> Add Row</a>
-<button id="submit" name="submit" type="submit" class="pull-left btn btn-primary "><i class="fa fa-circle-o-notch"></i> Save</button>
+<div>
+  <button id="submit" name="submit" type="submit" class="btn btn-primary "><i class="fa fa-circle-o-notch"></i> Save</button>
+  <button id="add_row" class="btn btn-success"><i class="fa fa-plus-circle"></i> Add Row</button>
+</div>
+
 <!-- Messages -->
 <div id="messages">
 </div>

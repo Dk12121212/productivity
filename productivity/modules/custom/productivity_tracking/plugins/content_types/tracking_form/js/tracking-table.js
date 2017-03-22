@@ -15,8 +15,8 @@
                 i++;
             });
 
-
-            $(".deleteRow").click(function () {
+            // Use .on to bind non existing yet elements.
+            $('#table-tracking').on('click', '.deleteRow', function(){
                 // Toggle delete flag and strikeout.
                 $(this).parents('tr').toggleClass('strikeout').attr('delete', function(_, attr){ return (attr==0 ? 1 : 0)});
             });
@@ -76,9 +76,19 @@
                             if (data[i].new == 1) {
                                 $('#' + data[i].attr).attr('mlid', data[i].mlid).removeAttr('class');
                             }
+                            // Remove items marked as deleted.
+                            if (data[i].delete == 1) {
+                                $('#' + data[i].attr).remove();
+                            }
                         }
+                        // Remove new item marked as deleted.
+                        $('tr').filter("[delete=1]").remove();
+
+                        // Print debugging info.
                         console.log(data);
                         console.log(table);
+
+                        // Stop spin.
                         $("#submit i").removeClass('fa-spin');
                     },
                     error: function (data) {

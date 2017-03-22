@@ -1,4 +1,4 @@
-<tr id="attr<?php print $row_number; ?>" mlid="<?php print $tracking['mlid'] ? $tracking['mlid'] : 'new'; ?>" <?php print $tracking['mlid'] ? "" : 'class="new"'; ?>">
+<tr id="attr<?php print $row_number; ?>" mlid="<?php print $tracking['mlid'] ? $tracking['mlid'] : 'new'; ?>" <?php print $tracking['mlid'] ? "" : 'class="new"'; ?> delete="0">
   <td>
     <?php print $tracking['nodelink']; ?>
   </td>
@@ -18,7 +18,7 @@
   <td width="7%">
     <input value="<?php print $tracking['pr']; ?>" type="text" name='pr' placeholder='#' class="form-control"/>
   </td>
-  <td width="33%">
+  <td width="30%">
     <input value="<?php print $tracking['title']; ?>" type="text" name='title' placeholder='Description - Leave empty to get title of PR from GH ' class="form-control"/>
   </td>
   <td width="14%">
@@ -30,5 +30,10 @@
   </td>
   <td width="7%">
     <input value="<?php print $tracking['length']; ?>" name="issue-time" type="number" step="0.10" min="0" placeholder="4" class="form-control input-md issue-time">
+  </td>
+  <td width="3%">
+    <button class="btn btn-danger deleteRow" row="attr<?php print $row_number; ?>" type="button" title="Delete Row" data-toggle="tooltip" data-placement="bottom" data-original-title="Erase">
+      <i class="fa fa-trash-o"></i>
+    </button>
   </td>
 </tr>

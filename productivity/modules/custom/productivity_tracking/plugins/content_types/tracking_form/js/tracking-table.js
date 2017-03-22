@@ -15,20 +15,20 @@
                 i++;
             });
 
-            $("#delete_row").click(function () {
-                if (i > Drupal.settings.rowNumber) {
-                    $("#attr" + (i - 1)).remove();
-                    i--;
-                }
+
+            $(".deleteRow").click(function () {
+                // Toggle delete flag and strikeout.
+                $(this).parents('tr').toggleClass('strikeout').attr('delete', function(_, attr){ return (attr==0 ? 1 : 0)});
             });
 
+            // Save all data rows.
             $("#submit").click(function () {
                 $('#submit i').addClass('fa-spin');
 
                 var table = $('#table-tracking').tableToJSON({
                     textExtractor: {
                         0: function (cellIndex, $cell) {
-                            return $cell.parent('tr').attr('mlid') + '|' + $cell.parent('tr').attr('id');
+                            return $cell.parent('tr').attr('mlid') + '|' + $cell.parent('tr').attr('id') + '|' + $cell.parent('tr').attr('delete');
                         },
                         // Project nid.
                         1: function (cellIndex, $cell) {
@@ -71,7 +71,6 @@
                     },
                     dataType: 'json',
                     success: function (data) {
-//                        location.reload();
                         // Marked saved item as saved, with new mlid, and remove class new.
                         for (i = 0; i < data.length; i++) {
                             if (data[i].new == 1) {

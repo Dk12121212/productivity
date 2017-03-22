@@ -5,7 +5,7 @@
   <td width="20%">
     <select id="selectProject" name="project" class="form-control" value="<?php print $tracking['project_nid']; ?>" <?php print $tracking['disabled']; ?>>
       <?php foreach ($projects as $key => $project): ?>
-        <option value="<?php print $key; ?>"><?php print $project; ?></option>
+        <option value="<?php print $key; ?>" <?php print ($key==$tracking['project_nid']) ? 'selected="selected"' : ''; ?>><?php print $project; ?></option>
       <?php endforeach; ?>
     </select>
   </td>

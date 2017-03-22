@@ -218,7 +218,6 @@ function productivity_tracking_tracking_form_get_days($month, $year, $uid, $week
     ));
 
     $issue_url = "https://github.com/$repo_id/issues/$issue_id";
-    $issue_link = l("$issue_title", $issue_url, array('attributes' => array('target' => '_blank')));
 
 
     $day['projectName'] = $repo_id;

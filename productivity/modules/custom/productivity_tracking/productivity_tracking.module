@@ -539,6 +539,7 @@ function productivity_tracking_get_tracking_by_user($uid, $year = FALSE, $month 
     ->condition('type', 'tracking')
     ->condition('status', NODE_PUBLISHED)
     ->condition('t.field_track_log_field_employee_target_id', $uid)
+    ->orderBy('t.field_track_log_id')
     ->orderBy('gpi.field_github_project_id_value')
     ->orderBy('i.field_issue_id_value');
 

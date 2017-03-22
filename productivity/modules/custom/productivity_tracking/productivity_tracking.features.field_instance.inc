@@ -283,7 +283,7 @@ function productivity_tracking_field_default_field_instances() {
   $field_instances['multifield-field_track_log-field_last_push'] = array(
     'bundle' => 'field_track_log',
     'deleted' => 0,
-    'description' => '',
+    'description' => 'Last time it was edited.',
     'display' => array(
       'default' => array(
         'label' => 'above',
@@ -302,7 +302,7 @@ function productivity_tracking_field_default_field_instances() {
     ),
     'entity_type' => 'multifield',
     'field_name' => 'field_last_push',
-    'label' => 'Last push',
+    'label' => 'Last update',
     'required' => 0,
     'settings' => array(
       'default_value' => 'now',
@@ -693,7 +693,8 @@ function productivity_tracking_field_default_field_instances() {
   t('Issue ID');
   t('Issue Status');
   t('Issue label');
-  t('Last push');
+  t('Last time it was edited.');
+  t('Last update');
   t('PR ID');
   t('PR if if appicable.');
   t('Project');

@@ -106,6 +106,6 @@
 <!-- Stub row -->
 <table style="display: none;">
   <tbody>
-   <?php print theme('productivity_user_tracking_table_row', ['id' => '', 'types' => $variables['types'],  'projects' => $variables['projects']]); ?>
+   <?php print theme('productivity_tracking_table_row', ['id' => '', 'types' => $variables['types'],  'projects' => $variables['projects']]); ?>
   </tbody>
 </table>

@@ -104,7 +104,6 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
       'date_str' => "$day.$month.$year",
     ],
   ], 'setting');
-  dpm($variables);
 
   $block = new stdClass();
   $block->module = 'productivity_tracking';

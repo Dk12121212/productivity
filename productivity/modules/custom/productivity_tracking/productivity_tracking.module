@@ -67,11 +67,17 @@ function productivity_tracking_save_callback() {
   $tracking = json_decode($json, TRUE);
   foreach ($tracking['tracking'] as $track) {
     // Existing Tracking, just update.
+    $ids = explode('|', $track['mlid']);
+    $attr = $ids[1];
+    $track['mlid'] = $ids[0];
+
     if ($track['mlid'] != 'new') {
-      // TODO: Update existing track.
       // Update info that might change.
-      $results[$track['mlid']] =
-        db_update('field_data_field_track_log')
+      $results[] = array(
+        'mlid' => $track['mlid'],
+        'new' => 0,
+        'attr' => $attr,
+        'result' => db_update('field_data_field_track_log')
           ->fields(array(
               'field_track_log_field_issue_id_value' => $track['pr'] ? $track['pr'] : NULL,
               'field_track_log_field_issue_label_value' => $track['description'],
@@ -80,8 +86,9 @@ function productivity_tracking_save_callback() {
             )
           )
           ->condition('field_track_log_id', $track['mlid'])
-          ->execute();
-        // TODO: check if we need to update field_revision_field_track_log too.
+          ->execute(),
+      );
+      // TODO: check if we need to update field_revision_field_track_log too.
     }
     // New tracking.
     else {
@@ -120,19 +127,27 @@ function productivity_tracking_save_callback() {
       $logs['und'][] = productivity_tracking_create_multifields_track($data, $wrapper);
 
       // Rebuild structure with previous logs.
+      $index = 0;
       if (isset($node->field_track_log['und'])) {
         foreach ($node->field_track_log['und'] as $existing_log) {
           $logs['und'][] = $existing_log;
+          $index++;
         }
       }
       $node->field_track_log = $logs;
       // Save node.
       $wrapper->save();
-      $results[$logs['mlid']] = 1;
+      $results[] = array(
+        'mlid' => $node->field_track_log['und'][$index]['id'],
+        'result' => 1,
+        'attr' => $attr,
+        'new' => 1,
+      );
     }
   }
 
   drupal_json_output($results);
+  drupal_exit();
 }
 /**
  * Github endpoint callback
@@ -684,8 +699,7 @@ function productivity_tracking_create_multifields_track($data) {
   $log['field_date']['und'][0]['value'] = $data['date_start'];
   $log['field_date']['und'][0]['value2'] = $data['date_end'];
   $log['field_issue_label']['und'][0]['value'] =  $data['label'];
-  // TODO: Remove last push from schema.
-  // Removed since we user date end of field_date instead.
+  // Last push use as last edited field.
   $log['field_last_push']['und'][0]['value'] = date("Y-m-d H:i:s");
   $log['field_issue_id']['und'][0]['value'] =  $data['issue_id'];
   $term = productivity_tracking_get_term_status( $data['status']);
@@ -757,7 +771,6 @@ function productivity_tracking_get_tracking_node($data, $update_existing = FALSE
       'uid' => $user->uid,
       'status' => 1,
     );
-    print("Creating new $title \n");
     $node = entity_create('node', $values);
 
     $wrapper = entity_metadata_wrapper('node', $node);

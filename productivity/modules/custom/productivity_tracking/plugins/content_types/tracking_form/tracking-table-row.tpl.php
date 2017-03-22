@@ -1,4 +1,4 @@
-<tr id="attr<?php print $row_number; ?>" mlid="<?php print $tracking['mlid'] ? $tracking['mlid'] : 'new'; ?>">
+<tr id="attr<?php print $row_number; ?>" mlid="<?php print $tracking['mlid'] ? $tracking['mlid'] : 'new'; ?>" <?php print $tracking['mlid'] ? "" : 'class="new"'; ?>">
   <td>
     <?php print $tracking['nodelink']; ?>
   </td>

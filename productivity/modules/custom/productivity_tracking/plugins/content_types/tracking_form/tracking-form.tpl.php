@@ -102,6 +102,18 @@
 <a id="add_row" class="btn btn-success"><i class="fa fa-plus-circle"></i> Add Row</a>
 <a id='delete_row' class="pull-right btn btn-default"><i class="fa fa-minus-circle"></i> Delete Row</a>
 <button id="submit" name="submit" type="submit" class="pull-left btn btn-primary "><i class="fa fa-circle-o-notch"></i> Save</button>
+<!-- Messages -->
+<div id="messages">
+</div>
+
+<!-- Template for message Error -->
+<div id="templateMsg" class="alert alert-danger" style="display: none;">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+  <i class="fa fa-times-circle fa-fw fa-lg"></i>
+  <strong>Oh snap!</strong>
+  <span id="messageText"></span>
+  <a href="#" class="alert-link">Contact site administrator</a>.
+</div>
 
 <!-- Stub row -->
 <table style="display: none;">

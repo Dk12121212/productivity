@@ -28,7 +28,7 @@
                 var table = $('#table-tracking').tableToJSON({
                     textExtractor: {
                         0: function (cellIndex, $cell) {
-                            return $cell.parent('tr').attr('mlid');
+                            return $cell.parent('tr').attr('mlid') + '|' + $cell.parent('tr').attr('id');
                         },
                         // Project nid.
                         1: function (cellIndex, $cell) {
@@ -64,7 +64,7 @@
                 var tracking_data = {"tracking": table, 'data': Drupal.settings.tracking}
                 $.ajax({
                     type: "post",
-                    url: "http://localhost/productivity/www/tracking/save-tracking?XDEBUG_SESSION_START=15982",
+                    url: "http://localhost/productivity/www/tracking/save-tracking?XDEBUG_SESSION_START=16971",
                     data: JSON.stringify(tracking_data),
                     xhrFields: {
                         withCredentials: true
@@ -72,9 +72,24 @@
                     dataType: 'json',
                     success: function (data) {
 //                        location.reload();
-                        $("#submit i").removeClass('fa-spin');
+                        // Marked saved item as saved, with new mlid, and remove class new.
+                        for (i = 0; i < data.length; i++) {
+                            if (data[i].new == 1) {
+                                $('#' + data[i].attr).attr('mlid', data[i].mlid).removeAttr('class');
+                            }
+                        }
                         console.log(data);
                         console.log(table);
+                        $("#submit i").removeClass('fa-spin');
+                    },
+                    error: function (data) {
+                        $("#submit i").removeClass('fa-spin');
+                        $('#messages')
+                          .append($("#templateMsg").clone().removeAttr('id').removeAttr('style'))
+                          .children('div:last-child').children('#messageText').text(data.responseText);
+
+                        console.log(data);
+                        console.log("Error saving.");
                     }
                 });
             });

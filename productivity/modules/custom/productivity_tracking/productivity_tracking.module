@@ -134,8 +134,8 @@ function productivity_tracking_save_callback() {
       $data = [
         'date_start' => date("Y-m-d H:i:s", strtotime($tracking['data']['date_str'])),
         'date_end' => date("Y-m-d H:i:s", strtotime($tracking['data']['date_str'])),
-        'label' => $track['title'],
-        'issue_id' => $track['issue'] ? $track['issue'] : 0,
+        'label' => $track['description'],
+        'issue_id' => $track['pr'] ? $track['pr'] : 0,
         'status' => 'open',
         'github_username' => 'TODO: get-gh-user-from-field',
         'time_spent' => $track['time_spent'],

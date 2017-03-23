@@ -97,9 +97,15 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
     }
   }
 
+  // Support Xdebug on the fly.
+  if (isset($_COOKIE['XDEBUG_SESSION'])) {
+    $q_string = "?XDEBUG_SESSION_START={$_COOKIE['XDEBUG_SESSION']}";
+  }
+
   drupal_add_js([
     'rowNumber' => $row_number,
     'tracking' => [
+      'url' =>  base_path() . "tracking/save-tracking$q_string",
       'uid' => $uid,
       'date_str' => "$day.$month.$year",
     ],

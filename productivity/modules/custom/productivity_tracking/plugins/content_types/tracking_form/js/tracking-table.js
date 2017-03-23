@@ -64,7 +64,7 @@
                 var tracking_data = {"tracking": table, 'data': Drupal.settings.tracking}
                 $.ajax({
                     type: "post",
-                    url: "http://localhost/productivity/www/tracking/save-tracking?XDEBUG_SESSION_START=16971",
+                    url: location.origin +  Drupal.settings.tracking.url,
                     data: JSON.stringify(tracking_data),
                     xhrFields: {
                         withCredentials: true

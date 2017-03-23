@@ -164,13 +164,15 @@ function productivity_tracking_save_callback() {
       // Save PR.
       $node = $wrapper->value();
       $logs = array();
+      $account_wrapper = entity_metadata_wrapper('user', $uid);
+
       $data = [
         'date_start' => date("Y-m-d H:i:s", strtotime($tracking['data']['date_str'])),
         'date_end' => date("Y-m-d H:i:s", strtotime($tracking['data']['date_str'])),
         'label' => $track['description'],
         'issue_id' => $track['pr'] ? $track['pr'] : 0,
         'status' => 'open',
-        'github_username' => 'TODO: get-gh-user-from-field',
+        'github_username' => $account_wrapper->field_github_username->value(),
         'time_spent' => $track['time_spent'],
         'issue_type' => $track['type'],
         'uid' => $uid,

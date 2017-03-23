@@ -48,3 +48,10 @@ function productivity_user_update_7001() {
 function productivity_user_update_7002() {
   module_enable(array('productivity_issue_diagram'));
 }
+
+/**
+ * Enable module productivity_login.
+ */
+function productivity_user_update_7004() {
+  module_enable(array('productivity_login'));
+}

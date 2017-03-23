@@ -74,7 +74,7 @@
                         // Marked saved item as saved, with new mlid, and remove class new.
                         for (i = 0; i < data.length; i++) {
                             if (data[i].new == 1) {
-                                $('#' + data[i].attr).attr('mlid', data[i].mlid).removeAttr('class');
+                                $('#' + data[i].attr).attr('mlid', data[i].mlid).removeAttr('class').children('.save-mark').children('.fa').show();
                             }
                             // Remove items marked as deleted.
                             if (data[i].delete == 1) {

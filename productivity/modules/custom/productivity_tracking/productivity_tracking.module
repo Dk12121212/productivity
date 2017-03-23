@@ -59,6 +59,52 @@ function productivity_tracking_theme($existing, $type, $theme, $path) {
 }
 
 /**
+ *  Update tracking multifiled.
+ */
+function productivity_tracking_update($track) {
+  // Save in regular data.
+  $res = db_update('field_data_field_track_log')
+    ->fields(array(
+        'field_track_log_field_issue_id_value' => $track['pr'] ? $track['pr'] : NULL,
+        'field_track_log_field_issue_label_value' => $track['description'],
+        'field_track_log_field_issue_type_value' => $track['type'],
+        'field_track_log_field_time_spent_value' => $track['time_spent'] ? $track['time_spent'] : 0,
+      )
+    )
+    ->condition('field_track_log_id', $track['mlid'])
+    ->execute();
+
+  // Save in revision.
+  $res_rev = db_update('field_revision_field_track_log')
+    ->fields(array(
+        'field_track_log_field_issue_id_value' => $track['pr'] ? $track['pr'] : NULL,
+        'field_track_log_field_issue_label_value' => $track['description'],
+        'field_track_log_field_issue_type_value' => $track['type'],
+        'field_track_log_field_time_spent_value' => $track['time_spent'] ? $track['time_spent'] : 0,
+      )
+    )
+    ->condition('field_track_log_id', $track['mlid'])
+    ->execute();
+
+  return $res && $res_rev;
+}
+
+/**
+ *  Delete tracking multifiled.
+ */
+function productivity_tracking_delete($mlid) {
+  $res = db_delete('field_data_field_track_log')
+    ->condition('field_track_log_id', $mlid)
+    ->execute();
+
+  $res_rev = db_delete('field_revision_field_track_log')
+    ->condition('field_track_log_id', $mlid)
+    ->execute();
+
+  return $res && $res_rev;
+}
+
+/**
  * Save tracking from tacking table.
  */
 function productivity_tracking_save_callback() {
@@ -82,12 +128,9 @@ function productivity_tracking_save_callback() {
           'new' => 0,
           'delete' => $delete,
           'attr' => $attr,
-          'result' => db_delete('field_data_field_track_log')
-            ->condition('field_track_log_id', $track['mlid'])
-            ->execute(),
+          'result' => productivity_tracking_delete($track['mlid']),
         );
       }
-      // TODO: check if we need to update field_revision_field_track_log too.
     }
     // Update.
     elseif ($track['mlid'] != 'new') {
@@ -97,18 +140,8 @@ function productivity_tracking_save_callback() {
         'new' => 0,
         'delete' => $delete,
         'attr' => $attr,
-        'result' => db_update('field_data_field_track_log')
-          ->fields(array(
-              'field_track_log_field_issue_id_value' => $track['pr'] ? $track['pr'] : NULL,
-              'field_track_log_field_issue_label_value' => $track['description'],
-              'field_track_log_field_issue_type_value' => $track['type'],
-              'field_track_log_field_time_spent_value' => $track['time_spent'] ? $track['time_spent'] : 0,
-            )
-          )
-          ->condition('field_track_log_id', $track['mlid'])
-          ->execute(),
+        'result' => productivity_tracking_update($track),
       );
-      // TODO: check if we need to update field_revision_field_track_log too.
     }
     // New tracking.
     else {

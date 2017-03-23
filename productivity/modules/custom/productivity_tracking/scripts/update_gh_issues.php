@@ -76,6 +76,15 @@ while($track_record = $tracking->fetchAssoc()) {
       ->condition('field_track_log_id', $track_id)
       ->execute();
 
+    $mf_update_rev =
+      db_update('field_revision_field_track_log')
+        ->fields(array(
+            'field_track_log_field_issue_status_target_id' => $term->tid,
+          )
+        )
+        ->condition('field_track_log_id', $track_id)
+        ->execute();
+
   }
 
   $count--;

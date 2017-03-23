@@ -38,6 +38,8 @@ function productivity_user_default_page_manager_handlers() {
       'default' => NULL,
       'top' => NULL,
       'bottom' => NULL,
+      'attendance' => NULL,
+      'tracking' => NULL,
     ),
   );
   $display->cache = array();
@@ -47,6 +49,29 @@ function productivity_user_default_page_manager_handlers() {
   $display->storage_id = 'user_view__panel_context_6d375b45-fd41-47e5-9c61-1152c708b984';
   $display->content = array();
   $display->panels = array();
+  $pane = new stdClass();
+  $pane->pid = 'new-7a848676-0f7d-47a1-be90-c01244c3f13c';
+  $pane->panel = 'tracking';
+  $pane->type = 'tracking_form';
+  $pane->subtype = 'tracking_form';
+  $pane->shown = TRUE;
+  $pane->access = array();
+  $pane->configuration = array(
+    'override_title' => 0,
+    'override_title_text' => '',
+    'override_title_heading' => 'h2',
+  );
+  $pane->cache = array();
+  $pane->style = array(
+    'settings' => NULL,
+  );
+  $pane->css = array();
+  $pane->extras = array();
+  $pane->position = 0;
+  $pane->locks = array();
+  $pane->uuid = '7a848676-0f7d-47a1-be90-c01244c3f13c';
+  $display->content['new-7a848676-0f7d-47a1-be90-c01244c3f13c'] = $pane;
+  $display->panels['tracking'][0] = 'new-7a848676-0f7d-47a1-be90-c01244c3f13c';
   $display->hide_title = PANELS_TITLE_FIXED;
   $display->title_pane = '0';
   $handler->conf['display'] = $display;

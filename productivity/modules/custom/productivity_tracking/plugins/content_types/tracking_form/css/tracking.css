@@ -1,0 +1,136 @@
+body {
+  font-family: Arial, sans-serif; }
+  body table {
+    border-collapse: collapse;
+    empty-cells: show; }
+  body td {
+    position: relative; }
+  body tr.strikeout td:before {
+    content: " ";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    border-bottom: 1px solid #111;
+    width: 100%; }
+  body tr.strikeout td:after {
+    font-size: 1px; }
+  body .btn-github {
+    color: white;
+    background: #478484;
+    padding-left: 0;
+    transition: .4s ease-in-out all;
+    width: 320px;
+    margin: 0 auto 20px; }
+  body .btn-save-icon {
+    -webkit-animation: rotating 3s linear infinite;
+    -ms-animation: rotating 3s linear infinite;
+    animation: rotating 3s linear infinite; }
+  body .tracking-table-page h2 a:hover {
+    text-decoration: none; }
+  body .tracking-table-page h2 a:active {
+    color: red; }
+  body .tracking-table-page .track-item-table {
+    font-size: 16px; }
+    body .tracking-table-page .track-item-table li a {
+      height: 36px; }
+    body .tracking-table-page .track-item-table td {
+      white-space: nowrap; }
+  body .tracking-page .axis path, body .tracking-page .axis line {
+    fill: none;
+    stroke: #b6b6b6;
+    shape-rendering: crispEdges; }
+  body .tracking-page .tick text {
+    fill: #999; }
+  body .tracking-page g.journal circle {
+    fill: #e60f0d; }
+    body .tracking-page g.journal circle.regular {
+      fill: #e6b9d5; }
+    body .tracking-page g.journal circle.sick {
+      fill: #28b90d; }
+    body .tracking-page g.journal circle.vacation {
+      fill: #64000d; }
+    body .tracking-page g.journal circle.holiday {
+      fill: #00550d; }
+    body .tracking-page g.journal circle.funday {
+      fill: #c8b90d; }
+    body .tracking-page g.journal circle.miluim {
+      fill: #64550d; }
+    body .tracking-page g.journal circle.convention {
+      fill: #645582; }
+  body .tracking-page g.journal:hover {
+    cursor: pointer; }
+  body .tracking-page text.label {
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer; }
+  body .tracking-page text.value {
+    font-size: 12px;
+    font-weight: bold; }
+  body .tracking-form-page .calendar-btn {
+    float: right; }
+  body .tracking-form-page #calendar .fc-state-highlight {
+    background-color: #f8f8f8; }
+  body .tracking-form-page #calendar .fc-event {
+    border: 0 none;
+    padding: 1px;
+    color: white; }
+    body .tracking-form-page #calendar .fc-event .fc-event-title {
+      text-transform: capitalize; }
+    body .tracking-form-page #calendar .fc-event.empty-event {
+      background-color: transparent;
+      color: black; }
+    body .tracking-form-page #calendar .fc-event.regular-event {
+      background-color: #478484; }
+    body .tracking-form-page #calendar .fc-event.sick-event {
+      background-color: #AA3939; }
+    body .tracking-form-page #calendar .fc-event.vacation-event {
+      background-color: #DB7676; }
+    body .tracking-form-page #calendar .fc-event.holiday-event {
+      background-color: #DBA476; }
+    body .tracking-form-page #calendar .fc-event.funday-event, body .tracking-form-page #calendar .fc-event.special-event {
+      background-color: #AA8439; }
+    body .tracking-form-page #calendar .fc-event.miluim-event {
+      background-color: #AA8439; }
+    body .tracking-form-page #calendar .fc-event.convention-event {
+      background-color: #645582; }
+    body .tracking-form-page #calendar .fc-event.weekend-event {
+      background-color: #DBA476; }
+    body .tracking-form-page #calendar .fc-event.global-event {
+      background-color: #a784B1; }
+  body .tracking-form-page .month-nav {
+    font-size: 30px;
+    padding-left: 60px; }
+    body .tracking-form-page .month-nav a:hover {
+      text-decoration: none; }
+  body .tracking-form-page .tracking-form {
+    margin-top: 30px; }
+    body .tracking-form-page .tracking-form.form-horizontal .control-label {
+      text-align: left; }
+    body .tracking-form-page .tracking-form .issues-row {
+      margin-bottom: 5px; }
+      body .tracking-form-page .tracking-form .issues-row > div {
+        padding-left: 5px;
+        padding-right: 5px; }
+        body .tracking-form-page .tracking-form .issues-row > div .issue-time {
+          text-align: center;
+          display: inline-block;
+          float: left; }
+        body .tracking-form-page .tracking-form .issues-row > div:first-child {
+          padding-left: 15px; }
+        body .tracking-form-page .tracking-form .issues-row > div .fa {
+          margin: 4px 0 0 5px;
+          float: left;
+          cursor: pointer; }
+          body .tracking-form-page .tracking-form .issues-row > div .fa.fa-plus-circle {
+            color: #4784B1; }
+          body .tracking-form-page .tracking-form .issues-row > div .fa.fa-minus-circle {
+            color: #4784B1; }
+    body .tracking-form-page .tracking-form .total-hours {
+      text-align: right; }
+      body .tracking-form-page .tracking-form .total-hours span {
+        display: inline-block;
+        margin: 2px 9% 0 0;
+        font-size: 20px;
+        font-weight: bold; }
+
+/*# sourceMappingURL=tracking.css.map */

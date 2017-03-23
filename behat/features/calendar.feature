@@ -3,7 +3,7 @@ Feature: Calendar in app
   As an authenticated user
   We need to be able to add and view events in the calendar.
 
-  @javascript
+  @javascript @wip
   Scenario: Show the calendar.
     Given I login with user "admin"
     When  I open the calendar

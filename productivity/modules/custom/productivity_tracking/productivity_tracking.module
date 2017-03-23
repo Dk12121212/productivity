@@ -11,6 +11,11 @@ include_once 'productivity_tracking.features.inc';
  * Implements hook_menu().
  */
 function productivity_tracking_menu() {
+  $items['payload'] = array(
+    'page callback' => 'productivity_tracking_payload',
+    'access callback' => TRUE,
+  );
+
   $items['node/%node/issues-tracking'] = array(
     'title' => t('Tracking Report'),
     'page callback' => 'productivity_tracking_burn_report_callback',
@@ -24,8 +29,26 @@ function productivity_tracking_menu() {
     'file' => 'reports/productivity_tracking.burn.report.inc',
   );
 
+
+  $items['tracking/save-tracking'] = array(
+    'title' => t('Tracking Report Save Service'),
+    'page callback' => 'productivity_tracking_save_callback',
+    'access arguments' => array('create tracking content'),
+  );
+
   return $items;
 }
+
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function productivity_tracking_ctools_plugin_directory($module, $plugin) {
+  if ($module == 'ctools') {
+    return 'plugins/' . $plugin;
+  }
+}
+
 
 /**
  * Implements hook_theme().
@@ -40,6 +63,153 @@ function productivity_tracking_theme($existing, $type, $theme, $path) {
   );
 }
 
+/**
+ *  Update tracking multifiled.
+ */
+function productivity_tracking_update($track) {
+  // Save in regular data.
+  $res = db_update('field_data_field_track_log')
+    ->fields(array(
+        'field_track_log_field_issue_id_value' => $track['pr'] ? $track['pr'] : NULL,
+        'field_track_log_field_issue_label_value' => $track['description'],
+        'field_track_log_field_issue_type_value' => $track['type'],
+        'field_track_log_field_time_spent_value' => $track['time_spent'] ? $track['time_spent'] : 0,
+      )
+    )
+    ->condition('field_track_log_id', $track['mlid'])
+    ->execute();
+
+  // Save in revision.
+  $res_rev = db_update('field_revision_field_track_log')
+    ->fields(array(
+        'field_track_log_field_issue_id_value' => $track['pr'] ? $track['pr'] : NULL,
+        'field_track_log_field_issue_label_value' => $track['description'],
+        'field_track_log_field_issue_type_value' => $track['type'],
+        'field_track_log_field_time_spent_value' => $track['time_spent'] ? $track['time_spent'] : 0,
+      )
+    )
+    ->condition('field_track_log_id', $track['mlid'])
+    ->execute();
+
+  return $res && $res_rev;
+}
+
+/**
+ *  Delete tracking multifiled.
+ */
+function productivity_tracking_delete($mlid) {
+  $res = db_delete('field_data_field_track_log')
+    ->condition('field_track_log_id', $mlid)
+    ->execute();
+
+  $res_rev = db_delete('field_revision_field_track_log')
+    ->condition('field_track_log_id', $mlid)
+    ->execute();
+
+  return $res && $res_rev;
+}
+
+/**
+ * Save tracking from tacking table.
+ */
+function productivity_tracking_save_callback() {
+  $results = [];
+  $json = file_get_contents('php://input');
+  $tracking = json_decode($json, TRUE);
+  foreach ($tracking['tracking'] as $track) {
+    // Existing Tracking, just update.
+    $ids = explode('|', $track['mlid']);
+    $attr = $ids[1];
+    $delete = $ids[2];
+    $track['mlid'] = $ids[0];
+
+
+    // Delete.
+    if ($delete) {
+      // Make sure delete is not on a new item that was never saved.
+      if ($track['mlid'] != 'new') {
+        $results[] = array(
+          'mlid' => $track['mlid'],
+          'new' => 0,
+          'delete' => $delete,
+          'attr' => $attr,
+          'result' => productivity_tracking_delete($track['mlid']),
+        );
+      }
+    }
+    // Update.
+    elseif ($track['mlid'] != 'new') {
+      // Update info that might change.
+      $results[] = array(
+        'mlid' => $track['mlid'],
+        'new' => 0,
+        'delete' => $delete,
+        'attr' => $attr,
+        'result' => productivity_tracking_update($track),
+      );
+    }
+    // New tracking.
+    else {
+      $uid = $tracking['data']['uid'];
+      $data_issue = [
+        'project' => $track['project_nid'],
+        'repo' => $track['repo'],
+        'issue_id' => $track['issue'] ? $track['issue'] : 0,
+        'title' => $track['description'],
+        'type' => $track['type'],
+        'time' => $track['time_spent'],
+        'uid' => $uid,
+        // Case the issue does not exist set defaults.
+        'estimate' => 0,
+        'status' => 'open',
+      ];
+
+      // Get or create tracking node.
+      $wrapper = productivity_tracking_get_tracking_node($data_issue);
+      // Save PR.
+      $node = $wrapper->value();
+      $logs = array();
+      $account_wrapper = entity_metadata_wrapper('user', $uid);
+
+      $data = [
+        'date_start' => date("Y-m-d H:i:s", strtotime($tracking['data']['date_str'])),
+        'date_end' => date("Y-m-d H:i:s", strtotime($tracking['data']['date_str'])),
+        'label' => $track['description'],
+        'issue_id' => $track['pr'] ? $track['pr'] : 0,
+        'status' => 'open',
+        'github_username' => $account_wrapper->field_github_username->value(),
+        'time_spent' => $track['time_spent'],
+        'issue_type' => $track['type'],
+        'uid' => $uid,
+      ];
+
+      // Create a new tracking data.
+      $logs['und'][] = productivity_tracking_create_multifields_track($data, $wrapper);
+
+      // Rebuild structure with previous logs.
+      $index = 0;
+      if (isset($node->field_track_log['und'])) {
+        foreach ($node->field_track_log['und'] as $existing_log) {
+          $logs['und'][] = $existing_log;
+          $index++;
+        }
+      }
+      $node->field_track_log = $logs;
+      // Save node.
+      $wrapper->save();
+      $results[] = array(
+        'mlid' => $node->field_track_log['und'][$index]['id'],
+        'result' => 1,
+        'delete' => $delete,
+        'attr' => $attr,
+        'new' => 1,
+      );
+    }
+  }
+
+  drupal_json_output($results);
+  drupal_exit();
+}
 /**
  * Github endpoint callback
  */
@@ -108,7 +278,6 @@ function productivity_tracking_payload() {
   }
 }
 
-
 /**
  * Handle PR event.
  */
@@ -163,7 +332,7 @@ function productivity_tracking_gh_payload($payload, $event) {
     ];
 
 
-    $wrapper = productivity_tracking_get_tracking_node($data_issue);
+    $wrapper = productivity_tracking_get_tracking_node($data_issue, TRUE);
 
     // Only create tracking stub if a PR was pushed.
     // This will be later used to prepopulate the tracking for developers.
@@ -269,7 +438,6 @@ function productivity_tracking_get_uid_by_github_username($github_username) {
   watchdog('productivity', t('No user with github username: @username', array('@username' => $github_username)));
 }
 
-
 /**
  * Fetch an entity ID by a unique field value.
  *
@@ -297,7 +465,6 @@ function productivity_tracking_get_entity_id_by_field_value($field, $bundle, $va
     return $result['entity_id'];
   }
 }
-
 
 /**
  * Get entity reference connections.
@@ -361,6 +528,91 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
 
   if ($work_type) {
     $query->condition('t.field_track_log_field_issue_type_value', $work_type);
+  }
+
+  $result = $query->execute();
+
+  return $result;
+}
+
+/**
+ * Get entity reference connections.
+ *
+ * @param $work_type
+ *  qa, dev, management or other type.
+ *
+ * @return
+ *   SelectQuery::execute();
+ */
+function productivity_tracking_get_tracking_by_user($uid, $year = FALSE, $month = 'all', $work_type = FALSE) {
+
+  if ($month == 'all') {
+    $start_date = format_string("@year-01-01 00:00:00", array('@year' => $year));
+    $end_date = format_string("@year-01-01 00:00:00", array('@year' => $year+1));
+  }
+  else {
+    $start_date = format_string("@year-@month-01 00:00:00", array(
+      '@year' => $year,
+      '@month' => str_pad($month, 2, '0', STR_PAD_LEFT),
+    ));
+    $end_date = format_string("@year-@month-01 00:00:00", array(
+      '@year' => ($month == 12) ? $year+1 : $year,
+      '@month' => str_pad(($month == 12) ? 1 : ($month + 1), 2, '0', STR_PAD_LEFT),
+    ));
+  }
+
+  // List of issues for a project nid.
+  $query = db_select('node', 'n');
+
+  $node_fields = [
+    'p' => 'field_project',
+    'e' => 'field_time_estimate',
+    'i' => 'field_issue_id',
+    'gpi' => 'field_github_project_id',
+    't' => 'field_track_log',
+    'st' => 'field_issue_status',
+    'b' => 'body',
+  ];
+
+  foreach ($node_fields as $alias => $field) {
+    $query
+      ->leftjoin("field_data_$field", $alias, "n.nid = $alias.entity_id");
+  }
+
+  $query
+    ->leftjoin("taxonomy_term_data", 'issue_status', 'issue_status.tid = st.field_issue_status_target_id');
+
+  $query
+    ->leftjoin("taxonomy_term_data", 'pr_status', 'pr_status.tid = t.field_track_log_field_issue_status_target_id');
+
+  $query
+    ->fields('n', array('title', 'nid', 'uid'))
+    ->fields('e', array('field_time_estimate_value'))
+    ->fields('i', array('field_issue_id_value'))
+    ->fields('gpi', array('field_github_project_id_value'))
+    ->fields('t')
+    ->fields('b')
+    ->fields('issue_status', array('name'))
+    ->fields('pr_status', array('name'))
+    ->fields('p', array('field_project_target_id'));
+
+  $query
+    ->condition('type', 'tracking')
+    ->condition('status', NODE_PUBLISHED)
+    ->condition('t.field_track_log_field_employee_target_id', $uid)
+    ->orderBy('t.field_track_log_id')
+    ->orderBy('gpi.field_github_project_id_value')
+    ->orderBy('i.field_issue_id_value');
+
+  if ($work_type) {
+    $query->condition('t.field_track_log_field_issue_type_value', $work_type);
+  }
+
+  // Return all time.
+  if ($year) {
+    $query
+      ->condition('t.field_track_log_field_date_value', $start_date, '>=')
+      ->condition('t.field_track_log_field_date_value', $end_date, '<');
   }
 
   $result = $query->execute();
@@ -509,9 +761,8 @@ function productivity_tracking_create_multifields_track($data) {
   $log['field_date']['und'][0]['value'] = $data['date_start'];
   $log['field_date']['und'][0]['value2'] = $data['date_end'];
   $log['field_issue_label']['und'][0]['value'] =  $data['label'];
-  // TODO: Remove last push from schema.
-  // Removed since we user date end of field_date instead.
-//  $log['field_last_push']['und'][0]['value'] =  $data['last_push'];
+  // Last push use as last edited field.
+  $log['field_last_push']['und'][0]['value'] = date("Y-m-d H:i:s");
   $log['field_issue_id']['und'][0]['value'] =  $data['issue_id'];
   $term = productivity_tracking_get_term_status( $data['status']);
   $log['field_issue_status']['und'][0]['target_id'] = $term->tid;
@@ -537,7 +788,7 @@ function productivity_tracking_create_multifields_track($data) {
  *  'uid' -  Required for new
  *  'status' -  Required for new
  */
-function productivity_tracking_get_tracking_node($data) {
+function productivity_tracking_get_tracking_node($data, $update_existing = FALSE) {
 
   $node = FALSE;
   if ($data['issue_id'] && $data['repo']) {
@@ -558,9 +809,11 @@ function productivity_tracking_get_tracking_node($data) {
       $wrapper = entity_metadata_wrapper('node', $node);
 
       // Update estimate and status.
-      $wrapper->field_time_estimate->set($data['estimate']);
-      $term = productivity_tracking_get_term_status($data['status']);
-      $wrapper->field_issue_status->set($term);
+      if ($update_existing) {
+        $wrapper->field_time_estimate->set($data['estimate']);
+        $term = productivity_tracking_get_term_status($data['status']);
+        $wrapper->field_issue_status->set($term);
+      }
     }
   }
   // Not found, create a new one.
@@ -572,13 +825,14 @@ function productivity_tracking_get_tracking_node($data) {
     else {
       $title = "Tracking for project: {$data['title']}";
     }
+    global $user;
+
     $values = array(
       'title' => $title,
       'type' => 'tracking',
-      'uid' => $data['uid'],
+      'uid' => $user->uid,
       'status' => 1,
     );
-    print("Creating new $title \n");
     $node = entity_create('node', $values);
 
     $wrapper = entity_metadata_wrapper('node', $node);

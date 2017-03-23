@@ -179,13 +179,6 @@ function productivity_project_theme() {
 }
 
 /**
- * Implements hook_node_presave().
- */
-function productivity_project_node_presave($node) {
-
-}
-
-/**
  * Implements hook_ctools_plugin_directory().
  */
 function productivity_project_ctools_plugin_directory($module, $plugin) {

@@ -118,7 +118,6 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
   $block->module = 'productivity_tracking';
   $block->title = '';
   $block->content = theme('productivity_tracking_form', $variables);
-
   return $block;
 }
 
@@ -181,6 +180,7 @@ function productivity_tracking_tracking_form_get_days($month, $year, $uid, $week
         'employee' => $uid,
         'tracking' => FALSE,
         'href' => $default_url,
+        'title' => 'Weekend',
       );
       // Add item for weekend.
       $new_data[$uid][$key][] = $day_item;
@@ -294,6 +294,7 @@ function productivity_tracking_tracking_form_get_days($month, $year, $uid, $week
           'employee' => $employee,
           'tracking' => FALSE,
           'href' => $default_url,
+          'title' => 'Empty',
         );
       }
       // Sums per employee and project.

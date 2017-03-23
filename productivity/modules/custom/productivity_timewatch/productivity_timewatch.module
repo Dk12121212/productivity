@@ -260,7 +260,7 @@ function productivity_timewatch_get_user_sessions($uid, $year, $month, $non_regu
   $result = $query->execute();
 
   if(empty($result['node'])) {
-      return;
+      return [];
   }
 
   // TODO: This can timeout on users with a lot of sessions.

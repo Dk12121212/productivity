@@ -40,6 +40,32 @@ function productivity_time_tracking_menu() {
 }
 
 /**
+- * Get general days in a given month.
+- */
+function productivity_time_tracking_get_global_days($month, $year) {
+  // Call the restfull service.
+  $handler = restful_get_restful_handler('tracking');
+  $request = array();
+  $request['year'] = $year;
+  $request['month'] = $month;
+  $request['global'] = TRUE;
+  $result = $handler->get('', $request);
+
+  // Normalize global days.
+  $assoc_globals = array();
+  foreach ($result as $gday) {
+    $assoc_globals[$gday['day']] = array(
+      'id' => 'new',
+      'length' => 'G',
+      'type' => 'global',
+      'day' => (string) $gday['day'],
+      'projectName' => $gday['description'],
+    );
+  }
+  return $assoc_globals;
+}
+
+/**
  * Implements hook_theme().
  */
 function productivity_time_tracking_theme() {

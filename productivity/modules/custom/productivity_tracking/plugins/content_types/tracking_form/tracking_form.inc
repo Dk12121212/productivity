@@ -21,7 +21,7 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
   drupal_add_js(drupal_get_path('module', 'productivity_tracking') . '/plugins/content_types/tracking_form/js/tracking-table.js');
   $variables = [];
 
-  // Build date links.
+  // Get query strings.
   $month = isset($_REQUEST['month']) ? $_REQUEST['month'] : date('m', time());
   $year = isset($_REQUEST['year']) ? $_REQUEST['year'] : date('Y', time());
   $day = isset($_REQUEST['day']) ? $_REQUEST['day'] : date('d', time());
@@ -31,9 +31,9 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
   $variables['month'] = $month;
   $variables['year'] = $year;
 
-
   $date = "$day.$month.$year";
 
+  // Build date links.
   $date_relative = [
     'next_day' => strtotime($date . "+1 days"),
     'previous_day' => strtotime($date . "-1 days"),
@@ -53,9 +53,10 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
       ]);
   }
 
-
   // Build  project list.
   $variables['projects'] = productivity_project_get_all_projects();
+  // Get month data and tracking.
+  // TODO: customize view per developer, custom Weekend and holidays.
   $variables['tracking'] = productivity_tracking_tracking_form_get_days($month, $year, $uid);
 
   $variables['days_link'] = [];
@@ -83,6 +84,7 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
     'support' => 'Support',
     'review' => 'Review',
   ];
+
   // Prepare existing tracking.
   $row_number = 0;
   foreach($variables['tracking'][$day] as $track) {
@@ -102,6 +104,7 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
     $q_string = "?XDEBUG_SESSION_START={$_COOKIE['XDEBUG_SESSION']}";
   }
 
+  // Push data to JS.
   drupal_add_js([
     'rowNumber' => $row_number,
     'tracking' => [

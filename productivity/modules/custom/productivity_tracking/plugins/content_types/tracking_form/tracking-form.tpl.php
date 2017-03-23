@@ -28,6 +28,10 @@
                   </a>
                 </li>
               <?php endforeach; ?>
+              <!--  TBD Summary of day -->
+<!--              <li>-->
+<!--                <strong>8.00</strong>-->
+<!--              </li>-->
             </ul>
           </td>
         <?php endforeach; ?>
@@ -46,18 +50,18 @@
         <legend>Tracking for <?php print "$day/$month/$year"; ?></legend>
 
         <!-- Select Basic -->
-        <div class="form-group">
-          <label class="col-md-4 control-label" for="selectbasic">Day type</label>
-          <div class="col-md-4">
-            <select id="selectbasic" name="selectbasic" class="form-control">
-              <option value="regular">Regular</option>
-              <option value="sick">Sick</option>
-              <option value="vacation">Vacation</option>
-              <option value="miluim">Miluim</option>
-              <option value="convention">Convention</option>
-            </select>
-          </div>
-        </div>
+<!--        <div class="form-group">-->
+<!--          <label class="col-md-4 control-label" for="selectbasic">Day type</label>-->
+<!--          <div class="col-md-4">-->
+<!--            <select id="selectbasic" name="selectbasic" class="form-control">-->
+<!--              <option value="regular">Regular</option>-->
+<!--              <option value="sick">Sick</option>-->
+<!--              <option value="vacation">Vacation</option>-->
+<!--              <option value="miluim">Miluim</option>-->
+<!--              <option value="convention">Convention</option>-->
+<!--            </select>-->
+<!--          </div>-->
+<!--        </div>-->
       </fieldset>
     </form>
 

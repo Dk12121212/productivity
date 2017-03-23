@@ -25,6 +25,7 @@
             $("#submit").click(function () {
                 $('#submit i').addClass('fa-spin');
 
+                // Convert table data to Json.
                 var table = $('#table-tracking').tableToJSON({
                     textExtractor: {
                         0: function (cellIndex, $cell) {
@@ -62,6 +63,8 @@
                 });
 
                 var tracking_data = {"tracking": table, 'data': Drupal.settings.tracking}
+
+                // Save date to server.
                 $.ajax({
                     type: "post",
                     url: location.origin +  Drupal.settings.tracking.url,
@@ -74,7 +77,13 @@
                         // Marked saved item as saved, with new mlid, and remove class new.
                         for (i = 0; i < data.length; i++) {
                             if (data[i].new == 1) {
-                                $('#' + data[i].attr).attr('mlid', data[i].mlid).removeAttr('class').children('.save-mark').children('.fa').show();
+                                $('#' + data[i].attr)
+                                // Set MLID in DOM.
+                                  .attr('mlid', data[i].mlid)
+                                  // Remove new class.
+                                  .removeAttr('class')
+                                  // Show a checkmark after save.
+                                  .children('.save-mark').children('.fa').show();
                             }
                             // Remove items marked as deleted.
                             if (data[i].delete == 1) {
@@ -93,10 +102,12 @@
                     },
                     error: function (data) {
                         $("#submit i").removeClass('fa-spin');
+                        // Display error message.
                         $('#messages')
                           .append($("#templateMsg").clone().removeAttr('id').removeAttr('style'))
                           .children('div:last-child').children('#messageText').text(data.responseText);
 
+                        // Print debugging info.
                         console.log(data);
                         console.log("Error saving.");
                     }

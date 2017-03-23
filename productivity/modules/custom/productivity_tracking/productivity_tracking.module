@@ -11,6 +11,11 @@ include_once 'productivity_tracking.features.inc';
  * Implements hook_menu().
  */
 function productivity_tracking_menu() {
+  $items['payload'] = array(
+    'page callback' => 'productivity_tracking_payload',
+    'access callback' => TRUE,
+  );
+
   $items['node/%node/issues-tracking'] = array(
     'title' => t('Tracking Report'),
     'page callback' => 'productivity_tracking_burn_report_callback',

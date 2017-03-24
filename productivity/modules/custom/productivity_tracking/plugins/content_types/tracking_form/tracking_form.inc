@@ -85,6 +85,26 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
     'review' => 'Review',
   ];
 
+  $variables['row_template'] = theme('productivity_tracking_table_row', [
+      'tracking' => [
+        'mlid' => 'new',
+        'nodelink' => '',
+        'project_nid' => 0,
+        'disabled' => FALSE,
+        'repo' => '',
+        'issue' => '',
+        'pr' => '',
+        'title' => '',
+        'type' => 'dev',
+        'length' => 0,
+      ],
+      'row_number' => FALSE,
+      'id' => '',
+      'types' => $variables['types'],
+      'projects' => $variables['projects'],
+    ]
+  );
+
   // Prepare existing tracking.
   $row_number = 0;
   foreach($variables['tracking'][$day] as $track) {
@@ -99,6 +119,7 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
     }
   }
 
+  $q_string = '';
   // Support Xdebug on the fly.
   if (isset($_COOKIE['XDEBUG_SESSION'])) {
     $q_string = "?XDEBUG_SESSION_START={$_COOKIE['XDEBUG_SESSION']}";

@@ -127,6 +127,6 @@
 <!-- Stub row -->
 <table style="display: none;">
   <tbody>
-   <?php print theme('productivity_tracking_table_row', ['tracking' => [], 'row_number' => FALSE, 'id' => '', 'types' => $types,  'projects' => $projects]); ?>
+   <?php print $row_template; ?>
   </tbody>
 </table>

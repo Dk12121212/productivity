@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * @file
  * Install, update and delete for the productivity user module.
@@ -54,4 +53,72 @@ function productivity_user_update_7002() {
  */
 function productivity_user_update_7004() {
   module_enable(array('productivity_login'));
+}
+
+/**
+ * Fill authmap table for GH login.
+ *
+ * To ensure a smooth transition from the old, client-based GH login.
+ */
+function productivity_user_update_7005() {
+  // This array below comes from a shell script:
+  // https://github.com/Gizra/productivity/issues/365#issuecomment-288953201
+  // For the sake of robustness it's better to hard-wire, accessing the live
+  // DB is not possible from everywhere for instance.
+  $uid_ghid_map = [
+    [4, 2283680],
+    [5, 4487099],
+    [6, 8306902],
+    [7, 7760669],
+    [8, 2622152],
+    [9, 7369740],
+    [10, 3907724],
+    [11, 1222368],
+    [12, 5812423],
+    [13, 1771],
+    [14, 125707],
+    [15, 165644],
+    [16, 7068965],
+    [18, 4497748],
+    [20, 2690042],
+    [21, 123744],
+    [22, 5985683],
+    [23, 10127295],
+    [52, 9445318],
+    [87, 3472902],
+    [157, 13344923],
+    [158, 16226208],
+    [175, 17882245],
+    [176, 5774887],
+    [181, 18241741],
+    [182, 4599242],
+    [184, 12427216],
+    [197, 14963977],
+    [221, 15890521],
+    [224, 19771832],
+    [225, 18482057],
+    [229, 20393485],
+    [230, 877002],
+    [231, 688507],
+    [235, 14312543],
+    [259, 64381],
+    [260, 3581741],
+    [311, 508324],
+    [315, 1130114],
+    [332, 2060557],
+    [340, 114076],
+    [344, 6003770],
+    [363, 114076],
+    [364, 6003770],
+  ];
+  foreach ($uid_ghid_map as $entry) {
+    list($uid, $ghid) = $entry;
+    db_merge('authmap')
+      ->key(array(
+        'uid' => $uid,
+        'module' => 'openid_connect_github',
+      ))
+      ->fields(array('authname' => $ghid))
+      ->execute();
+  }
 }

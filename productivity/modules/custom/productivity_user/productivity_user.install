@@ -61,6 +61,7 @@ function productivity_user_update_7004() {
  * To ensure a smooth transition from the old, client-based GH login.
  */
 function productivity_user_update_7005() {
+  db_delete('authmap')->execute();
   // This array below comes from a shell script:
   // https://github.com/Gizra/productivity/issues/365#issuecomment-288953201
   // For the sake of robustness it's better to hard-wire, accessing the live

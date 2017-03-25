@@ -334,23 +334,25 @@ function productivity_tracking_gh_payload($payload, $event) {
 
     $wrapper = productivity_tracking_get_tracking_node($data_issue, TRUE);
 
-    // Only create tracking stub if a PR was pushed.
+    // Only create tracking stub if a new PR was pushed.
     // This will be later used to prepopulate the tracking for developers.
     if ($pr) {
       $node = $wrapper->value();
       $logs = array();
 
-      // We should create one stub log per day per user per issue numnber.
+      // We should create one stub log per day per user per issue number.
       // issue_id.
       $found_log = FALSE;
       if (isset($node->field_track_log['und'])) {
         foreach ($node->field_track_log['und'] as $existing_log) {
           // Convert date.
-          $pr_day = date('Ymd', $existing_log['field_date']['und'][0]['value']);
-          $today = date('Ymd');
+          $existing_pr_day = date('Ymd', strtotime($existing_log['field_date']['und'][0]['value']));
+          $pr_payload_date = date('Ymd', strtotime($payload['pull_request']['updated_at']));
 
           // Check if we have a match for same PR, same day, Same user.
-          if ($existing_log['field_github_username']['und'][0]['value'] == $payload['sender']['login'] && $existing_log['field_issue_id']['und'][0]['value'] == $pr['number'] && $pr_day == $today) {
+          if ($existing_log['field_github_username']['und'][0]['value'] == $payload['sender']['login']
+            && $existing_log['field_issue_id']['und'][0]['value'] == $pr['number']
+            && $existing_pr_day == $pr_payload_date) {
             $found_log = &$existing_log;
           }
         }

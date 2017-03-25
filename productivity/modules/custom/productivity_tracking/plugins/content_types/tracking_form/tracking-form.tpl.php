@@ -47,7 +47,7 @@
       <fieldset>
 
         <!-- Form Name -->
-        <legend>Tracking for <?php print "$day/$month/$year"; ?></legend>
+        <legend>Tracking for <?php print "$username: $day/$month/$year"; ?></legend>
 
         <!-- Select Basic -->
 <!--        <div class="form-group">-->
@@ -90,7 +90,7 @@
           Type
         </th>
         <th class="text-center" data-override="time_spent">
-          Time (0)
+          Time
         </th>
         <th class="text-center">
           Del

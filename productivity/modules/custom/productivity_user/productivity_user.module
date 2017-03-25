@@ -56,7 +56,7 @@ function productivity_user_get_active_uids($month, $year) {
     ->fieldCondition('field_date', 'value2', $start_timestamp, '>=')
     // When using this tag, date query must be in this order.
     ->addTag('empty_end_date')
-    ->fieldCondition('field_job_type', 'value', array('developer', 'qa'), 'IN');
+    ->fieldCondition('field_job_type', 'value', array('developer', 'qa', 'pm'), 'IN');
 
   $result = $query->execute();
   if (isset($result['user'])) {

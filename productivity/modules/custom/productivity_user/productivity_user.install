@@ -109,8 +109,6 @@ function productivity_user_update_7005() {
     [332, 2060557],
     [340, 114076],
     [344, 6003770],
-    [363, 114076],
-    [364, 6003770],
   ];
   foreach ($uid_ghid_map as $entry) {
     list($uid, $ghid) = $entry;

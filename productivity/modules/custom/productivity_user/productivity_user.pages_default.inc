@@ -50,6 +50,29 @@ function productivity_user_default_page_manager_handlers() {
   $display->content = array();
   $display->panels = array();
   $pane = new stdClass();
+  $pane->pid = 'new-1b6e3ba6-16bb-4a48-8a35-f438be61d566';
+  $pane->panel = 'top';
+  $pane->type = 'tracking_admin';
+  $pane->subtype = 'tracking_admin';
+  $pane->shown = TRUE;
+  $pane->access = array();
+  $pane->configuration = array(
+    'override_title' => 0,
+    'override_title_text' => '',
+    'override_title_heading' => 'h2',
+  );
+  $pane->cache = array();
+  $pane->style = array(
+    'settings' => NULL,
+  );
+  $pane->css = array();
+  $pane->extras = array();
+  $pane->position = 0;
+  $pane->locks = array();
+  $pane->uuid = '1b6e3ba6-16bb-4a48-8a35-f438be61d566';
+  $display->content['new-1b6e3ba6-16bb-4a48-8a35-f438be61d566'] = $pane;
+  $display->panels['top'][0] = 'new-1b6e3ba6-16bb-4a48-8a35-f438be61d566';
+  $pane = new stdClass();
   $pane->pid = 'new-7a848676-0f7d-47a1-be90-c01244c3f13c';
   $pane->panel = 'tracking';
   $pane->type = 'tracking_form';

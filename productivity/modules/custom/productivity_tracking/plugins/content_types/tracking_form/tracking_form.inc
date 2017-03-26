@@ -26,6 +26,8 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
   $year = isset($_REQUEST['year']) ? $_REQUEST['year'] : date('Y', time());
   $day = isset($_REQUEST['day']) ? $_REQUEST['day'] : date('d', time());
   $uid = isset($_REQUEST['uid']) ? $_REQUEST['uid'] : $args[0];
+  $current_user = user_load($uid);
+  $variables['username'] = $current_user->name;
 
   $variables['day'] = $day;
   $variables['month'] = $month;

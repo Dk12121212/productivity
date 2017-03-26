@@ -114,6 +114,10 @@ function productivity_user_update_7005() {
   ];
   foreach ($uid_ghid_map as $entry) {
     list($uid, $ghid) = $entry;
+    $account = user_load($uid);
+    if (!$account->status) {
+      continue;
+    }
     db_merge('authmap')
       ->key(array(
         'uid' => $uid,

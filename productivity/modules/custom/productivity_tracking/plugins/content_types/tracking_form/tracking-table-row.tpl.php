@@ -4,20 +4,20 @@
     <i class="fa fa-check text-primary" aria-hidden="true" style="display: none;"></i>
   </td>
   <td width="16%">
-    <select id="selectProject" name="project" class="form-control" value="<?php print $tracking['project_nid']; ?>" <?php print $tracking['disabled']; ?>>
+    <select  name="project" class="form-control disable-after-save" value="<?php print $tracking['project_nid']; ?>" <?php print $tracking['disabled']; ?>>
       <?php foreach ($projects as $key => $project): ?>
         <option value="<?php print $key; ?>" <?php print ($key==$tracking['project_nid']) ? 'selected="selected"' : ''; ?>><?php print $project; ?></option>
       <?php endforeach; ?>
     </select>
   </td>
   <td width="14%">
-    <input value="<?php print $tracking['repo']; ?>" type="text" name='repo' placeholder='Gizra/some-repo' class="form-control" <?php print $tracking['disabled']; ?>/>
+    <input value="<?php print $tracking['repo']; ?>" type="text" name='repo' placeholder='Gizra/some-repo' class="form-control disable-after-save" <?php print $tracking['disabled']; ?>/>
   </td>
   <td width="9%">
     <?php if ($tracking['issue_href']): ?>
       <a href="<?php print $tracking['issue_href']; ?>" target="_blank">
     <?php endif; ?>
-    <input value="<?php print $tracking['issue']; ?>" type="number" name='issue' placeholder='#' class="form-control" <?php print $tracking['disabled']; ?>/>
+    <input value="<?php print $tracking['issue']; ?>" type="number" name='issue' placeholder='#' class="form-control disable-after-save" <?php print $tracking['disabled']; ?>/>
     <?php if ($tracking['issue_href']): ?>
       </a>
     <?php endif; ?>

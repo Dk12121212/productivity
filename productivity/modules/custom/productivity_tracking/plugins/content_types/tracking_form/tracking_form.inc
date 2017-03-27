@@ -19,21 +19,18 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
   drupal_add_css(drupal_get_path('module', 'productivity_tracking') . '/plugins/content_types/tracking_form/css/tracking.css');
   drupal_add_js(drupal_get_path('module', 'productivity_tracking') . '/plugins/content_types/tracking_form/js/jquery.tabletojson.min.js');
   drupal_add_js(drupal_get_path('module', 'productivity_tracking') . '/plugins/content_types/tracking_form/js/tracking-table.js');
-  $variables = [];
 
-  // Get query strings.
-  $month = isset($_REQUEST['month']) ? $_REQUEST['month'] : date('m', time());
-  $year = isset($_REQUEST['year']) ? $_REQUEST['year'] : date('Y', time());
-  $day = isset($_REQUEST['day']) ? $_REQUEST['day'] : date('d', time());
-  $uid = isset($_REQUEST['uid']) ? $_REQUEST['uid'] : $args[0];
-  $current_user = user_load($uid);
+  $variables = productivity_tracking_get_query_strings($args);
+
+  $uid = $variables['uid'];
+  $date = $variables['date'];
+  $year = $variables['year'];
+  $month = $variables['month'];
+  $day = $variables['day'];
+
+  $current_user = user_load($variables['uid']);
   $variables['username'] = $current_user->name;
 
-  $variables['day'] = $day;
-  $variables['month'] = $month;
-  $variables['year'] = $year;
-
-  $date = "$day.$month.$year";
 
   // Build date links.
   $date_relative = [
@@ -47,7 +44,7 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
   foreach ($date_relative as $key => $timestamp) {
     $variables['urls'][$key] = url('user', [
         'query' => [
-          'uid' => $uid,
+          'uid' => $variables['uid'],
           'day' => date('d', $timestamp),
           'month' => date('m', $timestamp),
           'year' => date('Y', $timestamp)

@@ -39,6 +39,33 @@ function productivity_tracking_menu() {
   return $items;
 }
 
+/**
+ * Get default query strings.
+ */
+function productivity_tracking_get_query_strings($args) {
+  // Get query strings.
+  $month = isset($_REQUEST['month']) ? $_REQUEST['month'] : date('m', time());
+  $year = isset($_REQUEST['year']) ? $_REQUEST['year'] : date('Y', time());
+
+  $day = isset($_REQUEST['day']) ? $_REQUEST['day'] : date('d', time());
+  $date = "$day.$month.$year";
+
+  // Before 14:00, display previous day as default.
+  if (!isset($_REQUEST['day']) && date('H') < '14') {
+    $day = date('d', strtotime($date . "-1 days"));
+    $date = "$day.$month.$year";
+  }
+
+  $uid = isset($_REQUEST['uid']) ? $_REQUEST['uid'] : $args[0];
+
+  return [
+  'day' => $day,
+  'month' => $month,
+  'year' => $year,
+  'uid' => $uid,
+  'date' => $date,
+  ];
+}
 
 /**
  * Implements hook_ctools_plugin_directory().

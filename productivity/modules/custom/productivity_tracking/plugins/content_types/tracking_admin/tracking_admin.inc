@@ -23,17 +23,12 @@ function productivity_tracking_tracking_admin_content_type_render($subtype, $con
     return FALSE;
   }
 
-  // Get query strings.
-  $month = isset($_REQUEST['month']) ? $_REQUEST['month'] : date('m', time());
-  $year = isset($_REQUEST['year']) ? $_REQUEST['year'] : date('Y', time());
-  $day = isset($_REQUEST['day']) ? $_REQUEST['day'] : date('d', time());
-  $variables['current_uid'] = isset($_REQUEST['uid']) ? $_REQUEST['uid'] : $args[0];
+  $variables = productivity_tracking_get_query_strings($args);
 
-  $variables['day'] = $day;
-  $variables['month'] = $month;
-  $variables['year'] = $year;
+  $date = $variables['date'];
+  $year = $variables['year'];
+  $month = $variables['month'];
 
-  $date = "$day.$month.$year";
   $timestamp = strtotime($date);
 
   $all_active_users = productivity_user_get_active_uids($month, $year);

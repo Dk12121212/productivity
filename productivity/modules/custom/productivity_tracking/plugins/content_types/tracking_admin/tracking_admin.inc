@@ -16,7 +16,6 @@ $plugin = array(
  * Render callback.
  */
 function productivity_tracking_tracking_admin_content_type_render($subtype, $conf, $args, $context) {
-  $variables = [];
 
   // Quit early if no permission.
   if (!user_access('administer nodes')) {

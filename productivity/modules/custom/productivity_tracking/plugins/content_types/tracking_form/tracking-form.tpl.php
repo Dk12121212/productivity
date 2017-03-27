@@ -23,7 +23,7 @@
             <ul class="list-unstyled">
               <?php foreach($tracks as $track): ?>
                 <li>
-                  <a href="<?php print $track['href']; ?>" data-toggle="tooltip" title="<?php print $track['title']; ?>" class="<?php print $track['type']; ?>" target="_blank">
+                  <a href="<?php print $track['pr_href']; ?>" data-toggle="tooltip" title="<?php print $track['title']; ?>" class="<?php print $track['type']; ?>" target="_blank">
                     <?php print $track['length']; ?>
                   </a>
                 </li>

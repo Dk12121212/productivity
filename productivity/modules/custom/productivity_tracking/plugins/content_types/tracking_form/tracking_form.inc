@@ -238,21 +238,15 @@ function productivity_tracking_tracking_form_get_days($month, $year, $uid, $week
     $issue_title = $track_record['body_value'];
     $project_nid = $track_record['field_project_target_id'];
 
-    $pr_url = "https://github.com/$repo_id/issues/$pr_gh_id";
-    $pr_link = l("$repo_id/$pr_gh_id", $pr_url, array(
-      'attributes' => array(
-        'title' => $pr_title,
-        'target' => '_blank',
-      ),
-    ));
-
-    $issue_url = "https://github.com/$repo_id/issues/$issue_id";
+    $pr_url = "https://github.com/{$repo_id}issues/$pr_gh_id";
+    $issue_url = "https://github.com/{$repo_id}issues/$issue_id";
 
 
     $day['projectName'] = $repo_id;
     $day['length'] = $pr_time;
     $day['day'] = date('d', strtotime($pr_date));
-    $day['href'] = $pr_url;
+    $day['pr_href'] = $pr_url;
+    $day['issue_href'] = $issue_url;
     $day['type'] = $pr_work_type;
     $day['title'] = $pr_title;
     $day['tracking'] = TRUE;

@@ -7,7 +7,10 @@
 
 // 33709 => unio 6.5
 $project_nid = drush_get_option('project', 33709);
-$default_repo = drush_get_option('default-repo ', 'Gizra/unio');
+$project_wrapper = entity_metadata_wrapper('node', $project_nid);
+
+$default_repo = $project_wrapper->field_github_repository_name[0]->value();
+
 $clean_repo = explode('/', $default_repo);
 $gh_user = $clean_repo[0];
 $clean_repo = $clean_repo[1];

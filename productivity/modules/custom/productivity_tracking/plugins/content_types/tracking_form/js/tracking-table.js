@@ -80,7 +80,7 @@
 
                         var data = data_res.saved;
                         for (i = 0; i < data.length; i++) {
-                            if (data[i].new == 1) {
+                            if (data[i].result == 1) {
                                 $('#' + data[i].attr)
                                 // Set MLID in DOM.
                                   .attr('mlid', data[i].mlid)

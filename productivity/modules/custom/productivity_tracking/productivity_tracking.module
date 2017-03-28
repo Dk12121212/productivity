@@ -355,11 +355,18 @@ function productivity_tracking_gh_payload($payload, $event) {
 
   foreach ($issues as $issue) {
     $uid = productivity_tracking_get_uid_by_github_username(check_plain($payload['sender']['login']));
+    $project_nid = productivity_tracking_get_project_by_repository($payload['repository']);
+
+    // Bypass if project or user are not in the system.
+    if (!$project_nid || !$uid) {
+      continue;
+    }
+
     $data_issue = [
       'issue_id' => $issue['issue']['number'],
       'repo' => $payload['repository']['full_name'],
       'title' => $issue['issue']['title'],
-      'project' => productivity_tracking_get_project_by_repository($payload['repository']),
+      'project' => $project_nid,
       'estimate' => $issue['estimate'],
       'status' => $issue['issue']['state'],
       'uid' => $uid,

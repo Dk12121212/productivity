@@ -7,13 +7,6 @@
 
 // 33709 => unio 6.5
 $project_nid = drush_get_option('project', 33709);
-$project_wrapper = entity_metadata_wrapper('node', $project_nid);
-
-$default_repo = $project_wrapper->field_github_repository_name[0]->value();
-
-$clean_repo = explode('/', $default_repo);
-$gh_user = $clean_repo[0];
-$clean_repo = $clean_repo[1];
 
 // Now get all tracking logs with no issue refs, and create a stub tracking from
 // each one of them.
@@ -53,10 +46,24 @@ while($track = $result->fetchAssoc()) {
     $pr_id = $pr_node->field_issue_id->value();
   }
 
+  $project_wrapper = entity_metadata_wrapper('node', $project_nid);
+
+  // Use default repo from project if no issue ref.
+  $default_repo = $project_wrapper->field_github_repository_name[0]->value();
+  if ($track['field_github_project_id_value']) {
+    $default_repo = $track['field_github_project_id_value'];
+  }
+
   $gh_ids = [];
+  $clean_repo = explode('/', $default_repo);
+  $gh_user = $clean_repo[0];
+  $clean_repo = $clean_repo[1];
+
   if ($pr_id) {
     // Try to complete the missing data:
     print("Looking up in GH for issue: {$pr_nid}.  \n");
+
+
     $pr_info = productivity_tracking_get_issue_info($clean_repo, $pr_id, $gh_user);
 
     // Check if id is issue.
@@ -202,7 +209,7 @@ function get_all_tracked_data($project_nid = FALSE) {
   $query
     ->leftJoin('field_data_field_project', 'p', 'il.entity_id = p.entity_id');
 
-  // PR
+  // issue or PR
   $query
     ->leftJoin('field_data_field_issue_id', 'g_id', 'il.field_issues_logs_field_github_issue_target_id = g_id.entity_id');
   $query
@@ -210,6 +217,7 @@ function get_all_tracked_data($project_nid = FALSE) {
 
   $query
     ->fields('il')
+    ->fields('repo', array('field_github_project_id_value'))
     // GH issue nid.
     ->orderBy('il.field_issues_logs_id', 'DESC');
 
@@ -263,7 +271,10 @@ function get_new_tracking($issue) {
   $wrapper->field_project->set($issue['project']);
   $wrapper->body->value->set($issue['title']);
   $wrapper->field_time_estimate->set($issue['estimate']);
-  $wrapper->field_issue_id->set($issue['issue_id']);
+
+  if ($issue['issue_id']) {
+    $wrapper->field_issue_id->set($issue['issue_id']);
+  }
   $wrapper->field_github_project_id->set($issue['github_repo']);
 
 

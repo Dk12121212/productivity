@@ -82,9 +82,11 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
     }
   }
 
-  $q_string = '?' . http_build_query($_REQUEST);
+  $request = $_GET;
+  unset($request['q']);
+  $q_string = '?' . http_build_query($request);
   // Support Xdebug on the fly.
-  if (isset($_COOKIE['XDEBUG_SESSION'])) {
+  if (isset($_COOKIE['XDEBUG_SESSION']) && !isset($_GET['XDEBUG_SESSION'])) {
     $q_string .= "&XDEBUG_SESSION_START={$_COOKIE['XDEBUG_SESSION']}";
   }
 

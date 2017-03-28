@@ -6,12 +6,13 @@
  */
 
 // 33709 => unio 6.5
-$project_nid = drush_get_option('project', 33709);
+$project_nid = drush_get_option('project', 27);
+$track_id = drush_get_option('track', FALSE);
 
 // Now get all tracking logs with no issue refs, and create a stub tracking from
 // each one of them.
 // Get all Tracks.
-$result = get_all_tracked_data($project_nid);
+$result = get_all_tracked_data($track_id, $project_nid);
 $count_track = $result->rowCount();
 
 
@@ -191,7 +192,7 @@ function create_multifields_track($track, $total_time_spent, $clean_repo, $gh_us
   $term = productivity_tracking_get_term_status($status);
   $log['field_issue_status']['und'][0]['target_id'] = $term->tid;
 
-  if ($old_track_node_wrapper->__isset('field_employee')) {
+  if ($old_track_node_wrapper->field_employee->value()) {
     $log['field_github_username']['und'][0]['value'] = $old_track_node_wrapper->field_employee->field_github_username->value();
     $log['field_employee']['und'][0]['target_id'] = $old_track_node_wrapper->field_employee->getIdentifier();
   }
@@ -204,7 +205,7 @@ function create_multifields_track($track, $total_time_spent, $clean_repo, $gh_us
 /**
  * Get old tracking logs.
  */
-function get_all_tracked_data($project_nid = FALSE) {
+function get_all_tracked_data($track_id, $project_nid = FALSE) {
   $query = db_select('field_data_field_issues_logs', 'il');
 
   // Project.
@@ -226,6 +227,11 @@ function get_all_tracked_data($project_nid = FALSE) {
   if ($project_nid) {
     $query
       ->condition('p.field_project_target_id', $project_nid);
+  }
+
+  if ($track_id) {
+    $query
+      ->condition('il.field_issues_logs_id', $track_id);
   }
   return $query->execute();
 }

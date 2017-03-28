@@ -725,23 +725,38 @@ function productivity_project_get_total_days($hours) {
 /**
  * Get list name of all project
  */
-function productivity_project_get_all_projects($limit = 0) {
-  $query = db_select('node', 'n')
+function productivity_project_get_all_projects($active_only = FALSE, $limit = 0) {
+  // List of issues for a project nid.
+  $query = db_select('node', 'n');
+
+  $node_fields = [
+    'd' => 'field_date',
+  ];
+
+  foreach ($node_fields as $alias => $field) {
+    $query
+      ->leftjoin("field_data_$field", $alias, "n.nid = $alias.entity_id");
+  }
+
+  $query
     ->fields('n', array('nid'))
-    ->fields('n', array('title'))
-    ->condition('n.type', 'project')
-    ->orderBy('changed', 'DESC');
+    ->fields('n', array('title'));
 
   if ($limit) {
     $query->range(0, $limit);
   }
 
-  $result = $query->execute()
-    ->fetchAllKeyed(); // returns an indexed array
 
-  if (empty($result)) {
-    return;
+  $query
+    ->condition('n.type', 'project')
+    ->orderBy('n.changed', 'DESC');
+
+  if ($active_only) {
+    $query->condition('status', NODE_PUBLISHED);
   }
+
+  $result = $query->execute()->fetchAllKeyed();
+
   return $result;
 }
 
@@ -753,7 +768,7 @@ function productivity_project_get_all_projects($limit = 0) {
  * @param $scope_to_find
  *  The string of the scope in question.
  *
- * @return int
+ * @return array()
  *  return the scope amount or zero.
  *
  */

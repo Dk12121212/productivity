@@ -23,10 +23,17 @@
             <td>
               <ul class="list-unstyled">
                 <?php foreach($tracks as $track): ?>
-                  <li mlid="<?php print $track['mlid']; ?>">
-                    <a href="<?php print $track['pr_href']; ?>" data-toggle="tooltip" title="<?php print $track['title']; ?>" class="<?php print $track['type']; ?>" target="_blank">
-                      <?php print $track['length']; ?>
-                    </a>
+                    <?php if (isset($track['pr_href'])): ?>
+                      <li mlid="<?php print $track['mlid']; ?>">
+                      <a href="<?php print $track['pr_href']; ?>" data-toggle="tooltip" title="<?php print $track['title']; ?>" class="<?php print $track['type']; ?>" target="_blank">
+                        <?php print $track['length']; ?>
+                      </a>
+                    <?php endif; ?>
+<!--      Non tracking data            -->
+                    <?php if (!isset($track['pr_href'])): ?>
+                      <li>
+                        <?php print $track['length']; ?>
+                    <?php endif; ?>
                   </li>
                 <?php endforeach; ?>
                 <!--  TBD Summary of day -->

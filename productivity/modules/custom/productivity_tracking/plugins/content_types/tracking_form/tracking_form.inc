@@ -31,7 +31,7 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
   $variables['username'] = $current_user->name;
 
   // Build  project list.
-  $variables['projects'] = productivity_project_get_all_projects();
+  $variables['projects'] = productivity_project_get_all_projects(TRUE);
   // Get month data and tracking.
   // TODO: customize view per developer, custom Weekend and holidays.
   $variables['tracking'] = productivity_tracking_get_month_structure($month, $year, $uid);
@@ -45,7 +45,8 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
     'designer' => 'Designer',
     'installation_setup' => 'Installation Setup',
     'support' => 'Support',
-    'review' => 'Review',
+    // Remove review since we want to charge this as development.
+//    'review' => 'Review',
   ];
 
   $variables['row_template'] = theme('productivity_tracking_table_row', [

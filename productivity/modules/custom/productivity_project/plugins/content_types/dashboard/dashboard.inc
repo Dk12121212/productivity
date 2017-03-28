@@ -18,7 +18,7 @@ $plugin = array(
 function productivity_project_dashboard_content_type_render($subtype, $conf, $args, $context) {
 
   //Get list of most relevant project.
-  $projects = productivity_project_get_all_projects(9);
+  $projects = productivity_project_get_all_projects(TRUE, 9);
   $variables = array();
   $variables['theme_path'] = base_path() . drupal_get_path('theme', 'bootstrap_subtheme');
   $variables['rendered_nodes'] = array();

@@ -14,11 +14,11 @@
     <input value="<?php print $tracking['repo']; ?>" type="text" name='repo' placeholder='Gizra/some-repo' class="form-control disable-after-save" <?php print $tracking['disabled']; ?>/>
   </td>
   <td width="9%">
-    <?php if ($tracking['issue_href']): ?>
+    <?php if (isset($tracking['issue_href'])): ?>
       <a href="<?php print $tracking['issue_href']; ?>" target="_blank">
     <?php endif; ?>
     <input value="<?php print $tracking['issue']; ?>" type="number" name='issue' placeholder='#' class="form-control disable-after-save" <?php print $tracking['disabled']; ?>/>
-    <?php if ($tracking['issue_href']): ?>
+    <?php if (isset($tracking['issue_href'])): ?>
       </a>
     <?php endif; ?>
   </td>
@@ -27,7 +27,7 @@
       <div class="form-group">
         <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
         <div class="input-group">
-          <?php if ($tracking['pr_href']): ?>
+          <?php if (isset($tracking['pr_href'])): ?>
             <a href="<?php print $tracking['pr_href']; ?>" target="_blank" class="input-group-addon"><i class="fa fa-external-link" aria-hidden="true"></i></a>
           <?php endif; ?>
           <input value="<?php print $tracking['pr']; ?>" type="number" name='pr' placeholder='#' class="form-control"/>

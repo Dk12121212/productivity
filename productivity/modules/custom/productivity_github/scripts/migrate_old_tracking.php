@@ -191,10 +191,12 @@ function create_multifields_track($track, $total_time_spent, $clean_repo, $gh_us
   $term = productivity_tracking_get_term_status($status);
   $log['field_issue_status']['und'][0]['target_id'] = $term->tid;
 
-  $log['field_github_username']['und'][0]['value'] = $old_track_node_wrapper->field_employee->field_github_username->value();
+  if ($old_track_node_wrapper->__isset('field_employee')) {
+    $log['field_github_username']['und'][0]['value'] = $old_track_node_wrapper->field_employee->field_github_username->value();
+    $log['field_employee']['und'][0]['target_id'] = $old_track_node_wrapper->field_employee->getIdentifier();
+  }
   $log['field_time_spent']['und'][0]['value'] = $total_time_spent;
   $log['field_issue_type']['und'][0]['value'] = $track['field_issues_logs_field_issue_type_value'];
-  $log['field_employee']['und'][0]['target_id'] = $old_track_node_wrapper->field_employee->getIdentifier();
 
   return $log;
 }

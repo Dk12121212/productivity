@@ -5,8 +5,8 @@
     <a href="<?php print $urls['next_month']; ?>" class=""><i class="fa fa-caret-right"></i></a>
   </div>
 
-
   <div class="row clearfix">
+
     <div class="col-md-12 column">
       <table class="table table-striped table-hover track-item-table table-condensed">
         <thead>
@@ -19,7 +19,7 @@
         </thead>
         <tbody>
         <tr class="track-item">
-          <?php foreach($tracking as $tracks): ?>
+          <?php foreach($tracking['days'] as $key => $tracks): ?>
             <td>
               <ul class="list-unstyled">
                 <?php foreach($tracks as $track): ?>
@@ -29,17 +29,16 @@
                         <?php print $track['length']; ?>
                       </a>
                     <?php endif; ?>
-<!--      Non tracking data            -->
+                    <!--      Non tracking data            -->
                     <?php if (!isset($track['pr_href'])): ?>
                       <li>
                         <?php print $track['length']; ?>
                     <?php endif; ?>
                   </li>
                 <?php endforeach; ?>
-                <!--  TBD Summary of day -->
-  <!--              <li>-->
-  <!--                <strong>8.00</strong>-->
-  <!--              </li>-->
+                <li>
+                  <strong><?php if (isset($tracking['sum']['days'][$key])) { print $tracking['sum']['days'][$key];} ?></strong>
+                </li>
               </ul>
             </td>
           <?php endforeach; ?>
@@ -49,3 +48,10 @@
     </div>
   </div>
 </div>
+
+
+<style>
+  .table tbody > tr.track-item > td {
+    vertical-align: bottom;
+  }
+</style>

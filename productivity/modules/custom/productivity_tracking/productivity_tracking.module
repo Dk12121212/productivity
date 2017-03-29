@@ -138,6 +138,7 @@ function productivity_tracking_delete($mlid) {
 /**
  * Save tracking from tacking table.
  */
+
 function productivity_tracking_save_callback() {
   $results = [];
   $json = file_get_contents('php://input');
@@ -348,6 +349,7 @@ function productivity_tracking_gh_payload($payload, $event) {
     }
     else {
       // TODO: Send message to account manager about no issue and no estimate.
+      // TODO: Probably better to have this in single daily email.
       return FALSE;
     }
   }
@@ -447,17 +449,21 @@ function productivity_tracking_gh_payload($payload, $event) {
  *   Project node ID.
  */
 function productivity_tracking_get_project_by_repository($repository_info) {
-  $values = array(
-    $repository_info['name'],
-    $repository_info['owner']['login'],
-    $repository_info['full_name'],
-  );
+  // We need to add a second query since value2 of date has a default of value(1).
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->fieldCondition('field_github_repository_name', 'value', $repository_info['full_name'])
+    ->propertyCondition('status', 1)
+    ->propertyOrderBy('created', 'DESC')
+    ->range(0, 1)
+    ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
 
-  foreach ($values as $value) {
-    if ($nid = productivity_tracking_get_entity_id_by_field_value('field_github_repository_name', 'project', check_plain($value))) {
-      return $nid;
-    }
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    $nid = reset($result['node']);
+    return $nid;
   }
+
   // Print error if no repo was found.
   watchdog('productivity', t('No project with github repository: @repository', array('@repository' => print_r($repository_info, TRUE))));
   return FALSE;
@@ -934,14 +940,20 @@ function productivity_tracking_get_month_structure($month, $year, $uid, $weekend
 
   // Build skeleton of array, one item per day.
   $new_data = array();
-  $new_data[$uid]  = array();
-  $new_data[$uid]['sum']  = array();
+  $new_data['days']  = array();
+  // Stub for table first column.
+  $new_data['days']['#']  = array();
+  $new_data['sum']  = array(
+    'month' => 0,
+    'projects' => array(),
+    'days' => array(),
+  );
 
   // Go over days of the month.
   for ($i = 1; $i <= $last_day_this_month; $i++) {
     // Add leading zeros.
     $key = str_pad($i, 2, '0', STR_PAD_LEFT);
-    $new_data[$uid][$key]  = array();
+    $new_data['days'][$key]  = array();
 
     $timestamp = strtotime($key . '.' . $month . '.' . $year);
     $default_url = url('user', [
@@ -980,12 +992,12 @@ function productivity_tracking_get_month_structure($month, $year, $uid, $weekend
         'title' => 'Weekend',
       );
       // Add item for weekend.
-      $new_data[$uid][$key][] = $day_item;
+      $new_data['days'][$key][] = $day_item;
     }
     // Add global day to user skeleton.
     if (isset($assoc_globals[$key])) {
       $assoc_globals[$key]['employee'] = $uid;
-      $new_data[$uid][$key][] = $assoc_globals[$key];
+      $new_data['days'][$key][] = $assoc_globals[$key];
     }
   }
 
@@ -1037,7 +1049,30 @@ function productivity_tracking_get_month_structure($month, $year, $uid, $weekend
     $day['nodelink'] = $node_link;
 
     $key = $day['day'];
-    $new_data[$uid][$key][] = $day;
+    $new_data['days'][$key][] = $day;
+
+    // Sums per project.
+    if (empty($new_data['sum']['projects'][$project_nid])) {
+      $node = node_load($project_nid);
+      $new_data['sum']['projects'][$project_nid] = array(
+         'sum' => $day['length'],
+         'name' => $node->title,
+      );
+    }
+    else {
+      $new_data['sum']['projects'][$project_nid]['sum'] += $day['length'];
+    }
+
+    // Sums per day.
+    if (empty($new_data['sum']['days'][$key])) {
+      $new_data['sum']['days'][$key] = $day['length'];
+    }
+    else {
+      $new_data['sum']['days'][$key] += $day['length'];
+    }
+
+    // Sums per month.
+    $new_data['sum']['month'] += $day['length'];
   }
 
   // Fill in vacation other personal global days.
@@ -1055,54 +1090,42 @@ function productivity_tracking_get_month_structure($month, $year, $uid, $weekend
 
 
     $key = $day['day'];
-    $new_data[$uid][$key][] = $day;
+    $new_data['days'][$key][] = $day;
   }
 
   // Fill empty days with create new stub template, and sum employee data.
-  foreach ($new_data as $employee => &$row) {
-    foreach ($row as $key => &$empty_day) {
-      if ($key == 'sum') {
-        continue;
-      }
-      if (empty($empty_day)) {
-        $timestamp = strtotime($key . '.' . $month . '.' . $year);
-        $default_url = url('user', [
-          'query' => [
-            'uid' => $uid,
-            'day' => date('d', $timestamp),
-            'month' => date('m', $timestamp),
-            'year' => date('Y', $timestamp)
-          ]
-        ]);
+  foreach ($new_data['days'] as $key => &$row) {
+    if ($key == '#') {
+      continue;
+    }
+    if (empty($row)) {
+      $timestamp = strtotime($key . '.' . $month . '.' . $year);
+      $default_url = url('user', [
+        'query' => [
+          'uid' => $uid,
+          'day' => date('d', $timestamp),
+          'month' => date('m', $timestamp),
+          'year' => date('Y', $timestamp)
+        ]
+      ]);
 
-        $empty_day[] = array(
-          // Set id to new to get the proper link on angular.
-          'id' => 'new',
-          'type' => 'empty',
-          'day' => (string) $key,
-          'length' => 'E',
-          'projectName' => 'Log work',
-          'employee' => $employee,
-          'tracking' => FALSE,
-          'href' => $default_url,
-          'title' => 'Empty',
-        );
-      }
-      // Sums per employee and project.
-      else {
-        foreach ($empty_day as $track) {
-          if ($track['type'] == 'regular') {
-            if (empty($new_data[$employee]['sum'][$track['projectName']])) {
-              $new_data[$employee]['sum'][$track['projectName']] = 0;
-            }
-            $new_data[$employee]['sum'][$track['projectName']] += $track['length'];
-          }
-        }
-      }
+      $row[] = array(
+        // Set id to new to get the proper link on angular.
+        'id' => 'new',
+        'type' => 'empty',
+        'day' => (string) $key,
+        'length' => 'E',
+        'projectName' => 'Log work',
+        'employee' => $uid,
+        'tracking' => FALSE,
+        'href' => $default_url,
+        'title' => 'Empty',
+      );
     }
   }
 
   // Return single user.
-  $cached_data = $new_data[$uid];
-  return $new_data[$uid];
+  $cached_data = $new_data;
+  dpm($new_data);
+  return $new_data;
 }

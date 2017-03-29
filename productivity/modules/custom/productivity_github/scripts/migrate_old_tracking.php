@@ -6,13 +6,14 @@
  */
 
 // 33709 => unio 6.5
-$project_nid = drush_get_option('project', 27);
+$project_nid = drush_get_option('project', FALSE);
 $track_id = drush_get_option('track', FALSE);
+$from_track = drush_get_option('from', FALSE);
 
 // Now get all tracking logs with no issue refs, and create a stub tracking from
 // each one of them.
 // Get all Tracks.
-$result = get_all_tracked_data($track_id, $project_nid);
+$result = get_all_tracked_data($from_track, $track_id, $project_nid);
 $count_track = $result->rowCount();
 
 
@@ -20,6 +21,9 @@ $processed_tracking = [];
 // Go over orphan tracks.
 while($track = $result->fetchAssoc()) {
   print("Processing, track id: {$track['field_issues_logs_id']}.  \n");
+
+  // In case we don't pass project_nid, reset with track value.
+  $project_nid = $track['field_project_target_id'];
 
   $old_track_nid = $track['entity_id'];
   $old_track_id = $track['field_issues_logs_id'];
@@ -45,6 +49,11 @@ while($track = $result->fetchAssoc()) {
     // Found PR ref, let's look for issues.
     $pr_node = entity_metadata_wrapper('node', $pr_nid);
     $pr_id = $pr_node->field_issue_id->value();
+  }
+
+  if (!$project_nid) {
+    watchdog('migrate_logs', "No project for track nid $old_track_nid");
+    continue;
   }
 
   $project_wrapper = entity_metadata_wrapper('node', $project_nid);
@@ -205,7 +214,7 @@ function create_multifields_track($track, $total_time_spent, $clean_repo, $gh_us
 /**
  * Get old tracking logs.
  */
-function get_all_tracked_data($track_id, $project_nid = FALSE) {
+function get_all_tracked_data($from_track, $track_id, $project_nid = FALSE) {
   $query = db_select('field_data_field_issues_logs', 'il');
 
   // Project.
@@ -218,11 +227,23 @@ function get_all_tracked_data($track_id, $project_nid = FALSE) {
   $query
     ->leftJoin('field_data_field_github_project_id', 'repo', 'il.field_issues_logs_field_github_issue_target_id = repo.entity_id');
 
+  // Join to node, get only published tracks.
+  $query
+    ->leftJoin('node', 'n', 'il.entity_id = n.nid');
+
   $query
     ->fields('il')
     ->fields('repo', array('field_github_project_id_value'))
+    ->fields('p', array('field_project_target_id'))
     // GH issue nid.
+    ->condition('n.status', 1)
     ->orderBy('il.field_issues_logs_id', 'DESC');
+
+  if ($from_track) {
+    $query
+      ->condition('il.field_issues_logs_id', $from_track, '<=');
+  }
+
 
   if ($project_nid) {
     $query

@@ -31,10 +31,11 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
   $variables['username'] = $current_user->name;
 
   // Build  project list.
-  $variables['projects'] = productivity_project_get_all_projects(TRUE);
+  $variables['projects'] = productivity_project_get_all_projects();
   // Get month data and tracking.
   // TODO: customize view per developer, custom Weekend and holidays.
-  $variables['tracking'] = productivity_tracking_get_month_structure($month, $year, $uid);
+  $tracks = productivity_tracking_get_month_structure($month, $year, $uid);
+  $variables['tracking'] = $tracks['days'];
 
   $variables['rows'] = [];
   // TODO: Set this to be dynamic and per project.

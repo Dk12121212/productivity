@@ -36,7 +36,7 @@
     </form>
   </td>
   <td width="28%">
-    <input value="<?php print $tracking['title']; ?>" type="text" name='title' placeholder='Description - Leave empty to get title of PR from GH ' class="form-control"/>
+    <input value="<?php print check_plain($tracking['title']); ?>" type="text" name='title' placeholder='Description - Leave empty to get title of PR from GH ' class="form-control"/>
   </td>
   <td width="10%">
     <select id="selectType" name="type" class="form-control" value="<?php print $tracking['type']; ?>">

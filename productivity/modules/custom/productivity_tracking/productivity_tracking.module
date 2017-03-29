@@ -1027,8 +1027,8 @@ function productivity_tracking_get_month_structure($month, $year, $uid, $weekend
     $issue_title = $track_record['body_value'];
     $project_nid = $track_record['field_project_target_id'];
 
-    $pr_url = "https://github.com/{$repo_id}issues/$pr_gh_id";
-    $issue_url = "https://github.com/{$repo_id}issues/$issue_id";
+    $pr_url = "https://github.com/{$repo_id}/issues/$pr_gh_id";
+    $issue_url = "https://github.com/{$repo_id}/issues/$issue_id";
 
 
     $day['projectName'] = $repo_id;
@@ -1077,15 +1077,22 @@ function productivity_tracking_get_month_structure($month, $year, $uid, $weekend
 
   // Fill in vacation other personal global days.
   $non_regular = productivity_timewatch_get_user_sessions($uid, $year, $month, TRUE);
+  $day = [];
   foreach ($non_regular as $special_day) {
     $wrapper = entity_metadata_wrapper('node', $special_day);
 
     $day['projectName'] = '';
     $day['length'] = strtoupper(substr($wrapper->field_session_type->label(), 0, 1));
-    $day['day'] = date('d', strtotime($wrapper->field_session_date->value->value()));
-    $day['href'] = url('node/' . $wrapper->getIdentifier() . '/edit');
+    $day['day'] = date('d', $wrapper->field_session_date->value->value());
+    $day['pr_href'] = url('node/' . $wrapper->getIdentifier() . '/edit');
     $day['type'] = $wrapper->field_session_type->label();
-    $day['title'] = $wrapper->field_special_day_name->value();
+
+    // Hover title.
+    $from = date('H:m', $wrapper->field_session_date->value->value());
+    $to = date('H:m', $wrapper->field_session_date->value2->value());
+    $title = $wrapper->field_special_day_name->value() ? $wrapper->field_special_day_name->value() : $wrapper->field_session_type->label();
+    $day['title'] = "$title - $from -> $to";
+
     $day['tracking'] = FALSE;
 
 
@@ -1126,5 +1133,6 @@ function productivity_tracking_get_month_structure($month, $year, $uid, $weekend
 
   // Return single user.
   $cached_data = $new_data;
+  dpm($new_data);
   return $new_data;
 }

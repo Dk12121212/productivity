@@ -283,7 +283,7 @@
             <div class="collapse navbar-collapse navbar-ex1-collapse" id="sidebar-nav">
               <ul class="nav nav-pills nav-stacked">
                 <li class="<?php print ($path == 'dashboard') ? 'active' : '';?>">
-                  <a href="<?php print $base_path;?>">
+                  <a href="<?php print url('dashboard'); ?>">
                     <i class="fa fa-dashboard"></i>
                     <span>Dashboard</span>
                   </a>

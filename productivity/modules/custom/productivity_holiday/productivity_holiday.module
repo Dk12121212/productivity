@@ -17,7 +17,7 @@ use Yasumi\Yasumi;
  * @param int $year
  *   The given year on 4 digits.
  * @param string $location
- *   Two letter ISO code of the country.
+ *   Country name.
  *
  * @return array
  *   A numerically indexed array with the holidays.
@@ -27,8 +27,14 @@ use Yasumi\Yasumi;
  *        'label' => 'New Year',
  *     ]
  */
-function productvity_holidays_per_month($month, $year, $location = 'Israel') {
+function productvity_holiday_per_month($month, $year, $location = 'Israel') {
   $holidays = [];
+
+  if ($location == 'Israel') {
+    // Based on https://github.com/mooffie/holidays .
+    return productvity_holiday_per_month_israel($month, $year);
+  }
+
   $holiday_provider = Yasumi::create($location, $year);
   $holidays_month = $holiday_provider->between(new DateTime($month . '/01/' . $year), new DateTime($month . '/31/' . $year));
   foreach ($holidays_month as $holiday) {
@@ -36,6 +42,46 @@ function productvity_holidays_per_month($month, $year, $location = 'Israel') {
       'date' => $holiday->format('Y-m-d'),
       'label' => $holiday->getName(),
     ];
+  }
+  return $holidays;
+}
+
+/**
+ * Returns the list of holidays for Israel in a given month.
+ *
+ * @param int $month
+ *   Numerical, 0-11, month of the year.
+ * @param int $year
+ *   The given year on 4 digits.
+ *
+ * @return array
+ *   A numerically indexed array with the holidays.
+ *   Example:
+ *     [
+ *        'date' => '2017-01-01',
+ *        'label' => 'New Year',
+ *     ]
+ */
+function productvity_holiday_per_month_israel($month, $year) {
+  $jcal = NativeCalendar::factory('Jewish');
+  $jcal->settings(array(
+    'method' => 'israel',
+    'eves' => FALSE,
+  ));
+
+  $holidays = [];
+  for ($day = 1; $day <= 31; $day++) {
+    $time = mktime(12, 0, 0, $month, $day, $year);
+    if (date('m', $time) == $month) {
+      foreach ($jcal->getHolidays($time) as $holiday) {
+        $holidays[] = [
+          'date' => date('Y-m-d', $time),
+          'label' => $holiday['name'],
+        ];
+
+      }
+    }
+
   }
   return $holidays;
 }

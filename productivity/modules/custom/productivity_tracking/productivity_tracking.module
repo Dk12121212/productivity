@@ -1126,6 +1126,5 @@ function productivity_tracking_get_month_structure($month, $year, $uid, $weekend
 
   // Return single user.
   $cached_data = $new_data;
-  dpm($new_data);
   return $new_data;
 }

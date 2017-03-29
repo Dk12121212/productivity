@@ -7,6 +7,7 @@
 
 // 33709 => unio 6.5
 $project_nid = drush_get_option('project', FALSE);
+// Old track id.
 $track_id = drush_get_option('track', FALSE);
 $from_track = drush_get_option('from', FALSE);
 

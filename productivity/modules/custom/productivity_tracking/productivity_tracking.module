@@ -1086,6 +1086,7 @@ function productivity_tracking_get_month_structure($month, $year, $uid, $weekend
     $day['day'] = date('d', $wrapper->field_session_date->value->value());
     $day['pr_href'] = url('node/' . $wrapper->getIdentifier() . '/edit');
     $day['type'] = $wrapper->field_session_type->label();
+    $day['mlid'] = 0;
 
     // Hover title.
     $from = date('H:m', $wrapper->field_session_date->value->value());
@@ -1133,6 +1134,5 @@ function productivity_tracking_get_month_structure($month, $year, $uid, $weekend
 
   // Return single user.
   $cached_data = $new_data;
-  dpm($new_data);
   return $new_data;
 }

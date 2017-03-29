@@ -10,7 +10,7 @@ include_once 'productivity_github.features.inc';
  * Implements hook_menu().
  */
 function productivity_github_menu() {
-  $items['payload'] = array(
+  $items['payload-old'] = array(
     'page callback' => 'productivity_github_payload',
     'access callback' => TRUE,
   );
@@ -46,8 +46,6 @@ function productivity_github_payload() {
   $payload = json_decode($_POST['payload']);
 
   // Handle new tracking system.
-  productivity_tracking_payload();
-
   $event = isset($_SERVER['HTTP_X_GITHUB_EVENT']) ? $_SERVER['HTTP_X_GITHUB_EVENT'] : FALSE;
 
   // Allow only specific events.

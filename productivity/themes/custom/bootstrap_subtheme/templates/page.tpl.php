@@ -268,7 +268,7 @@
     </div>
   </header>
 
-  <div id="page-wrapper" class="container fixed-footer" ng-class="{ 'nav-small': compactSidebar }">
+  <div id="page-wrapper" class="container fixed-footer nav-small" ng-class="{ 'nav-small': compactSidebar }">
 
     <div class="row">
       <?php if ($user->uid): ?>

@@ -867,12 +867,7 @@ Setting an end date, will make project invisible in some forms after the end dat
     'bundle' => 'project',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '3 name type are supported in the following order of importance:
-1. Project name (ie. generator-hedley).
-2. Account name (ie. Gizra).
-3. Project name + Account (ie. Gizra/generator-hedley).
-
-If your not sure use the third one.',
+    'description' => 'One name type is supported -> Account + Project name  (ie. Gizra/generator-hedley).',
     'display' => array(
       'default' => array(
         'label' => 'above',
@@ -1027,7 +1022,7 @@ If your not sure use the third one.',
     'label' => 'Percentage notified',
     'required' => 0,
     'settings' => array(
-      'max' => 300,
+      'max' => '',
       'min' => 0,
       'prefix' => '',
       'suffix' => '',
@@ -1335,12 +1330,6 @@ If your not sure use the third one.',
 
   // Translatables
   // Included for use with string extractors like potx.
-  t('3 name type are supported in the following order of importance:
-1. Project name (ie. generator-hedley).
-2. Account name (ie. Gizra).
-3. Project name + Account (ie. Gizra/generator-hedley).
-
-If your not sure use the third one.');
   t('Account');
   t('Allow work session reference');
   t('Date');
@@ -1349,6 +1338,7 @@ If your not sure use the third one.');
   t('Internal team');
   t('Job type');
   t('Milestone');
+  t('One name type is supported -> Account + Project name  (ie. Gizra/generator-hedley).');
   t('Override to default title.');
   t('Percentage notified');
   t('Rate');

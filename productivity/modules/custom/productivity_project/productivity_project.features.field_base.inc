@@ -87,8 +87,8 @@ function productivity_project_field_default_field_bases() {
       'cache_enabled' => 0,
       'granularity' => array(
         'day' => 'day',
-        'hour' => 'hour',
-        'minute' => 'minute',
+        'hour' => 0,
+        'minute' => 0,
         'month' => 'month',
         'second' => 0,
         'year' => 'year',

@@ -938,6 +938,5 @@ function productivity_project_get_scope($wrapper) {
   foreach ($wrapper->field_table_rate as $rate) {
     $scope += $rate->field_scope->interval->value();
   }
-  $period = $rate->field_scope->period->value();
-  return interval_format_interval(array('period' => $period, 'interval' => $scope));
+  return interval_format_interval(array('period' => 'hour', 'interval' => $scope));
 }

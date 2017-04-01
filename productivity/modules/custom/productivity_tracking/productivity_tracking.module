@@ -53,6 +53,8 @@ function productivity_tracking_get_query_strings($args) {
   // Before 14:00, display previous day as default.
   if (!isset($_GET['day']) && date('H') < '14') {
     $day = date('d', strtotime($date . "-1 days"));
+    $month = date('m', strtotime($date . "-1 days"));
+    $year = date('Y', strtotime($date . "-1 days"));
     $date = "$day.$month.$year";
   }
 
@@ -935,7 +937,6 @@ function productivity_tracking_get_month_structure($month, $year, $uid, $weekend
 
   // Global days
   $last_day_this_month  = date('t', strtotime('1.' . $month . '.' . $year));
-
   $assoc_globals = productivity_timewatch_get_global_days($year, $month);
 
   // Build skeleton of array, one item per day.

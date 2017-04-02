@@ -441,7 +441,7 @@ class JewishCalendar extends NativeCalendar {
       $list[NISAN][17][] = 'pesakhKholHaMoed';
       $list[NISAN][18][] = 'pesakhKholHaMoed';
       $list[NISAN][19][] = 'pesakhKholHaMoed';
-      $list[NISAN][20][] = 'pesakhKholHaMoed';
+      $list[NISAN][20][] = 'pesakh6';
 
       $list[NISAN][21][] = 'pesakh7';
       if ($diaspora) {
@@ -603,70 +603,71 @@ class JewishCalendar extends NativeCalendar {
       // The English spelling for the holidays I took from "Jewish Calendar for Linux" by Refoyl Finkl.
 
       // Tishrei
-      'roshHaShanaErevKhag' =>array('native' => 'ערב ראש השנה',     'foreign' => t('Erev Rosh HaShana'),  'class' => 'khol'),
-      'roshHaShana1' =>       array('native' => 'א\' ראש השנה',     'foreign' => t('Rosh HaShana I'),     'class' => 'spec'),
-      'roshHaShana2' =>       array('native' => 'ב\' ראש השנה',     'foreign' => t('Rosh HaShana II'),    'class' => 'spec'),
-      'tsomGedalya' =>        array('native' => 'צום גדליה',        'foreign' => t('Tsom Gedalya'),       'class' => 'taanit'),
-      'yomKippurErevKhag' =>  array('native' => 'ערב יום הכיפורים', 'foreign' => t('Erev Yom Kippur'),    'class' => 'khol'),
-      'yomKippur' =>          array('native' => 'יום הכיפורים',     'foreign' => t('Yom Kippur'),         'class' => 'spec'),
-      'sukkotErevKhag' =>     array('native' => 'ערב סוכות',        'foreign' => t('Erev Sukkot'),        'class' => 'khol'),
-      'sukkot' =>             array('native' => 'סוכות',            'foreign' => t('Sukkot'),             'class' => 'shabat'),
-      'sukkot2' =>            array('native' => 'סוכות ב\' (גולה)', 'foreign' => t('Sukkot II (Diaspora)'), 'class' => 'shabat'),
-      'sukkotKholHaMoed' =>   array('native' => 'חול המועד סוכות',  'foreign' => t('Khol HaMoed Sukkot'),   'class' => 'khol'),
-      'hoshanaRabba' =>       array('native' => 'הושענא רבה',       'foreign' => t('Hoshana Rabba'),      'class' => 'khol'),
-      'sheminiAtseret' =>     array('native' => 'שמיני עצרת',       'foreign' => t('Shemini Atseret'),    'class' => 'shabat'),
-      'simkhatTora' =>        array('native' => 'שמחת תורה',        'foreign' => t('Simkhat Tora'),       'class' => 'shabat'),
-      'sukkotIsruKhag' =>     array('native' => 'אסרו חג',          'foreign' => t('Isru Khag Sukkot'),   'class' => 'khol'),
+      'roshHaShanaErevKhag' =>array('native' => 'ערב ראש השנה',     'foreign' => t('Erev Rosh HaShana'),  'class' => 'khol', 'is_day_off' => 1),
+      'roshHaShana1' =>       array('native' => 'א\' ראש השנה',     'foreign' => t('Rosh HaShana I'),     'class' => 'spec', 'is_day_off' => 1),
+      'roshHaShana2' =>       array('native' => 'ב\' ראש השנה',     'foreign' => t('Rosh HaShana II'),    'class' => 'spec', 'is_day_off' => 1),
+      'tsomGedalya' =>        array('native' => 'צום גדליה',        'foreign' => t('Tsom Gedalya'),       'class' => 'taanit', 'is_day_off' => 0),
+      'yomKippurErevKhag' =>  array('native' => 'ערב יום הכיפורים', 'foreign' => t('Erev Yom Kippur'),    'class' => 'khol', 'is_day_off' => 1),
+      'yomKippur' =>          array('native' => 'יום הכיפורים',     'foreign' => t('Yom Kippur'),         'class' => 'spec', 'is_day_off' => 1),
+      'sukkotErevKhag' =>     array('native' => 'ערב סוכות',        'foreign' => t('Erev Sukkot'),        'class' => 'khol', 'is_day_off' => 1),
+      'sukkot' =>             array('native' => 'סוכות',            'foreign' => t('Sukkot'),             'class' => 'shabat', 'is_day_off' => 1),
+      'sukkot2' =>            array('native' => 'סוכות ב\' (גולה)', 'foreign' => t('Sukkot II (Diaspora)'), 'class' => 'shabat', 'is_day_off' => 0),
+      'sukkotKholHaMoed' =>   array('native' => 'חול המועד סוכות',  'foreign' => t('Khol HaMoed Sukkot'),   'class' => 'khol', 'is_day_off' => 0),
+      'hoshanaRabba' =>       array('native' => 'הושענא רבה',       'foreign' => t('Hoshana Rabba'),      'class' => 'khol', 'is_day_off' => 0),
+      'sheminiAtseret' =>     array('native' => 'שמיני עצרת',       'foreign' => t('Shemini Atseret'),    'class' => 'shabat', 'is_day_off' => 1),
+      'simkhatTora' =>        array('native' => 'שמחת תורה',        'foreign' => t('Simkhat Tora'),       'class' => 'shabat', 'is_day_off' => 1),
+      'sukkotIsruKhag' =>     array('native' => 'אסרו חג',          'foreign' => t('Isru Khag Sukkot'),   'class' => 'khol', 'is_day_off' => 0),
 
       // Kislev / Tevet
-      'khanukka1' =>          array('native' => 'א\' חנוכה',        'foreign' => t('Khanukka I'),         'class' => 'khol'),
-      'khanukka2' =>          array('native' => 'ב\' חנוכה',        'foreign' => t('Khanukka II'),        'class' => 'khol'),
-      'khanukka3' =>          array('native' => 'ג\' חנוכה',        'foreign' => t('Khanukka III'),       'class' => 'khol'),
-      'khanukka4' =>          array('native' => 'ד\' חנוכה',        'foreign' => t('Khanukka IV'),        'class' => 'khol'),
-      'khanukka5' =>          array('native' => 'ה\' חנוכה',        'foreign' => t('Khanukka V'),         'class' => 'khol'),
-      'khanukka6' =>          array('native' => 'ו\' חנוכה',        'foreign' => t('Khanukka VI'),        'class' => 'khol'),
-      'khanukka7' =>          array('native' => 'ז\' חנוכה',        'foreign' => t('Khanukka VII'),       'class' => 'khol'),
-      'khanukka8' =>          array('native' => 'ח\' חנוכה',        'foreign' => t('Khanukka VIII'),      'class' => 'khol'),
+      'khanukka1' =>          array('native' => 'א\' חנוכה',        'foreign' => t('Khanukka I'),         'class' => 'khol', 'is_day_off' => 0),
+      'khanukka2' =>          array('native' => 'ב\' חנוכה',        'foreign' => t('Khanukka II'),        'class' => 'khol', 'is_day_off' => 0),
+      'khanukka3' =>          array('native' => 'ג\' חנוכה',        'foreign' => t('Khanukka III'),       'class' => 'khol', 'is_day_off' => 0),
+      'khanukka4' =>          array('native' => 'ד\' חנוכה',        'foreign' => t('Khanukka IV'),        'class' => 'khol', 'is_day_off' => 0),
+      'khanukka5' =>          array('native' => 'ה\' חנוכה',        'foreign' => t('Khanukka V'),         'class' => 'khol', 'is_day_off' => 0),
+      'khanukka6' =>          array('native' => 'ו\' חנוכה',        'foreign' => t('Khanukka VI'),        'class' => 'khol', 'is_day_off' => 0),
+      'khanukka7' =>          array('native' => 'ז\' חנוכה',        'foreign' => t('Khanukka VII'),       'class' => 'khol', 'is_day_off' => 0),
+      'khanukka8' =>          array('native' => 'ח\' חנוכה',        'foreign' => t('Khanukka VIII'),      'class' => 'khol', 'is_day_off' => 0),
 
       // Tevet
-      'tsomTevet' =>          array('native' => 'צום טבת',          'foreign' => t('Tsom Tevet'),         'class' => 'taanit'),
+      'tsomTevet' =>          array('native' => 'צום טבת',          'foreign' => t('Tsom Tevet'),         'class' => 'taanit', 'is_day_off' => 0),
 
       // Shevat
-      'tuBiShevat' =>         array('native' => 'ט\'ו בשבט',        'foreign' => t('Tu BiShevat'),        'class' => 'khol'),
+      'tuBiShevat' =>         array('native' => 'ט\'ו בשבט',        'foreign' => t('Tu BiShevat'),        'class' => 'khol', 'is_day_off' => 0),
 
       // Adar
-      'taanitEsther' =>       array('native' => 'תענית אסתר',       'foreign' => t('Taanit Esther'),      'class' => 'taanit'),
-      'purim' =>              array('native' => 'פורים',            'foreign' => t('Purim'),              'class' => 'khol'),
-      'shushanPurim' =>       array('native' => 'שושן פורים',       'foreign' => t('Shushan Purim'),      'class' => 'khol'),
+      'taanitEsther' =>       array('native' => 'תענית אסתר',       'foreign' => t('Taanit Esther'),      'class' => 'taanit', 'is_day_off' => 0),
+      'purim' =>              array('native' => 'פורים',            'foreign' => t('Purim'),              'class' => 'khol', 'is_day_off' => 0),
+      'shushanPurim' =>       array('native' => 'שושן פורים',       'foreign' => t('Shushan Purim'),      'class' => 'khol', 'is_day_off' => 0),
 
       // Nisan
-      'pesakhErevKhag' =>     array('native' => 'ערב פסח',          'foreign' => t('Erev Pesakh'),        'class' => 'khol'),
-      'pesakh1' =>            array('native' => 'פסח',              'foreign' => t('Pesakh'),             'class' => 'shabat'),
-      'pesakh2' =>            array('native' => 'שני של פסח (גולה)', 'foreign' =>  t('Pesakh II (Diaspora)'), 'class' => 'shabat'),
-      'pesakhKholHaMoed' =>   array('native' => 'חול המועד פסח',    'foreign' => t('Khol HaMoed Pesakh'), 'class' => 'khol'), 
-      'pesakh7' =>            array('native' => 'שביעי של פסח',     'foreign' =>  t('Pesakh VII'),        'class' => 'shabat'),
-      'pesakh8' =>            array('native' => 'שמיני של פסח (גולה)', 'foreign' => t('Pesakh VIII (Diaspora)'), 'class' => 'shabat'),
-      'pesakhIsruKhag' =>     array('native' => 'אסרו חג',          'foreign' => t('Isru Khag Pesakh'),   'class' => 'khol'),
-      'omer' =>               array('native' => 'ספירת העומר',      'foreign' => t('Sefirat HaOmer'),     'class' => 'omer'),
-      'yomHaShoa' =>          array('native' => 'יום השואה',        'foreign' => t('Yom HaShoa'),         'class' => 'taanit'),
+      'pesakhErevKhag' =>     array('native' => 'ערב פסח',          'foreign' => t('Erev Pesakh'),        'class' => 'khol', 'is_day_off' => 1),
+      'pesakh1' =>            array('native' => 'פסח',              'foreign' => t('Pesakh'),             'class' => 'shabat', 'is_day_off' => 1),
+      'pesakh2' =>            array('native' => 'שני של פסח (גולה)', 'foreign' =>  t('Pesakh II (Diaspora)'), 'class' => 'shabat', 'is_day_off' => 0),
+      'pesakhKholHaMoed' =>   array('native' => 'חול המועד פסח',    'foreign' => t('Khol HaMoed Pesakh'), 'class' => 'khol', 'is_day_off' => 0),
+      'pesakh6' =>            array('native' => 'שישי של פסח',     'foreign' =>  t('Pesakh VI'),        'class' => 'khol', 'is_day_off' => 1),
+      'pesakh7' =>            array('native' => 'שביעי של פסח',     'foreign' =>  t('Pesakh VII'),        'class' => 'shabat', 'is_day_off' => 1),
+      'pesakh8' =>            array('native' => 'שמיני של פסח (גולה)', 'foreign' => t('Pesakh VIII (Diaspora)'), 'class' => 'shabat', 'is_day_off' => 0),
+      'pesakhIsruKhag' =>     array('native' => 'אסרו חג',          'foreign' => t('Isru Khag Pesakh'),   'class' => 'khol', 'is_day_off' => 0),
+      'omer' =>               array('native' => 'ספירת העומר',      'foreign' => t('Sefirat HaOmer'),     'class' => 'omer', 'is_day_off' => 0),
+      'yomHaShoa' =>          array('native' => 'יום השואה',        'foreign' => t('Yom HaShoa'),         'class' => 'taanit', 'is_day_off' => 0),
 
       // Iyar
-      'yomHaZikaron' =>       array('native' => 'יום הזכרון',       'foreign' => t('Yom HaZikaron'),      'class' => 'taanit'),
-      'yomHaAzmaut' =>        array('native' => 'יום העצמאות',      'foreign' => t('Yom HaAtsmaut'),      'class' => 'khol'),
-      'lagBaOmer' =>          array('native' => 'ל"ג לעומר',        'foreign' => t('Lag BaOmer'),         'class' => 'omer khol'),
-      'yomYerishalayim' =>    array('native' => 'יום ירושלים',      'foreign' => t('Yom Yerushalayim'),   'class' => 'khol'),
+      'yomHaZikaron' =>       array('native' => 'יום הזכרון',       'foreign' => t('Yom HaZikaron'),      'class' => 'taanit', 'is_day_off' => 0),
+      'yomHaAzmaut' =>        array('native' => 'יום העצמאות',      'foreign' => t('Yom HaAtsmaut'),      'class' => 'khol', 'is_day_off' => 1),
+      'lagBaOmer' =>          array('native' => 'ל"ג לעומר',        'foreign' => t('Lag BaOmer'),         'class' => 'omer khol', 'is_day_off' => 0),
+      'yomYerishalayim' =>    array('native' => 'יום ירושלים',      'foreign' => t('Yom Yerushalayim'),   'class' => 'khol', 'is_day_off' => 0),
 
       // Sivan
-      'shavuotErevKhag' =>    array('native' => 'ערב שבועות',       'foreign' => t('Erev Shavuot'),       'class' => 'khol'),
-      'shavuot'  =>           array('native' => 'שבועות',           'foreign' => t('Shavuot'),            'class' => 'shabat'),
-      'shavuot2'  =>          array('native' => 'שבועות ב\' (גולה)', 'foreign' => t('Shavuot II (Diaspora)'), 'class' => 'shabat'),
-      'shavuotIsruKhag' =>    array('native' => 'אסרו חג',          'foreign' => t('Isru Khag Shavuot'),  'class' => 'khol'),
+      'shavuotErevKhag' =>    array('native' => 'ערב שבועות',       'foreign' => t('Erev Shavuot'),       'class' => 'khol', 'is_day_off' => 1),
+      'shavuot'  =>           array('native' => 'שבועות',           'foreign' => t('Shavuot'),            'class' => 'shabat', 'is_day_off' => 1),
+      'shavuot2'  =>          array('native' => 'שבועות ב\' (גולה)', 'foreign' => t('Shavuot II (Diaspora)'), 'class' => 'shabat', 'is_day_off' => 0),
+      'shavuotIsruKhag' =>    array('native' => 'אסרו חג',          'foreign' => t('Isru Khag Shavuot'),  'class' => 'khol', 'is_day_off' => 0),
 
       // Tamuz
-      'tsomTamuz' =>          array('native' => 'צום תמוז',         'foreign' => t('Tsom Tamuz'),         'class' => 'taanit'),
+      'tsomTamuz' =>          array('native' => 'צום תמוז',         'foreign' => t('Tsom Tamuz'),         'class' => 'taanit', 'is_day_off' => 0),
 
       // Av
-      'tishaBeAv' =>          array('native' => 'תשעה באב',         'foreign' => t('Tisha BeAv'),         'class' => 'taanit'),
+      'tishaBeAv' =>          array('native' => 'תשעה באב',         'foreign' => t('Tisha BeAv'),         'class' => 'taanit', 'is_day_off' => 0),
       );
     }
     return $details;

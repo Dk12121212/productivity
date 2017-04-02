@@ -27,12 +27,12 @@ use Yasumi\Yasumi;
  *        'label' => 'New Year',
  *     ]
  */
-function productvity_holiday_per_month($month, $year, $location = 'Israel') {
+function productivity_holiday_per_month($month, $year, $location = 'Israel') {
   $holidays = [];
 
   if ($location == 'Israel') {
     // Based on https://github.com/mooffie/holidays .
-    return productvity_holiday_per_month_israel($month, $year);
+    return productivity_holiday_per_month_israel($month, $year);
   }
 
   $holiday_provider = Yasumi::create($location, $year);
@@ -62,11 +62,11 @@ function productvity_holiday_per_month($month, $year, $location = 'Israel') {
  *        'label' => 'New Year',
  *     ]
  */
-function productvity_holiday_per_month_israel($month, $year) {
+function productivity_holiday_per_month_israel($month, $year) {
   $jcal = NativeCalendar::factory('Jewish');
   $jcal->settings(array(
     'method' => 'israel',
-    'eves' => FALSE,
+    'eves' => TRUE,
   ));
 
   $holidays = [];
@@ -77,6 +77,7 @@ function productvity_holiday_per_month_israel($month, $year) {
         $holidays[] = [
           'date' => date('Y-m-d', $time),
           'label' => $holiday['name'],
+          'is_day_off' => $holiday['is_day_off'],
         ];
 
       }

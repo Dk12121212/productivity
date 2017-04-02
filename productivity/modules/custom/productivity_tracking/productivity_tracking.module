@@ -39,6 +39,35 @@ function productivity_tracking_menu() {
   return $items;
 }
 
+/**
+ * Get default query strings.
+ */
+function productivity_tracking_get_query_strings($args) {
+  // Get query strings.
+  $month = isset($_GET['month']) ? $_GET['month'] : date('m', time());
+  $year = isset($_GET['year']) ? $_GET['year'] : date('Y', time());
+
+  $day = isset($_GET['day']) ? $_GET['day'] : date('d', time());
+  $date = "$day.$month.$year";
+
+  // Before 14:00, display previous day as default.
+  if (!isset($_GET['day']) && date('H') < '14') {
+    $day = date('d', strtotime($date . "-1 days"));
+    $month = date('m', strtotime($date . "-1 days"));
+    $year = date('Y', strtotime($date . "-1 days"));
+    $date = "$day.$month.$year";
+  }
+
+  $uid = isset($_GET['uid']) ? $_GET['uid'] : $args[0];
+
+  return [
+  'day' => $day,
+  'month' => $month,
+  'year' => $year,
+  'uid' => $uid,
+  'date' => $date,
+  ];
+}
 
 /**
  * Implements hook_ctools_plugin_directory().
@@ -48,7 +77,6 @@ function productivity_tracking_ctools_plugin_directory($module, $plugin) {
     return 'plugins/' . $plugin;
   }
 }
-
 
 /**
  * Implements hook_theme().
@@ -112,6 +140,7 @@ function productivity_tracking_delete($mlid) {
 /**
  * Save tracking from tacking table.
  */
+
 function productivity_tracking_save_callback() {
   $results = [];
   $json = file_get_contents('php://input');
@@ -206,8 +235,15 @@ function productivity_tracking_save_callback() {
       );
     }
   }
-
-  drupal_json_output($results);
+  global $user;
+  ctools_include('content');
+  $nav = ctools_content_render('tracking_nav', 'tracking_nav', [], [], [$user->uid], [], '');
+  $nav = $nav->content;
+  drupal_json_output(array(
+    'saved' => $results,
+    'nav' => $nav,
+    )
+  );
   drupal_exit();
 }
 /**
@@ -315,17 +351,25 @@ function productivity_tracking_gh_payload($payload, $event) {
     }
     else {
       // TODO: Send message to account manager about no issue and no estimate.
+      // TODO: Probably better to have this in single daily email.
       return FALSE;
     }
   }
 
   foreach ($issues as $issue) {
     $uid = productivity_tracking_get_uid_by_github_username(check_plain($payload['sender']['login']));
+    $project_nid = productivity_tracking_get_project_by_repository($payload['repository']);
+
+    // Bypass if project or user are not in the system.
+    if (!$project_nid || !$uid) {
+      continue;
+    }
+
     $data_issue = [
       'issue_id' => $issue['issue']['number'],
       'repo' => $payload['repository']['full_name'],
       'title' => $issue['issue']['title'],
-      'project' => productivity_tracking_get_project_by_repository($payload['repository']),
+      'project' => $project_nid,
       'estimate' => $issue['estimate'],
       'status' => $issue['issue']['state'],
       'uid' => $uid,
@@ -407,17 +451,21 @@ function productivity_tracking_gh_payload($payload, $event) {
  *   Project node ID.
  */
 function productivity_tracking_get_project_by_repository($repository_info) {
-  $values = array(
-    $repository_info['name'],
-    $repository_info['owner']['login'],
-    $repository_info['full_name'],
-  );
+  // We need to add a second query since value2 of date has a default of value(1).
+  $query = new EntityFieldQuery();
+  $query->entityCondition('entity_type', 'node')
+    ->fieldCondition('field_github_repository_name', 'value', $repository_info['full_name'])
+    ->propertyCondition('status', 1)
+    ->propertyOrderBy('created', 'DESC')
+    ->range(0, 1)
+    ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
 
-  foreach ($values as $value) {
-    if ($nid = productivity_tracking_get_entity_id_by_field_value('field_github_repository_name', 'project', check_plain($value))) {
-      return $nid;
-    }
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    $nid = reset($result['node']);
+    return $nid;
   }
+
   // Print error if no repo was found.
   watchdog('productivity', t('No project with github repository: @repository', array('@repository' => print_r($repository_info, TRUE))));
   return FALSE;
@@ -870,4 +918,222 @@ function productivity_tracking_get_term_status($name) {
   }
 
   return $term;
+}
+
+/**
+ * Build an associative array by day.
+ *
+ * @param $month
+ * @param $year
+ *
+ * @return array|mixed
+ */
+function productivity_tracking_get_month_structure($month, $year, $uid, $weekend = 'FS') {
+  // Static caching.
+  $cached_data = &drupal_static(__FUNCTION__ . "$year-$month-$uid-$weekend");
+  if (isset($cached_data)) {
+    return $cached_data;
+  }
+
+  // Global days
+  $last_day_this_month  = date('t', strtotime('1.' . $month . '.' . $year));
+  $assoc_globals = productivity_timewatch_get_global_days($year, $month);
+
+  // Build skeleton of array, one item per day.
+  $new_data = array();
+  $new_data['days']  = array();
+  // Stub for table first column.
+  $new_data['days']['#']  = array();
+  $new_data['sum']  = array(
+    'month' => 0,
+    'projects' => array(),
+    'days' => array(),
+  );
+
+  // Go over days of the month.
+  for ($i = 1; $i <= $last_day_this_month; $i++) {
+    // Add leading zeros.
+    $key = str_pad($i, 2, '0', STR_PAD_LEFT);
+    $new_data['days'][$key]  = array();
+
+    $timestamp = strtotime($key . '.' . $month . '.' . $year);
+    $default_url = url('user', [
+      'query' => [
+        'uid' => $uid,
+        'day' => date('d', $timestamp),
+        'month' => date('m', $timestamp),
+        'year' => date('Y', $timestamp)
+      ]
+    ]);
+
+    // Mark weekends.
+    $week_day = date( "w", strtotime($i . '.' . $month . '.' . $year));
+
+    // TODO: add weekend preference to user account.
+    // Weekend Friday Saturday.
+    if ($weekend == 'FS') {
+      $weekend_days = array(5, 6);
+    }
+    // Weekend Saturday Sunday.
+    else {
+      $weekend_days = array(6, 7);
+    }
+
+    // If Weekend.
+    if (in_array($week_day, $weekend_days)) {
+      $day_item = array(
+        'id' => 'new',
+        'type' => 'weekend',
+        'day' => $key,
+        'length' => 'W',
+        'projectName' => 'Weekend',
+        'employee' => $uid,
+        'tracking' => FALSE,
+        'href' => $default_url,
+        'title' => 'Weekend',
+      );
+      // Add item for weekend.
+      $new_data['days'][$key][] = $day_item;
+    }
+    // Add global day to user skeleton.
+    if (isset($assoc_globals[$key])) {
+      $assoc_globals[$key]['employee'] = $uid;
+      $new_data['days'][$key][] = $assoc_globals[$key];
+    }
+  }
+
+  // Get tracking data.
+  $tracking = productivity_tracking_get_tracking_by_user($uid, $year, $month);
+
+  // Prepare table for tracking data.
+  while($track_record = $tracking->fetchAssoc()) {
+    // Pr data.
+    $pr_time = $track_record['field_track_log_field_time_spent_value'];
+    $pr_gh_id = $track_record['field_track_log_field_issue_id_value'];
+    $pr_title = $track_record['field_track_log_field_issue_label_value'];
+    $pr_work_type = $track_record['field_track_log_field_issue_type_value'];
+    $pr_developer = $track_record['field_track_log_field_github_username_value'];
+    $pr_developer_uid = $track_record['field_track_log_field_employee_target_id'];
+    $pr_date = $track_record['field_track_log_field_date_value'];
+    $track_id = $track_record['field_track_log_id'];
+    $pr_status = $track_record['pr_status_name'];
+
+    // Issue data.
+    $repo_id = $track_record['field_github_project_id_value'];
+    $estimate = $track_record['field_time_estimate_value'];
+    $issue_id = $track_record['field_issue_id_value'];
+    $issue_status = $track_record['name'];
+    $nid = $track_record['nid'];
+    $node_link = l('#', 'node/' . $nid . '/edit', array('attributes' => array('target' => '_blank')));
+    $issue_title = $track_record['body_value'];
+    $project_nid = $track_record['field_project_target_id'];
+
+    $pr_url = "https://github.com/{$repo_id}/issues/$pr_gh_id";
+    $issue_url = "https://github.com/{$repo_id}/issues/$issue_id";
+
+
+    $day['projectName'] = $repo_id;
+    $day['length'] = $pr_time;
+    $day['day'] = date('d', strtotime($pr_date));
+    $day['pr_href'] = $pr_url;
+    $day['issue_href'] = $issue_url;
+    $day['type'] = $pr_work_type;
+    $day['title'] = $pr_title;
+    $day['tracking'] = TRUE;
+    $day['repo'] = $repo_id;
+    $day['pr'] = $pr_gh_id;
+    $day['issue'] = $issue_id;
+    $day['mlid'] = $track_id;
+    $day['project_nid'] = $project_nid;
+    // Don't allow to edit the fields outside of the PR.
+    $day['disabled'] = 'disabled';
+    $day['nodelink'] = $node_link;
+
+    $key = $day['day'];
+    $new_data['days'][$key][] = $day;
+
+    // Sums per project.
+    if (empty($new_data['sum']['projects'][$project_nid])) {
+      $node = node_load($project_nid);
+      $new_data['sum']['projects'][$project_nid] = array(
+         'sum' => $day['length'],
+         'name' => $node->title,
+      );
+    }
+    else {
+      $new_data['sum']['projects'][$project_nid]['sum'] += $day['length'];
+    }
+
+    // Sums per day.
+    if (empty($new_data['sum']['days'][$key])) {
+      $new_data['sum']['days'][$key] = $day['length'];
+    }
+    else {
+      $new_data['sum']['days'][$key] += $day['length'];
+    }
+
+    // Sums per month.
+    $new_data['sum']['month'] += $day['length'];
+  }
+
+  // Fill in vacation other personal global days.
+  $non_regular = productivity_timewatch_get_user_sessions($uid, $year, $month, TRUE);
+  $day = [];
+  foreach ($non_regular as $special_day) {
+    $wrapper = entity_metadata_wrapper('node', $special_day);
+
+    $day['projectName'] = '';
+    $day['length'] = strtoupper(substr($wrapper->field_session_type->label(), 0, 1));
+    $day['day'] = date('d', $wrapper->field_session_date->value->value());
+    $day['pr_href'] = url('node/' . $wrapper->getIdentifier() . '/edit');
+    $day['type'] = $wrapper->field_session_type->label();
+    $day['mlid'] = 0;
+
+    // Hover title.
+    $from = date('H:m', $wrapper->field_session_date->value->value());
+    $to = date('H:m', $wrapper->field_session_date->value2->value());
+    $title = $wrapper->field_special_day_name->value() ? $wrapper->field_special_day_name->value() : $wrapper->field_session_type->label();
+    $day['title'] = "$title - $from -> $to";
+
+    $day['tracking'] = FALSE;
+
+
+    $key = $day['day'];
+    $new_data['days'][$key][] = $day;
+  }
+
+  // Fill empty days with create new stub template, and sum employee data.
+  foreach ($new_data['days'] as $key => &$row) {
+    if ($key == '#') {
+      continue;
+    }
+    if (empty($row)) {
+      $timestamp = strtotime($key . '.' . $month . '.' . $year);
+      $default_url = url('user', [
+        'query' => [
+          'uid' => $uid,
+          'day' => date('d', $timestamp),
+          'month' => date('m', $timestamp),
+          'year' => date('Y', $timestamp)
+        ]
+      ]);
+
+      $row[] = array(
+        // Set id to new to get the proper link on angular.
+        'id' => 'new',
+        'type' => 'empty',
+        'day' => (string) $key,
+        'length' => 'E',
+        'projectName' => 'Log work',
+        'employee' => $uid,
+        'tracking' => FALSE,
+        'href' => $default_url,
+        'title' => 'Empty',
+      );
+    }
+  }
+
+  // Return single user.
+  $cached_data = $new_data;
+  return $new_data;
 }

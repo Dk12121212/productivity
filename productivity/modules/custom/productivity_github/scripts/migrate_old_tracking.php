@@ -6,16 +6,15 @@
  */
 
 // 33709 => unio 6.5
-$project_nid = drush_get_option('project', 33709);
-$default_repo = drush_get_option('default-repo ', 'Gizra/unio');
-$clean_repo = explode('/', $default_repo);
-$gh_user = $clean_repo[0];
-$clean_repo = $clean_repo[1];
+$project_nid = drush_get_option('project', FALSE);
+// Old track id.
+$track_id = drush_get_option('track', FALSE);
+$from_track = drush_get_option('from', FALSE);
 
 // Now get all tracking logs with no issue refs, and create a stub tracking from
 // each one of them.
 // Get all Tracks.
-$result = get_all_tracked_data($project_nid);
+$result = get_all_tracked_data($from_track, $track_id, $project_nid);
 $count_track = $result->rowCount();
 
 
@@ -23,6 +22,9 @@ $processed_tracking = [];
 // Go over orphan tracks.
 while($track = $result->fetchAssoc()) {
   print("Processing, track id: {$track['field_issues_logs_id']}.  \n");
+
+  // In case we don't pass project_nid, reset with track value.
+  $project_nid = $track['field_project_target_id'];
 
   $old_track_nid = $track['entity_id'];
   $old_track_id = $track['field_issues_logs_id'];
@@ -50,10 +52,29 @@ while($track = $result->fetchAssoc()) {
     $pr_id = $pr_node->field_issue_id->value();
   }
 
+  if (!$project_nid) {
+    watchdog('migrate_logs', "No project for track nid $old_track_nid");
+    continue;
+  }
+
+  $project_wrapper = entity_metadata_wrapper('node', $project_nid);
+
+  // Use default repo from project if no issue ref.
+  $default_repo = $project_wrapper->field_github_repository_name[0]->value();
+  if ($track['field_github_project_id_value']) {
+    $default_repo = $track['field_github_project_id_value'];
+  }
+
   $gh_ids = [];
+  $clean_repo = explode('/', $default_repo);
+  $gh_user = $clean_repo[0];
+  $clean_repo = $clean_repo[1];
+
   if ($pr_id) {
     // Try to complete the missing data:
     print("Looking up in GH for issue: {$pr_nid}.  \n");
+
+
     $pr_info = productivity_tracking_get_issue_info($clean_repo, $pr_id, $gh_user);
 
     // Check if id is issue.
@@ -181,10 +202,12 @@ function create_multifields_track($track, $total_time_spent, $clean_repo, $gh_us
   $term = productivity_tracking_get_term_status($status);
   $log['field_issue_status']['und'][0]['target_id'] = $term->tid;
 
-  $log['field_github_username']['und'][0]['value'] = $old_track_node_wrapper->field_employee->field_github_username->value();
+  if ($old_track_node_wrapper->field_employee->value()) {
+    $log['field_github_username']['und'][0]['value'] = $old_track_node_wrapper->field_employee->field_github_username->value();
+    $log['field_employee']['und'][0]['target_id'] = $old_track_node_wrapper->field_employee->getIdentifier();
+  }
   $log['field_time_spent']['und'][0]['value'] = $total_time_spent;
   $log['field_issue_type']['und'][0]['value'] = $track['field_issues_logs_field_issue_type_value'];
-  $log['field_employee']['und'][0]['target_id'] = $old_track_node_wrapper->field_employee->getIdentifier();
 
   return $log;
 }
@@ -192,27 +215,45 @@ function create_multifields_track($track, $total_time_spent, $clean_repo, $gh_us
 /**
  * Get old tracking logs.
  */
-function get_all_tracked_data($project_nid = FALSE) {
+function get_all_tracked_data($from_track, $track_id, $project_nid = FALSE) {
   $query = db_select('field_data_field_issues_logs', 'il');
 
   // Project.
   $query
     ->leftJoin('field_data_field_project', 'p', 'il.entity_id = p.entity_id');
 
-  // PR
+  // issue or PR
   $query
     ->leftJoin('field_data_field_issue_id', 'g_id', 'il.field_issues_logs_field_github_issue_target_id = g_id.entity_id');
   $query
     ->leftJoin('field_data_field_github_project_id', 'repo', 'il.field_issues_logs_field_github_issue_target_id = repo.entity_id');
 
+  // Join to node, get only published tracks.
+  $query
+    ->leftJoin('node', 'n', 'il.entity_id = n.nid');
+
   $query
     ->fields('il')
+    ->fields('repo', array('field_github_project_id_value'))
+    ->fields('p', array('field_project_target_id'))
     // GH issue nid.
+    ->condition('n.status', 1)
     ->orderBy('il.field_issues_logs_id', 'DESC');
+
+  if ($from_track) {
+    $query
+      ->condition('il.field_issues_logs_id', $from_track, '<=');
+  }
+
 
   if ($project_nid) {
     $query
       ->condition('p.field_project_target_id', $project_nid);
+  }
+
+  if ($track_id) {
+    $query
+      ->condition('il.field_issues_logs_id', $track_id);
   }
   return $query->execute();
 }
@@ -260,7 +301,10 @@ function get_new_tracking($issue) {
   $wrapper->field_project->set($issue['project']);
   $wrapper->body->value->set($issue['title']);
   $wrapper->field_time_estimate->set($issue['estimate']);
-  $wrapper->field_issue_id->set($issue['issue_id']);
+
+  if ($issue['issue_id']) {
+    $wrapper->field_issue_id->set($issue['issue_id']);
+  }
   $wrapper->field_github_project_id->set($issue['github_repo']);
 
 

@@ -73,17 +73,23 @@
                         withCredentials: true
                     },
                     dataType: 'json',
-                    success: function (data) {
+                    success: function (data_res) {
                         // Marked saved item as saved, with new mlid, and remove class new.
+                        $( "#month-nav" ).replaceWith(data_res.nav);
+
+
+                        var data = data_res.saved;
                         for (i = 0; i < data.length; i++) {
-                            if (data[i].new == 1) {
+                            if (data[i].result == 1) {
                                 $('#' + data[i].attr)
                                 // Set MLID in DOM.
                                   .attr('mlid', data[i].mlid)
                                   // Remove new class.
                                   .removeAttr('class')
                                   // Show a checkmark after save.
-                                  .children('.save-mark').children('.fa').show();
+                                  .children('.save-mark').children('.fa').show()
+                                  .parent().parent()
+                                  .children('td').children('.disable-after-save').attr('disabled', 'disabled');
                             }
                             // Remove items marked as deleted.
                             if (data[i].delete == 1) {

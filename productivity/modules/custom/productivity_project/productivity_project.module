@@ -723,25 +723,95 @@ function productivity_project_get_total_days($hours) {
 }
 
 /**
+ * Get all active project title in the given month.
+ */
+function productivity_project_get_project_by_date($month = FALSE, $year = FALSE) {
+  if (!$month) {
+    $month = date('m');
+  }
+  if (!$year) {
+    $year = date('Y');
+  }
+
+  $start_timestamp =  $year . '-' . $month. '-01'. ' 00:00:00';
+  $end_timestamp = date('Y-m-d 00:00:00', strtotime('+1 month', strtotime($start_timestamp)));
+
+  // We need to add a second query since value2 of date has a default of value(1).
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'project')
+    ->fieldCondition('field_date', 'value', $end_timestamp, '<')
+    ->fieldCondition('field_date', 'value2', $start_timestamp, '>=')
+    // When using this tag, date query must be in this order.
+    ->addTag('empty_end_date');
+
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    return productivity_project_titles(array_keys($result['node']));
+  }
+
+  return array();
+
+}
+
+/**
+ * Get titles of projects, from nids.
+ */
+function productivity_project_titles($nids = array()) {
+  // List of issues for a project nid.
+  $query = db_select('node', 'n');
+
+  $query
+    ->fields('n', array('nid'))
+    ->fields('n', array('title'));
+
+  $query
+    ->condition('n.nid', $nids, 'IN')
+    ->orderBy('n.title');
+
+
+  $result = $query->execute()->fetchAllKeyed();
+
+  return $result;
+}
+
+
+/**
  * Get list name of all project
  */
-function productivity_project_get_all_projects($limit = 0) {
-  $query = db_select('node', 'n')
+function productivity_project_get_all_projects($active_only = FALSE, $limit = 0) {
+  // List of issues for a project nid.
+  $query = db_select('node', 'n');
+
+  $node_fields = [
+    'd' => 'field_date',
+  ];
+
+  foreach ($node_fields as $alias => $field) {
+    $query
+      ->leftjoin("field_data_$field", $alias, "n.nid = $alias.entity_id");
+  }
+
+  $query
     ->fields('n', array('nid'))
-    ->fields('n', array('title'))
-    ->condition('n.type', 'project')
-    ->orderBy('changed', 'DESC');
+    ->fields('n', array('title'));
 
   if ($limit) {
     $query->range(0, $limit);
   }
 
-  $result = $query->execute()
-    ->fetchAllKeyed(); // returns an indexed array
 
-  if (empty($result)) {
-    return;
+  $query
+    ->condition('n.type', 'project')
+    ->orderBy('n.changed', 'DESC');
+
+  if ($active_only) {
+    $query->condition('status', NODE_PUBLISHED);
   }
+
+  $result = $query->execute()->fetchAllKeyed();
+
   return $result;
 }
 
@@ -753,7 +823,7 @@ function productivity_project_get_all_projects($limit = 0) {
  * @param $scope_to_find
  *  The string of the scope in question.
  *
- * @return int
+ * @return array()
  *  return the scope amount or zero.
  *
  */
@@ -868,6 +938,5 @@ function productivity_project_get_scope($wrapper) {
   foreach ($wrapper->field_table_rate as $rate) {
     $scope += $rate->field_scope->interval->value();
   }
-  $period = $rate->field_scope->period->value();
-  return interval_format_interval(array('period' => $period, 'interval' => $scope));
+  return interval_format_interval(array('period' => 'hour', 'interval' => $scope));
 }

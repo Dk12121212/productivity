@@ -38,11 +38,8 @@ function productivity_github_payload() {
   if (empty($_POST['payload'])) {
     return;
   }
-
-
   // Debug param, add this to enable local debugging.
   //  $_SERVER['HTTP_X_GITHUB_EVENT'] = 'pull_request';
-
   $payload = json_decode($_POST['payload']);
 
   // Handle new tracking system.

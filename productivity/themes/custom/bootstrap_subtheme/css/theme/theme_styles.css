@@ -4463,7 +4463,9 @@ label {
   display: block;
   font-size: 1.8em;
   font-weight: 300;
+  min-height: 73px;
 }
+
 .project-box .project-box-footer .label {
   display: block;
   font-size: 0.875em;
@@ -4476,6 +4478,7 @@ label {
   padding: 8px 15px;
   border-radius: 0 0 3px 3px;
   background-clip: padding-box;
+  min-height: 50px;
   /* stops bg color from leaking outside the border: */
 }
 .project-box .project-box-ultrafooter .project-img-owner {

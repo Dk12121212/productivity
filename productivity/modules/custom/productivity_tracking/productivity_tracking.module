@@ -391,7 +391,7 @@ function productivity_tracking_gh_payload($payload, $event) {
 
       // We should create one stub log per day per user per issue number.
       // issue_id.
-      $found_log = FALSE;
+      $found_key = FALSE;
       if (isset($node->field_track_log['und'])) {
         foreach ($node->field_track_log['und'] as $key => $existing_log) {
           // Convert date.
@@ -402,18 +402,19 @@ function productivity_tracking_gh_payload($payload, $event) {
           if ($existing_log['field_github_username']['und'][0]['value'] == $payload['sender']['login']
             && $existing_log['field_issue_id']['und'][0]['value'] == $pr['number']
             && $existing_pr_day == $pr_payload_date) {
-            $found_log = &$existing_log;
+            $found_key = $key;
             break;
           }
         }
       }
       // Update existing log, with new info.
-      if ($found_log) {
+      if ($found_key) {
         // Update info that might change.
-        $found_log['field_issue_label']['und'][0]['value'] = $pr['title'];
-        $found_log['field_date']['und'][0]['value2'] = date("Y-m-d H:i:s",strtotime($pr['updated_at']));
+        $node->field_track_log['und'][$found_key]['field_issue_label']['und'][0]['value'] = $pr['title'];
+        $node->field_track_log['und'][$found_key]['field_date']['und'][0]['value2'] = date("Y-m-d H:i:s",strtotime($pr['updated_at']));
+
         $term = productivity_tracking_get_term_status($pr['state']);
-        $found_log['field_issue_status']['und'][0]['target_id'] = $term->tid;
+        $node->field_track_log['und'][$found_key]['field_issue_status']['und'][0]['target_id'] = $term->tid;
       }
       else {
         $data = [
@@ -1025,7 +1026,10 @@ function productivity_tracking_get_month_structure($month, $year, $uid, $weekend
     $pr_work_type = $track_record['field_track_log_field_issue_type_value'];
     $pr_developer = $track_record['field_track_log_field_github_username_value'];
     $pr_developer_uid = $track_record['field_track_log_field_employee_target_id'];
+
     $pr_date = $track_record['field_track_log_field_date_value'];
+    $pr_date_end = $track_record['field_track_log_field_date_value2'];
+
     $track_id = $track_record['field_track_log_id'];
     $pr_status = $track_record['pr_status_name'];
 
@@ -1059,6 +1063,15 @@ function productivity_tracking_get_month_structure($month, $year, $uid, $weekend
     // Don't allow to edit the fields outside of the PR.
     $day['disabled'] = 'disabled';
     $day['nodelink'] = $node_link;
+
+    $time_diff_h_dec = number_format((strtotime($pr_date_end) - strtotime($pr_date)) / 3600, 1);
+
+    if ($time_diff_h_dec) {
+      $day['time-tip'] = t('Estimated time spent is @h Hours', array(
+        '@h' => $time_diff_h_dec,
+      ));
+    }
+
 
     $key = $day['day'];
     $new_data['days'][$key][] = $day;

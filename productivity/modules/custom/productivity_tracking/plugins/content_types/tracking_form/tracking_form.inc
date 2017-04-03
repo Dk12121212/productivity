@@ -32,6 +32,7 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
 
   // Build  project list.
   $variables['projects'] = productivity_project_get_projects();
+  // Get only active projects.
   $variables['projects_filtered'] = productivity_project_get_project_by_date($month, $year);
   // Get month data and tracking.
   // TODO: customize view per developer, custom Weekend and holidays.

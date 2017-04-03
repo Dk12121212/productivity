@@ -46,7 +46,7 @@
     </select>
   </td>
   <td width="8%">
-  <input value="<?php print $tracking['length']; ?>" name="issue-time" type="number" step="0.10" min="0" placeholder="4" class="form-control input-md issue-time">
+  <input value="<?php print $tracking['length']; ?>" data-toggle="tooltip" title="<?php if(isset($tracking['time-tip'])) { print check_plain($tracking['time-tip']);} ?>" name="issue-time" type="number" step="0.10" min="0" placeholder="4" class="form-control input-md issue-time">
   </td>
   <td width="3%">
     <button class="btn btn-danger deleteRow" row="attr<?php print $row_number; ?>" type="button" title="Delete Row" data-placement="bottom">

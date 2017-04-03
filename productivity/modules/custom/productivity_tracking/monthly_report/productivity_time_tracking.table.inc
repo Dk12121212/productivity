@@ -174,6 +174,7 @@ function productivity_time_tracking_create_issues_table($tracking, $project_nid)
     $gh_id = $track_record['field_github_project_id_value'];
 
     // Replace this with human readable type.
+    // TODO: Get the display label from the project fields.
     $issues_table[$type]['label'] = $type;
     $issues_table[$type]['issues'][] = array(
       'nid' => $track_record['nid'],

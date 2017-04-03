@@ -755,6 +755,27 @@ function productivity_project_get_project_by_date($month = FALSE, $year = FALSE)
 
 }
 
+
+/**
+ * Get all project title.
+ */
+function productivity_project_get_projects() {
+  // We need to add a second query since value2 of date has a default of value(1).
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'project');
+    // When using this tag, date query must be in this order.
+
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    return productivity_project_titles(array_keys($result['node']));
+  }
+
+  return array();
+
+}
+
 /**
  * Get titles of projects, from nids.
  */

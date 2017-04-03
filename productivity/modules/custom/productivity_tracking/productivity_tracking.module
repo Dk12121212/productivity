@@ -352,7 +352,11 @@ function productivity_tracking_gh_payload($payload, $event) {
     else {
       // TODO: Send message to account manager about no issue and no estimate.
       // TODO: Probably better to have this in single daily email.
-      return FALSE;
+      $issues[] = [
+        'issue' => $payload['pull_request'],
+        'estimate' => 0,
+        'related_issues' => [],
+      ];
     }
   }
 

@@ -398,6 +398,7 @@ function productivity_project_field_default_field_bases() {
         0 => 'id',
       ),
       'hide_blank_items' => 1,
+      'profile2_private' => FALSE,
     ),
     'translatable' => 0,
     'type' => 'multifield',

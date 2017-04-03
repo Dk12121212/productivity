@@ -391,7 +391,7 @@ function productivity_tracking_gh_payload($payload, $event) {
 
       // We should create one stub log per day per user per issue number.
       // issue_id.
-      $found_key = FALSE;
+      $found_key = -1;
       if (isset($node->field_track_log['und'])) {
         foreach ($node->field_track_log['und'] as $key => $existing_log) {
           // Convert date.
@@ -408,7 +408,7 @@ function productivity_tracking_gh_payload($payload, $event) {
         }
       }
       // Update existing log, with new info.
-      if ($found_key) {
+      if ($found_key != -1) {
         // Update info that might change.
         $node->field_track_log['und'][$found_key]['field_issue_label']['und'][0]['value'] = $pr['title'];
         $node->field_track_log['und'][$found_key]['field_date']['und'][0]['value2'] = date("Y-m-d H:i:s",strtotime($pr['updated_at']));

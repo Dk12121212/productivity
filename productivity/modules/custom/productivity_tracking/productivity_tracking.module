@@ -36,6 +36,23 @@ function productivity_tracking_menu() {
     'access arguments' => array('create tracking content'),
   );
 
+  $items['monthly-report'] = array(
+    'title' => 'Issue tracking table new',
+    'access arguments' => array('access content'),
+    'page callback' => 'productivity_time_tracking_issue_table_callback',
+    'type' => MENU_CALLBACK,
+    'file' => 'monthly_report/productivity_time_tracking.table.inc'
+  );
+
+  $items['monthly-report/%node/%/%/%'] = array(
+    'title' => 'Issue tracking table new',
+    'access arguments' => array('access content'),
+    'page callback' => 'productivity_time_tracking_issue_table_callback',
+    'page arguments' => array(1, 2, 3, 4),
+    'type' => MENU_CALLBACK,
+    'file' => 'monthly_report/productivity_time_tracking.table.inc'
+  );
+
   return $items;
 }
 
@@ -536,7 +553,22 @@ function productivity_tracking_get_entity_id_by_field_value($field, $bundle, $va
  * @return
  *   SelectQuery::execute();
  */
-function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = FALSE) {
+function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = FALSE, $year = FALSE, $month = FALSE) {
+  if ($month == 'all') {
+    $project_start_month = format_string("@year-01-01", array('@year' => $year));
+    $project_end_month = format_string("@year-12-31", array('@year' => $year));
+  }
+  //
+  else {
+    $project_start_month = format_string("@year-@month-01", array(
+      '@year' => $year,
+      '@month' => $month
+    ));
+    $project_end_month = format_string("@year-@month-01", array(
+      '@year' => ($month == 12) ? $year + 1 : $year,
+      '@month' => ($month == 12) ? 1 : ($month + 1),
+    ));
+  }
 
   // List of issues for a project nid.
   $query = db_select('node', 'n');
@@ -576,6 +608,13 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
   if ($project_nid) {
     $query
       ->condition('p.field_project_target_id', $project_nid);
+  }
+
+  // Return all time.
+  if ($year) {
+    $query
+      ->condition('t.field_track_log_field_date_value', $project_start_month, '>=')
+      ->condition('t.field_track_log_field_date_value', $project_end_month, '<');
   }
 
   $query

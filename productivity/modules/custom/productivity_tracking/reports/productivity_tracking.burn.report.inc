@@ -23,6 +23,7 @@ function productivity_tracking_burn_report_callback($project_node) {
   $wrapper = entity_metadata_wrapper('node', $project_node);
   $active =  'active';
   // Create one table per type.
+  // TODO: Set type in same order always.
   if (isset($project_node->field_table_rate['und'])) {
     foreach ($wrapper->field_table_rate as $type) {
       $rate_code = $type->field_issue_type->value();
@@ -140,7 +141,7 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE) {
         ),
       );
       // SAve row to table.
-      $table['rows']["nid_" . $nid] = $issue_row;
+      $table['rows']["nid_" . $nid]['main'] = $issue_row;
 
       // Init first total value.
       $totals[$nid] = floatval($pr_time);
@@ -152,12 +153,12 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE) {
       $totals[$nid] += floatval($pr_time);
 
       // Update actual.
-      $table['rows']["nid_" . $nid]['data']['actual'] = $totals[$nid];
+      $table['rows']["nid_" . $nid]['main']['data']['actual'] = $totals[$nid];
 
       // Update overtime.
-      $overtime = $totals[$nid] - $table['rows']["nid_" . $nid]['data']['estimate'];
+      $overtime = $totals[$nid] - $table['rows']["nid_" . $nid]['main']['data']['estimate'];
 
-      $table['rows']["nid_" . $nid]['data']['overtime'] =  array(
+      $table['rows']["nid_" . $nid]['main']['data']['overtime'] =  array(
         'class' => ($overtime > 0 ? 'cell-bad-odd' : 'cell-ok-even'),
         'data' => $overtime,
       );
@@ -188,14 +189,29 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE) {
         ),
       ),
     );
-
     // Add to the table
-    $table['rows'][$track_id] = $pr_row;
+    $table['rows']["nid_" . $nid]['tracks'][$track_id] = $pr_row;
+
+    // Set latest date for sorting.
+    if (!isset($table['rows']["nid_" . $nid]['latest']) || $table['rows']["nid_" . $nid]['latest'] < strtotime($pr_date)) {
+      $table['rows']["nid_" . $nid]['latest'] = strtotime($pr_date);
+    }
   }
+  $sorted_rows = [];
+  foreach ($table['rows'] as $row) {
+    $i = 0;
+    $sorted_rows[$row['latest'] . "-$i"] = $row['main'];
+      foreach ($row['tracks'] as $row_pr) {
+        $i++;
+        $sorted_rows[$row['latest'] . "-$i"] = $row_pr;
+      }
+  }
+
+  krsort($sorted_rows);
+  $table['rows'] = $sorted_rows;
 
   // Add total row to top of the table.
   array_unshift($table['rows'], $total_row);
-
   return [
     'table' => $table,
     'totals' => $total_row,

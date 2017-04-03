@@ -389,7 +389,7 @@ function productivity_tracking_gh_payload($payload, $event) {
       // issue_id.
       $found_log = FALSE;
       if (isset($node->field_track_log['und'])) {
-        foreach ($node->field_track_log['und'] as $existing_log) {
+        foreach ($node->field_track_log['und'] as $key => $existing_log) {
           // Convert date.
           $existing_pr_day = date('Ymd', strtotime($existing_log['field_date']['und'][0]['value']));
           $pr_payload_date = date('Ymd', strtotime($payload['pull_request']['updated_at']));
@@ -399,6 +399,7 @@ function productivity_tracking_gh_payload($payload, $event) {
             && $existing_log['field_issue_id']['und'][0]['value'] == $pr['number']
             && $existing_pr_day == $pr_payload_date) {
             $found_log = &$existing_log;
+            break;
           }
         }
       }
@@ -457,7 +458,7 @@ function productivity_tracking_get_project_by_repository($repository_info) {
   $query->entityCondition('entity_type', 'node')
     ->fieldCondition('field_github_repository_name', 'value', $repository_info['full_name'])
     // Just look for active or not started projects.
-    ->propertyCondition('field_status', 'done', '!=')
+    ->fieldCondition('field_status', 'value', 'done', '!=')
     ->propertyOrderBy('created', 'DESC')
     ->range(0, 1)
     ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');

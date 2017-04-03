@@ -1094,7 +1094,7 @@ Setting an end date, will make project invisible in some forms after the end dat
       ),
     ),
     'deleted' => 0,
-    'description' => '',
+    'description' => 'When set to Done, the project issue will not be assign from GH pushs.',
     'display' => array(
       'default' => array(
         'label' => 'inline',
@@ -1356,6 +1356,7 @@ Whether this project should be allowed as the project reference of a work sessio
   t('Timetable / Milestones');
   t('Total hours');
   t('Type');
+  t('When set to Done, the project issue will not be assign from GH pushs.');
   t('Work type');
   t('Work type display');
 

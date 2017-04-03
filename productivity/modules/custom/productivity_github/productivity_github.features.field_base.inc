@@ -91,7 +91,6 @@ function productivity_github_field_default_field_bases() {
     'module' => 'text',
     'settings' => array(
       'max_length' => 255,
-      'profile2_private' => FALSE,
     ),
     'translatable' => 0,
     'type' => 'text',
@@ -107,9 +106,7 @@ function productivity_github_field_default_field_bases() {
     'indexes' => array(),
     'locked' => 0,
     'module' => 'number',
-    'settings' => array(
-      'profile2_private' => FALSE,
-    ),
+    'settings' => array(),
     'translatable' => 0,
     'type' => 'number_integer',
   );
@@ -218,7 +215,6 @@ function productivity_github_field_default_field_bases() {
     'module' => 'number',
     'settings' => array(
       'decimal_separator' => '.',
-      'profile2_private' => FALSE,
     ),
     'translatable' => 0,
     'type' => 'number_float',

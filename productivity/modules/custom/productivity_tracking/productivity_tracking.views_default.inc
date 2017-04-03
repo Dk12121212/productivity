@@ -141,6 +141,10 @@ function productivity_tracking_views_default_views() {
   $handler->display->display_options['header']['area']['field'] = 'area';
   $handler->display->display_options['header']['area']['content'] = '<a href="/node/add/time-tracking">Add time tracking</a>';
   $handler->display->display_options['header']['area']['format'] = 'filtered_html';
+  /* Relationship: Entity Reference: Referenced Entity */
+  $handler->display->display_options['relationships']['field_employee_target_id']['id'] = 'field_employee_target_id';
+  $handler->display->display_options['relationships']['field_employee_target_id']['table'] = 'field_data_field_employee';
+  $handler->display->display_options['relationships']['field_employee_target_id']['field'] = 'field_employee_target_id';
   /* Field: Bulk operations: Content */
   $handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
   $handler->display->display_options['fields']['views_bulk_operations']['table'] = 'node';
@@ -381,17 +385,63 @@ function productivity_tracking_views_default_views() {
     3 => 0,
     4 => 0,
   );
+  /* Filter criterion: Content: Github Project ID (field_github_project_id) */
+  $handler->display->display_options['filters']['field_github_project_id_value']['id'] = 'field_github_project_id_value';
+  $handler->display->display_options['filters']['field_github_project_id_value']['table'] = 'field_data_field_github_project_id';
+  $handler->display->display_options['filters']['field_github_project_id_value']['field'] = 'field_github_project_id_value';
+  $handler->display->display_options['filters']['field_github_project_id_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_github_project_id_value']['expose']['operator_id'] = 'field_github_project_id_value_op';
+  $handler->display->display_options['filters']['field_github_project_id_value']['expose']['label'] = 'Repo';
+  $handler->display->display_options['filters']['field_github_project_id_value']['expose']['operator'] = 'field_github_project_id_value_op';
+  $handler->display->display_options['filters']['field_github_project_id_value']['expose']['identifier'] = 'field_github_project_id_value';
+  $handler->display->display_options['filters']['field_github_project_id_value']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
+  /* Filter criterion: Field: Project (field_project) (reference filter) */
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['id'] = 'field_project_target_id_entityreference_filter';
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['table'] = 'field_data_field_project';
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['field'] = 'field_project_target_id_entityreference_filter';
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['expose']['operator_id'] = 'field_project_target_id_entityreference_filter_op';
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['expose']['label'] = 'Project';
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['expose']['operator'] = 'field_project_target_id_entityreference_filter_op';
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['expose']['identifier'] = 'field_project_target_id_entityreference_filter';
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['reference_display'] = 'entity_ref_list:entityreference_1';
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['reference_arguments'] = 'project';
   /* Filter criterion: Content: Track log (field_track_log:field_employee_target_id) */
   $handler->display->display_options['filters']['field_track_log_field_employee_target_id']['id'] = 'field_track_log_field_employee_target_id';
   $handler->display->display_options['filters']['field_track_log_field_employee_target_id']['table'] = 'field_data_field_track_log';
   $handler->display->display_options['filters']['field_track_log_field_employee_target_id']['field'] = 'field_track_log_field_employee_target_id';
-  $handler->display->display_options['filters']['field_track_log_field_employee_target_id']['group'] = 1;
   $handler->display->display_options['filters']['field_track_log_field_employee_target_id']['exposed'] = TRUE;
   $handler->display->display_options['filters']['field_track_log_field_employee_target_id']['expose']['operator_id'] = 'field_track_log_field_employee_target_id_op';
-  $handler->display->display_options['filters']['field_track_log_field_employee_target_id']['expose']['label'] = 'employee uid';
+  $handler->display->display_options['filters']['field_track_log_field_employee_target_id']['expose']['label'] = 'Employee UID';
   $handler->display->display_options['filters']['field_track_log_field_employee_target_id']['expose']['operator'] = 'field_track_log_field_employee_target_id_op';
   $handler->display->display_options['filters']['field_track_log_field_employee_target_id']['expose']['identifier'] = 'field_track_log_field_employee_target_id';
   $handler->display->display_options['filters']['field_track_log_field_employee_target_id']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
+  /* Filter criterion: Content: Track log (field_track_log:field_issue_type_value) */
+  $handler->display->display_options['filters']['field_track_log_field_issue_type_value']['id'] = 'field_track_log_field_issue_type_value';
+  $handler->display->display_options['filters']['field_track_log_field_issue_type_value']['table'] = 'field_data_field_track_log';
+  $handler->display->display_options['filters']['field_track_log_field_issue_type_value']['field'] = 'field_track_log_field_issue_type_value';
+  $handler->display->display_options['filters']['field_track_log_field_issue_type_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_track_log_field_issue_type_value']['expose']['operator_id'] = 'field_track_log_field_issue_type_value_op';
+  $handler->display->display_options['filters']['field_track_log_field_issue_type_value']['expose']['label'] = 'Work type';
+  $handler->display->display_options['filters']['field_track_log_field_issue_type_value']['expose']['operator'] = 'field_track_log_field_issue_type_value_op';
+  $handler->display->display_options['filters']['field_track_log_field_issue_type_value']['expose']['identifier'] = 'field_track_log_field_issue_type_value';
+  $handler->display->display_options['filters']['field_track_log_field_issue_type_value']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
     3 => 0,

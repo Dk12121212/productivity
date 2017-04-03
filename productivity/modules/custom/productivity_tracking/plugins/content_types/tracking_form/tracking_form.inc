@@ -42,12 +42,11 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
   $variables['types'] = [
     'dev' => 'Development',
     'qa' => 'QA',
-    'migrate' => 'Management',
+    'management' => 'Management',
     'designer' => 'Designer',
     'installation_setup' => 'Installation Setup',
     'support' => 'Support',
-    // Remove review since we want to charge this as development.
-//    'review' => 'Review',
+    'training' => 'Training',
   ];
 
   $variables['row_template'] = theme('productivity_tracking_table_row', [

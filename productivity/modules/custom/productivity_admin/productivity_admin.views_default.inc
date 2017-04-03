@@ -396,13 +396,6 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['arguments']['type']['summary']['format'] = 'default_summary';
   $handler->display->display_options['arguments']['type']['summary_options']['items_per_page'] = '25';
   $handler->display->display_options['arguments']['type']['limit'] = '0';
-  /* Filter criterion: Content: Published */
-  $handler->display->display_options['filters']['status']['id'] = 'status';
-  $handler->display->display_options['filters']['status']['table'] = 'node';
-  $handler->display->display_options['filters']['status']['field'] = 'status';
-  $handler->display->display_options['filters']['status']['value'] = 1;
-  $handler->display->display_options['filters']['status']['group'] = 1;
-  $handler->display->display_options['filters']['status']['expose']['operator'] = FALSE;
 
   /* Display: Entity Reference */
   $handler = $view->new_display('entityreference', 'Entity Reference', 'entityreference_1');
@@ -1780,6 +1773,15 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
   $handler->display->display_options['fields']['title']['field'] = 'title';
+  /* Field: Content: Issues logs */
+  $handler->display->display_options['fields']['field_issues_logs']['id'] = 'field_issues_logs';
+  $handler->display->display_options['fields']['field_issues_logs']['table'] = 'field_data_field_issues_logs';
+  $handler->display->display_options['fields']['field_issues_logs']['field'] = 'field_issues_logs';
+  $handler->display->display_options['fields']['field_issues_logs']['click_sort_column'] = 'field_github_issue_target_id';
+  $handler->display->display_options['fields']['field_issues_logs']['settings'] = array(
+    'view_mode' => 'default',
+  );
+  $handler->display->display_options['fields']['field_issues_logs']['delta_offset'] = '0';
   /* Field: Content: Has new content */
   $handler->display->display_options['fields']['timestamp']['id'] = 'timestamp';
   $handler->display->display_options['fields']['timestamp']['table'] = 'history';

@@ -356,6 +356,7 @@ function productivity_tracking_gh_payload($payload, $event) {
     }
   }
 
+  // Go ovre all related issue and get related tracking node.
   foreach ($issues as $issue) {
     $uid = productivity_tracking_get_uid_by_github_username(check_plain($payload['sender']['login']));
     $project_nid = productivity_tracking_get_project_by_repository($payload['repository']);
@@ -455,7 +456,8 @@ function productivity_tracking_get_project_by_repository($repository_info) {
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'node')
     ->fieldCondition('field_github_repository_name', 'value', $repository_info['full_name'])
-    ->propertyCondition('status', 1)
+    // Just look for active or not started projects.
+    ->propertyCondition('field_status', 'done', '!=')
     ->propertyOrderBy('created', 'DESC')
     ->range(0, 1)
     ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
@@ -873,6 +875,10 @@ function productivity_tracking_get_tracking_node($data, $update_existing = FALSE
       $title = "Tracking for issue {$data['repo']}/{$data['issue_id']}";
     }
     else {
+      if (!$data['title']) {
+        $project_wrapper = entity_metadata_wrapper('node', $data['project']);
+        $data['title'] = $project_wrapper->label();
+      }
       $title = "Tracking for project: {$data['title']}";
     }
     global $user;

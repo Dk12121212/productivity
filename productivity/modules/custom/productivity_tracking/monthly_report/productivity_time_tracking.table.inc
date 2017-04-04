@@ -167,15 +167,16 @@ function productivity_time_tracking_create_issues_table($tracking, $project_nid)
     if (empty($issues_table[$type])) {
       $issues_table[$type] = [];
     }
-    // push the issue details to the type table.
-    $rate = productivity_project_get_rate($project_nid, $type);
+    // Push the issue details to the type table.
+    if (!isset($rate[$type])) {
+      $rate[$type] = productivity_project_get_rate($project_nid, $type);
+    }
     /// The table length of every type.
     $issue_id = '#' . $track_record['field_issue_id_value'];
     $gh_id = $track_record['field_github_project_id_value'];
 
     // Replace this with human readable type.
-    // TODO: Get the display label from the project fields.
-    $issues_table[$type]['label'] = $type;
+    $issues_table[$type]['label'] = $rate[$type]['label'];
     $issues_table[$type]['issues'][] = array(
       'nid' => $track_record['nid'],
       'issue_num' => $issue_id,
@@ -183,10 +184,11 @@ function productivity_time_tracking_create_issues_table($tracking, $project_nid)
       'label' => $track_record['field_track_log_field_issue_label_value'],
       'date' => $date,
       'time' => $track_record['field_track_log_field_time_spent_value'],
-      'issue_amount' => $track_record['field_track_log_field_time_spent_value'] * $rate['amount'],
-      'issue_currency' => $rate['currency']
+      'issue_amount' => $track_record['field_track_log_field_time_spent_value'] *  $rate[$type]['amount'],
+      'issue_currency' =>  $rate[$type]['currency']
     );
   }
+
   return $issues_table;
 }
 

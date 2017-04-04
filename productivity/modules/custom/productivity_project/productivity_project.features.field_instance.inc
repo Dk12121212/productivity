@@ -155,7 +155,7 @@ function productivity_project_field_default_field_instances() {
     'bundle' => 'field_table_rate',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => 'Override to default title.',
+    'description' => 'Override to default title, in the hour report.',
     'display' => array(
       'default' => array(
         'label' => 'hidden',
@@ -1339,7 +1339,7 @@ Setting an end date, will make project invisible in some forms after the end dat
   t('Job type');
   t('Milestone');
   t('One name type is supported -> Account + Project name  (ie. Gizra/generator-hedley).');
-  t('Override to default title.');
+  t('Override to default title, in the hour report.');
   t('Percentage notified');
   t('Rate');
   t('Rate type');

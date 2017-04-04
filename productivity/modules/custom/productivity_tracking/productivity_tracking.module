@@ -36,6 +36,23 @@ function productivity_tracking_menu() {
     'access arguments' => array('create tracking content'),
   );
 
+  $items['monthly-report'] = array(
+    'title' => 'Issue tracking table new',
+    'access arguments' => array('access content'),
+    'page callback' => 'productivity_time_tracking_issue_table_callback',
+    'type' => MENU_CALLBACK,
+    'file' => 'monthly_report/productivity_time_tracking.table.inc'
+  );
+
+  $items['monthly-report/%node/%/%/%'] = array(
+    'title' => 'Issue tracking table new',
+    'access arguments' => array('access content'),
+    'page callback' => 'productivity_time_tracking_issue_table_callback',
+    'page arguments' => array(1, 2, 3, 4),
+    'type' => MENU_CALLBACK,
+    'file' => 'monthly_report/productivity_time_tracking.table.inc'
+  );
+
   return $items;
 }
 
@@ -352,7 +369,11 @@ function productivity_tracking_gh_payload($payload, $event) {
     else {
       // TODO: Send message to account manager about no issue and no estimate.
       // TODO: Probably better to have this in single daily email.
-      return FALSE;
+      $issues[] = [
+        'issue' => $payload['pull_request'],
+        'estimate' => 0,
+        'related_issues' => [],
+      ];
     }
   }
 
@@ -387,9 +408,9 @@ function productivity_tracking_gh_payload($payload, $event) {
 
       // We should create one stub log per day per user per issue number.
       // issue_id.
-      $found_log = FALSE;
+      $found_key = -1;
       if (isset($node->field_track_log['und'])) {
-        foreach ($node->field_track_log['und'] as $existing_log) {
+        foreach ($node->field_track_log['und'] as $key => $existing_log) {
           // Convert date.
           $existing_pr_day = date('Ymd', strtotime($existing_log['field_date']['und'][0]['value']));
           $pr_payload_date = date('Ymd', strtotime($payload['pull_request']['updated_at']));
@@ -398,17 +419,19 @@ function productivity_tracking_gh_payload($payload, $event) {
           if ($existing_log['field_github_username']['und'][0]['value'] == $payload['sender']['login']
             && $existing_log['field_issue_id']['und'][0]['value'] == $pr['number']
             && $existing_pr_day == $pr_payload_date) {
-            $found_log = &$existing_log;
+            $found_key = $key;
+            break;
           }
         }
       }
       // Update existing log, with new info.
-      if ($found_log) {
+      if ($found_key != -1) {
         // Update info that might change.
-        $found_log['field_issue_label']['und'][0]['value'] = $pr['title'];
-        $found_log['field_date']['und'][0]['value2'] = date("Y-m-d H:i:s",strtotime($pr['updated_at']));
+        $node->field_track_log['und'][$found_key]['field_issue_label']['und'][0]['value'] = $pr['title'];
+        $node->field_track_log['und'][$found_key]['field_date']['und'][0]['value2'] = date("Y-m-d H:i:s",strtotime($pr['updated_at']));
+
         $term = productivity_tracking_get_term_status($pr['state']);
-        $found_log['field_issue_status']['und'][0]['target_id'] = $term->tid;
+        $node->field_track_log['und'][$found_key]['field_issue_status']['und'][0]['target_id'] = $term->tid;
       }
       else {
         $data = [
@@ -457,7 +480,7 @@ function productivity_tracking_get_project_by_repository($repository_info) {
   $query->entityCondition('entity_type', 'node')
     ->fieldCondition('field_github_repository_name', 'value', $repository_info['full_name'])
     // Just look for active or not started projects.
-    ->propertyCondition('field_status', 'done', '!=')
+    ->fieldCondition('field_status', 'value', 'done', '!=')
     ->propertyOrderBy('created', 'DESC')
     ->range(0, 1)
     ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
@@ -530,7 +553,22 @@ function productivity_tracking_get_entity_id_by_field_value($field, $bundle, $va
  * @return
  *   SelectQuery::execute();
  */
-function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = FALSE) {
+function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = FALSE, $year = FALSE, $month = FALSE) {
+  if ($month == 'all') {
+    $project_start_month = format_string("@year-01-01", array('@year' => $year));
+    $project_end_month = format_string("@year-12-31", array('@year' => $year));
+  }
+  //
+  else {
+    $project_start_month = format_string("@year-@month-01", array(
+      '@year' => $year,
+      '@month' => $month
+    ));
+    $project_end_month = format_string("@year-@month-01", array(
+      '@year' => ($month == 12) ? $year + 1 : $year,
+      '@month' => ($month == 12) ? 1 : ($month + 1),
+    ));
+  }
 
   // List of issues for a project nid.
   $query = db_select('node', 'n');
@@ -570,6 +608,13 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
   if ($project_nid) {
     $query
       ->condition('p.field_project_target_id', $project_nid);
+  }
+
+  // Return all time.
+  if ($year) {
+    $query
+      ->condition('t.field_track_log_field_date_value', $project_start_month, '>=')
+      ->condition('t.field_track_log_field_date_value', $project_end_month, '<');
   }
 
   $query
@@ -1020,7 +1065,10 @@ function productivity_tracking_get_month_structure($month, $year, $uid, $weekend
     $pr_work_type = $track_record['field_track_log_field_issue_type_value'];
     $pr_developer = $track_record['field_track_log_field_github_username_value'];
     $pr_developer_uid = $track_record['field_track_log_field_employee_target_id'];
+
     $pr_date = $track_record['field_track_log_field_date_value'];
+    $pr_date_end = $track_record['field_track_log_field_date_value2'];
+
     $track_id = $track_record['field_track_log_id'];
     $pr_status = $track_record['pr_status_name'];
 
@@ -1054,6 +1102,15 @@ function productivity_tracking_get_month_structure($month, $year, $uid, $weekend
     // Don't allow to edit the fields outside of the PR.
     $day['disabled'] = 'disabled';
     $day['nodelink'] = $node_link;
+
+    $time_diff_h_dec = number_format((strtotime($pr_date_end) - strtotime($pr_date)) / 3600, 1);
+
+    if ($time_diff_h_dec) {
+      $day['time-tip'] = t('Estimated time spent is @h Hours', array(
+        '@h' => $time_diff_h_dec,
+      ));
+    }
+
 
     $key = $day['day'];
     $new_data['days'][$key][] = $day;

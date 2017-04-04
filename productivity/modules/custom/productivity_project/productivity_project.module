@@ -755,6 +755,27 @@ function productivity_project_get_project_by_date($month = FALSE, $year = FALSE)
 
 }
 
+
+/**
+ * Get all project title.
+ */
+function productivity_project_get_projects() {
+  // We need to add a second query since value2 of date has a default of value(1).
+  $query = new EntityFieldQuery();
+  $query
+    ->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'project');
+    // When using this tag, date query must be in this order.
+
+  $result = $query->execute();
+  if (isset($result['node'])) {
+    return productivity_project_titles(array_keys($result['node']));
+  }
+
+  return array();
+
+}
+
 /**
  * Get titles of projects, from nids.
  */
@@ -832,16 +853,24 @@ function productivity_project_get_rate($project_nid, $work_type) {
     ->condition('bundle', 'project')
     ->condition('entity_id', $project_nid)
     ->condition('field_table_rate_field_issue_type_value', $work_type)
-    ->fields('table_rate', array(
-      'field_table_rate_field_rate_amount',
-      'field_table_rate_field_rate_currency'
-    ))
+    ->fields('table_rate')
     ->execute()
     ->fetchAssoc();
+
+  if ($rate['field_table_rate_field_issue_type_label_value']) {
+    // Custom name.
+    $display_name = $rate['field_table_rate_field_issue_type_label_value'];
+  }
+  else {
+    // Human readable form field info.
+    $field_info = field_info_field('field_issue_type');
+    $display_name = $field_info['settings']['allowed_values'][$work_type];
+  }
 
   return array(
     'amount' => $rate['field_table_rate_field_rate_amount'],
     'currency' => $rate['field_table_rate_field_rate_currency'],
+    'label' => $display_name,
   );
 }
 

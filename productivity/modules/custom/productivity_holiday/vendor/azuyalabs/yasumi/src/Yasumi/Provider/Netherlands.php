@@ -32,6 +32,9 @@ class Netherlands extends AbstractProvider
 
     /**
      * Initialize holidays for the Netherlands.
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function initialize()
     {
@@ -86,7 +89,7 @@ class Netherlands extends AbstractProvider
         if ($this->year >= 2014) {
             $date = new DateTime("$this->year-4-27", new DateTimeZone($this->timezone));
 
-            if ($date->format('w') == 0) {
+            if (0 === (int)$date->format('w')) {
                 $date->sub(new DateInterval('P1D'));
             }
 
@@ -108,7 +111,7 @@ class Netherlands extends AbstractProvider
             }
 
             // Determine substitution day
-            if ($date->format('w') == 0) {
+            if (0 === (int)$date->format('w')) {
                 ($this->year < 1980) ? $date->add(new DateInterval('P1D')) : $date->sub(new DateInterval('P1D'));
             }
 

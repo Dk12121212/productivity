@@ -58,7 +58,7 @@
                 <directory suffix="Test.php">./tests/Croatia</directory>
             </testsuite>
 
-            <!-- Test Suite for holidays in Czech Republic -->
+            <!-- Test Suite for holidays in Czechia -->
             <testsuite name="CzechRepublic">
                 <directory suffix="Test.php">./tests/CzechRepublic</directory>
             </testsuite>
@@ -86,6 +86,11 @@
             <!-- Test Suite for holidays in Greece -->
             <testsuite name="Greece">
                 <directory suffix="Test.php">./tests/Greece</directory>
+            </testsuite>
+
+            <!-- Test Suite for holidays in Hungary -->
+            <testsuite name="Hungary">
+                <directory suffix="Test.php">./tests/Hungary</directory>
             </testsuite>
 
             <!-- Test Suite for holidays in Ireland -->
@@ -153,6 +158,11 @@
                 <directory suffix="Test.php">./tests/Sweden</directory>
             </testsuite>
 
+            <!-- Test Suite for holidays in Switzerland -->
+            <testsuite name="Switzerland">
+                <directory suffix="Test.php">./tests/Switzerland</directory>
+            </testsuite>
+
             <!-- Test Suite for holidays in United States -->
             <testsuite name="USA">
                 <directory suffix="Test.php">./tests/USA</directory>
@@ -168,7 +178,7 @@
                 <directory suffix="Test.php">./tests/UnitedKingdom</directory>
             </testsuite>
 
-            
+
         </testsuites>
         <filter>
             <whitelist processUncoveredFilesFromWhitelist="true">

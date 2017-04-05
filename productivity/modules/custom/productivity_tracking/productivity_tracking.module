@@ -971,6 +971,12 @@ function productivity_tracking_get_term_status($name) {
   return $term;
 }
 
+
+function productivity_tracking_country_from_iso($country){
+  require_once DRUPAL_ROOT . '/includes/locale.inc';
+  $countries = country_get_list();
+  return $countries[$country] ? $countries[$country] : FALSE;
+}
 /**
  * Build an associative array by day.
  *
@@ -979,9 +985,9 @@ function productivity_tracking_get_term_status($name) {
  *
  * @return array|mixed
  */
-function productivity_tracking_get_month_structure($month, $year, $uid, $weekend = 'FS') {
+function productivity_tracking_get_month_structure($month, $year, $uid) {
   // Static caching.
-  $cached_data = &drupal_static(__FUNCTION__ . "$year-$month-$uid-$weekend");
+  $cached_data = &drupal_static(__FUNCTION__ . "$year-$month-$uid");
   if (isset($cached_data)) {
     return $cached_data;
   }
@@ -1001,6 +1007,25 @@ function productivity_tracking_get_month_structure($month, $year, $uid, $weekend
     'days' => array(),
   );
 
+  // Get weekends and holidays for given user.
+  $account = user_load($uid);
+  $country = 'Israel';
+  // Weekend Friday Saturday.
+  $weekend_days = array(5, 6);
+
+  if (isset($account->field_country['und'][0]['value'])) {
+    $country = productivity_tracking_country_from_iso($account->field_country['und'][0]['value']);
+    if ($country != 'Israel') {
+      // Weekend Saturday Sunday.
+      $weekend_days = array(6, 7);
+
+    }
+  }
+  $holidays = productivity_holiday_per_month($month, $year, $country);
+  dpm($holidays);
+
+
+
   // Go over days of the month.
   for ($i = 1; $i <= $last_day_this_month; $i++) {
     // Add leading zeros.
@@ -1017,18 +1042,7 @@ function productivity_tracking_get_month_structure($month, $year, $uid, $weekend
       ]
     ]);
 
-    // Mark weekends.
     $week_day = date( "w", strtotime($i . '.' . $month . '.' . $year));
-
-    // TODO: add weekend preference to user account.
-    // Weekend Friday Saturday.
-    if ($weekend == 'FS') {
-      $weekend_days = array(5, 6);
-    }
-    // Weekend Saturday Sunday.
-    else {
-      $weekend_days = array(6, 7);
-    }
 
     // If Weekend.
     if (in_array($week_day, $weekend_days)) {

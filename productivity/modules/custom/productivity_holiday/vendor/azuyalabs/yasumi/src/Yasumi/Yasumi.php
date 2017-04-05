@@ -76,8 +76,8 @@ class Yasumi
             FilesystemIterator::SKIP_DOTS), RecursiveIteratorIterator::SELF_FIRST);
 
         foreach ($filesIterator as $file) {
-            if ($file->isDir() || in_array($file->getBasename('.php'),
-                    self::$ignoredProvider) || $file->getExtension() !== 'php'
+            if ($file->isDir() || $file->getExtension() !== 'php' || in_array($file->getBasename('.php'),
+                    self::$ignoredProvider, true)
             ) {
                 continue;
             }
@@ -93,7 +93,7 @@ class Yasumi
             }
         }
 
-        return (array)$providers;
+        return $providers;
     }
 
     /**
@@ -104,6 +104,10 @@ class Yasumi
      * @TODO we should accept a timezone so we can accept int/string for $startDate
      *
      * @return DateTime
+     *
+     * @throws \Yasumi\Exception\UnknownLocaleException
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public static function nextWorkingDay($class, DateTime $startDate, $workingDays = 1)
     {
@@ -153,7 +157,7 @@ class Yasumi
             $providerClass = $class;
         }
 
-        if (! class_exists($providerClass) || $class === 'AbstractProvider') {
+        if ($class === 'AbstractProvider' || ! class_exists($providerClass)) {
             throw new InvalidArgumentException(sprintf('Unable to find holiday provider "%s".', $class));
         }
 
@@ -163,18 +167,18 @@ class Yasumi
         }
 
         // Load internal locales variable
-        if (! isset(static::$locales)) {
+        if (null === static::$locales) {
             static::$locales = self::getAvailableLocales();
         }
 
         // Load internal translations variable
-        if (! isset(static::$globalTranslations)) {
+        if (null === static::$globalTranslations) {
             static::$globalTranslations = new Translations(static::$locales);
             static::$globalTranslations->loadTranslations(__DIR__ . '/data/translations');
         }
 
         // Assert locale input
-        if (! in_array($locale, static::$locales)) {
+        if (! in_array($locale, static::$locales, true)) {
             throw new UnknownLocaleException(sprintf('Locale "%s" is not a valid locale.', $locale));
         }
 
@@ -199,6 +203,10 @@ class Yasumi
      * @TODO we should accept a timezone so we can accept int/string for $startDate
      *
      * @return DateTime
+     *
+     * @throws \Yasumi\Exception\UnknownLocaleException
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public static function prevWorkingDay($class, DateTime $startDate, $workingDays = 1)
     {

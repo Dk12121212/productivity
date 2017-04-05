@@ -37,6 +37,9 @@ class SouthAfrica extends AbstractProvider
 
     /**
      * Initialize holidays for South Africa.
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function initialize()
     {
@@ -81,6 +84,9 @@ class SouthAfrica extends AbstractProvider
      * police.
      *
      * @link http://www.gov.za/about-sa/public-holidays#21march
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function calculateHumanRightsDay()
     {
@@ -94,6 +100,9 @@ class SouthAfrica extends AbstractProvider
      * Family Day in South Africa takes place on the Monday following Easter Sunday.
      *
      * @link http://www.gov.za/sites/www.gov.za/files/Act36of1994.pdf
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function calculateFamilyDay()
     {
@@ -108,6 +117,9 @@ class SouthAfrica extends AbstractProvider
      *
      * @link http://www.gov.za/sites/www.gov.za/files/Act36of1994.pdf
      * @link http://www.gov.za/freedom-day-2014
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function calculateFreedomDay()
     {
@@ -126,6 +138,9 @@ class SouthAfrica extends AbstractProvider
      *
      * @link http://www.gov.za/sites/www.gov.za/files/Act36of1994.pdf
      * @link http://www.gov.za/youth-day-2014
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function calculateYouthDay()
     {
@@ -140,10 +155,13 @@ class SouthAfrica extends AbstractProvider
      * purpose is to enable all South Africans who are eligible to vote to exercise their right on 3 August 2016.
      *
      * @link http://www.gov.za/speeches/president-jacob-zuma-declares-3-august-2016-public-holiday-24-jun-2016-0000
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function calculate2016MunicipalElectionsDay()
     {
-        if ($this->year != 2016) {
+        if ($this->year !== 2016) {
             return;
         }
 
@@ -160,6 +178,9 @@ class SouthAfrica extends AbstractProvider
      *
      * @link http://www.gov.za/about-sa/public-holidays#women
      * @link http://www.gov.za/womens-day
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function calculateNationalWomensDay()
     {
@@ -176,6 +197,9 @@ class SouthAfrica extends AbstractProvider
      *
      * @link http://www.gov.za/sites/www.gov.za/files/Act36of1994.pdf
      * @link http://www.gov.za/heritage-day-2014
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function calculateHeritageDay()
     {
@@ -194,6 +218,9 @@ class SouthAfrica extends AbstractProvider
      *
      * @link http://www.gov.za/sites/www.gov.za/files/Act36of1994.pdf
      * @link http://www.gov.za/day-reconciliation-2014
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function calculateDayOfReconciliation()
     {
@@ -211,10 +238,13 @@ class SouthAfrica extends AbstractProvider
      * situation.
      *
      * @link http://www.gov.za/sites/www.gov.za/files/Act36of1994.pdf
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function calculateSubstituteDayOfGoodwill()
     {
-        if ($this->year != 2016) {
+        if ($this->year !== 2016) {
             return;
         }
 
@@ -227,6 +257,9 @@ class SouthAfrica extends AbstractProvider
      *
      * The Public Holidays Act (Act No 36 of 1994) determines whenever any public holiday falls on a Sunday, the Monday
      * following on it shall be a public holiday.
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     private function calculateSubstituteHolidays()
     {
@@ -236,13 +269,13 @@ class SouthAfrica extends AbstractProvider
         while ($datesIterator->valid()) {
 
             // Exclude Good Friday, Family Day, 2016 Municipal Elections Day as these don't fall in the weekend
-            if (in_array($datesIterator->current()->shortName,
-                ['goodFriday', 'familyDay', '2016MunicipalElectionsDay'])) {
+            if (in_array($datesIterator->current()->shortName, ['goodFriday', 'familyDay', '2016MunicipalElectionsDay'],
+                true)) {
                 $datesIterator->next();
             }
 
             // Substitute holiday is on a Monday in case the holiday falls on a Sunday
-            if (0 == $datesIterator->current()->format('w')) {
+            if (0 === (int)$datesIterator->current()->format('w')) {
                 $substituteHoliday = clone $datesIterator->current();
                 $substituteHoliday->add(new DateInterval('P1D'));
 

@@ -30,7 +30,7 @@ class Translations implements TranslationsInterface
     /**
      * @var array list of all defined locales
      */
-    private $availableLocales = [];
+    private $availableLocales;
 
     /**
      * Constructor.
@@ -46,6 +46,9 @@ class Translations implements TranslationsInterface
      * Loads translations from directory.
      *
      * @param string $directoryPath directory path for translation files
+     *
+     * @throws \Yasumi\Exception\UnknownLocaleException
+     * @throws \InvalidArgumentException
      */
     public function loadTranslations($directoryPath)
     {
@@ -92,7 +95,7 @@ class Translations implements TranslationsInterface
      */
     protected function isValidLocale($locale)
     {
-        if (! in_array($locale, $this->availableLocales)) {
+        if (! in_array($locale, $this->availableLocales, true)) {
             throw new UnknownLocaleException(sprintf('Locale "%s" is not a valid locale.', $locale));
         }
 
@@ -105,6 +108,8 @@ class Translations implements TranslationsInterface
      * @param string $shortName   holiday short name
      * @param string $locale      locale
      * @param string $translation translation
+     *
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function addTranslation($shortName, $locale, $translation)
     {

@@ -51,7 +51,7 @@ class HolidayTest extends PHPUnit_Framework_TestCase
     /**
      * Tests that an Yasumi\Exception\UnknownLocaleException is thrown in case an invalid locale is given.
      *
-     * @expectedException Yasumi\Exception\UnknownLocaleException
+     * @expectedException \Yasumi\Exception\UnknownLocaleException
      */
     public function testCreateHolidayUnknownLocaleException()
     {
@@ -68,7 +68,7 @@ class HolidayTest extends PHPUnit_Framework_TestCase
         $instance = json_decode($json, true);
 
         $this->assertInternalType('array', $instance);
-        $this->assertNotSame(null, $instance);
+        $this->assertNotNull($instance);
         $this->assertArrayHasKey('shortName', $instance);
     }
 
@@ -118,7 +118,7 @@ class HolidayTest extends PHPUnit_Framework_TestCase
     public function testHolidayGetNameWithGlobalTranslations()
     {
         /** @var TranslationsInterface|PHPUnit_Framework_MockObject_MockObject $translationsStub */
-        $translationsStub = $this->getMockBuilder('\Yasumi\TranslationsInterface')->getMock();
+        $translationsStub = $this->getMockBuilder(TranslationsInterface::class)->getMock();
 
         $translations = [
             'en_US' => 'New Year\'s Day',
@@ -129,7 +129,7 @@ class HolidayTest extends PHPUnit_Framework_TestCase
 
         $locale = 'pl_PL';
 
-        $holiday = new Holiday('newYearsDay', [], new DateTime("2015-01-01"), $locale);
+        $holiday = new Holiday('newYearsDay', [], new DateTime('2015-01-01'), $locale);
         $holiday->mergeGlobalTranslations($translationsStub);
 
         $this->assertNotNull($holiday->getName());
@@ -143,7 +143,7 @@ class HolidayTest extends PHPUnit_Framework_TestCase
     public function testHolidayGetNameWithGlobalAndCustomTranslations()
     {
         /** @var TranslationsInterface|PHPUnit_Framework_MockObject_MockObject $translationsStub */
-        $translationsStub = $this->getMockBuilder('\Yasumi\TranslationsInterface')->getMock();
+        $translationsStub = $this->getMockBuilder(TranslationsInterface::class)->getMock();
 
         $translations = [
             'en_US' => 'New Year\'s Day',
@@ -155,7 +155,7 @@ class HolidayTest extends PHPUnit_Framework_TestCase
         $customLocale      = 'nl_NL';
         $customTranslation = 'Nieuwjaar';
 
-        $holiday = new Holiday('newYearsDay', [$customLocale => $customTranslation], new DateTime("2015-01-01"),
+        $holiday = new Holiday('newYearsDay', [$customLocale => $customTranslation], new DateTime('2015-01-01'),
             $customLocale);
         $holiday->mergeGlobalTranslations($translationsStub);
 
@@ -170,7 +170,7 @@ class HolidayTest extends PHPUnit_Framework_TestCase
     public function testHolidayGetNameWithOverridenGlobalTranslations()
     {
         /** @var TranslationsInterface|PHPUnit_Framework_MockObject_MockObject $translationsStub */
-        $translationsStub = $this->getMockBuilder('\Yasumi\TranslationsInterface')->getMock();
+        $translationsStub = $this->getMockBuilder(TranslationsInterface::class)->getMock();
 
         $translations = [
             'en_US' => 'New Year\'s Day',
@@ -182,7 +182,7 @@ class HolidayTest extends PHPUnit_Framework_TestCase
         $customLocale      = 'pl_PL';
         $customTranslation = 'Bardzo Nowy Rok';
 
-        $holiday = new Holiday('newYearsDay', [$customLocale => $customTranslation], new DateTime("2014-01-01"),
+        $holiday = new Holiday('newYearsDay', [$customLocale => $customTranslation], new DateTime('2014-01-01'),
             $customLocale);
         $holiday->mergeGlobalTranslations($translationsStub);
 

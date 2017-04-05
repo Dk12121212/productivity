@@ -23,6 +23,7 @@ return [
     'en_US' => 'Second Christmas Day',
     'en_ZA' => 'Day of Goodwill',
     'fi_FI' => '2. joulupäivä',
+    'hu_HU' => 'Karácsony másnapja',
     'nb_NO' => 'Andre juledag',
     'nl_BE' => 'Tweede Kerstdag',
     'nl_NL' => 'Tweede Kerstdag',

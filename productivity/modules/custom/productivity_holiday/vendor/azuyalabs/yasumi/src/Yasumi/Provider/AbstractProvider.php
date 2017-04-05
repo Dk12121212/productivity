@@ -117,7 +117,7 @@ abstract class AbstractProvider implements ProviderInterface, Countable, Iterato
         }
 
         $this->holidays[$holiday->shortName] = $holiday;
-        uasort($this->holidays, ['Yasumi\Provider\AbstractProvider', 'compareDates']);
+        uasort($this->holidays, [AbstractProvider::class, 'compareDates']);
     }
 
     /**
@@ -139,7 +139,7 @@ abstract class AbstractProvider implements ProviderInterface, Countable, Iterato
 
         // If given date is a DateTime object; check if it falls in the weekend
         if ($date instanceof DateTime) {
-            if (in_array($date->format('w'), $this->weekend_days)) {
+            if (in_array((int)$date->format('w'), $this->weekend_days, true)) {
                 return false;
             }
         }
@@ -157,7 +157,7 @@ abstract class AbstractProvider implements ProviderInterface, Countable, Iterato
     public function isHoliday($date)
     {
         // Return false if given date is empty
-        if (is_null($date)) {
+        if (null === $date) {
             return false;
         }
 
@@ -208,7 +208,7 @@ abstract class AbstractProvider implements ProviderInterface, Countable, Iterato
      */
     protected function isHolidayNameNotEmpty($shortName)
     {
-        if (empty($shortName) || is_null($shortName)) {
+        if (empty($shortName) || null === $shortName) {
             throw new InvalidArgumentException('Holiday name can not be blank.');
         }
 
@@ -281,6 +281,10 @@ abstract class AbstractProvider implements ProviderInterface, Countable, Iterato
      *
      * @return Holiday a Holiday instance for the given holiday
      *
+     * @throws \Yasumi\Exception\UnknownLocaleException
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
+     *
      * @covers AbstractProvider::anotherTime
      */
     public function next($shortName)
@@ -294,9 +298,11 @@ abstract class AbstractProvider implements ProviderInterface, Countable, Iterato
      * @param int    $year      the year to get the holiday date for
      * @param string $shortName the name of the holiday for which the date needs to be fetched
      *
-     * @throws InvalidArgumentException when the given name is blank or empty.
-     *
      * @return Holiday a Holiday instance for the given holiday and year
+     *
+     * @throws InvalidArgumentException when the given name is blank or empty.
+     * @throws \Yasumi\Exception\UnknownLocaleException
+     * @throws \RuntimeException
      */
     private function anotherTime($year, $shortName)
     {
@@ -323,7 +329,7 @@ abstract class AbstractProvider implements ProviderInterface, Countable, Iterato
 
         $holidays = $this->getHolidays();
 
-        return (isset($holidays[$shortName])) ? $holidays[$shortName] : null;
+        return isset($holidays[$shortName]) ? $holidays[$shortName] : null;
     }
 
     /**
@@ -332,6 +338,10 @@ abstract class AbstractProvider implements ProviderInterface, Countable, Iterato
      * @param $shortName string the name of the holiday for which the previous occurrence need to be retrieved.
      *
      * @return Holiday a Holiday instance for the given holiday
+     *
+     * @throws \Yasumi\Exception\UnknownLocaleException
+     * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      *
      * @covers AbstractProvider::anotherTime
      */

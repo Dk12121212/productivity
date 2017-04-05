@@ -74,12 +74,13 @@ function productivity_holiday_per_month_israel($month, $year) {
     $time = mktime(12, 0, 0, $month, $day, $year);
     if (date('m', $time) == $month) {
       foreach ($jcal->getHolidays($time) as $holiday) {
-        $holidays[] = [
-          'date' => date('Y-m-d', $time),
-          'label' => $holiday['name'],
-          'is_day_off' => $holiday['is_day_off'],
-        ];
-
+        // Only day off.
+        if ($holiday['is_day_off']) {
+          $holidays[] = [
+            'date' => date('Y-m-d', $time),
+            'label' => $holiday['name'],
+          ];
+        }
       }
     }
 

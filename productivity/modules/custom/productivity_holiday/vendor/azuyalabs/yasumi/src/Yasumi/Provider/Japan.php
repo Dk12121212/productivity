@@ -73,6 +73,9 @@ class Japan extends AbstractProvider
 
     /**
      * Initialize holidays for Japan.
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function initialize()
     {
@@ -172,6 +175,9 @@ class Japan extends AbstractProvider
      * festival called Shunki kōrei-sai (春季皇霊祭).
      *
      * @link http://www.h3.dion.ne.jp/~sakatsu/holiday_topic.htm (in Japanese)
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     private function calculateVernalEquinoxDay()
     {
@@ -188,7 +194,7 @@ class Japan extends AbstractProvider
             $day = null;
         }
 
-        if (! is_null($day)) {
+        if (null !== $day) {
             $this->addHoliday(new Holiday('vernalEquinoxDay', ['en_US' => 'Vernal Equinox Day', 'ja_JP' => '春分の日'],
                 new DateTime("$this->year-3-$day", new DateTimeZone($this->timezone)), $this->locale));
         }
@@ -199,6 +205,9 @@ class Japan extends AbstractProvider
      *
      * Coming of Age Day was established after 1948 on January 15th. After 2000 it was changed to be the second monday
      * of January.
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     private function calculateComingOfAgeDay()
     {
@@ -208,7 +217,7 @@ class Japan extends AbstractProvider
         } elseif ($this->year >= 1948) {
             $date = new DateTime("$this->year-1-15", new DateTimeZone($this->timezone));
         }
-        if (! is_null($date)) {
+        if (null !== $date) {
             $this->addHoliday(new Holiday('comingOfAgeDay', ['en_US' => 'Coming of Age Day', 'ja_JP' => '成人の日'], $date,
                 $this->locale));
         }
@@ -218,6 +227,9 @@ class Japan extends AbstractProvider
      * Calculates Greenery Day.
      *
      * Greenery Day was established from 1989 on April 29th. After 2007 it was changed to be May 4th.
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     private function calculateGreeneryDay()
     {
@@ -227,7 +239,7 @@ class Japan extends AbstractProvider
         } elseif ($this->year >= 1989) {
             $date = new DateTime("$this->year-4-29", new DateTimeZone($this->timezone));
         }
-        if (! is_null($date)) {
+        if (null !== $date) {
             $this->addHoliday(new Holiday('greeneryDay', ['en_US' => 'Greenery Day', 'ja_JP' => '緑の日'], $date,
                 $this->locale));
         }
@@ -237,6 +249,9 @@ class Japan extends AbstractProvider
      * Calculates Marine Day.
      *
      * Marine Day was established since 1996 on July 20th. After 2003 it was changed to be the third monday of July.
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     private function calculateMarineDay()
     {
@@ -246,7 +261,7 @@ class Japan extends AbstractProvider
         } elseif ($this->year >= 1996) {
             $date = new DateTime("$this->year-7-20", new DateTimeZone($this->timezone));
         }
-        if (! is_null($date)) {
+        if (null !== $date) {
             $this->addHoliday(new Holiday('marineDay', ['en_US' => 'Marine Day', 'ja_JP' => '海の日'], $date,
                 $this->locale));
         }
@@ -257,6 +272,9 @@ class Japan extends AbstractProvider
      *
      * Respect for the Age Day was established since 1996 on September 15th. After 2003 it was changed to be the third
      * monday of September.
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     private function calculateRespectForTheAgeDay()
     {
@@ -266,7 +284,7 @@ class Japan extends AbstractProvider
         } elseif ($this->year >= 1996) {
             $date = new DateTime("$this->year-9-15", new DateTimeZone($this->timezone));
         }
-        if (! is_null($date)) {
+        if (null !== $date) {
             $this->addHoliday(new Holiday('respectfortheAgedDay',
                 ['en_US' => 'Respect for the Aged Day', 'ja_JP' => '敬老の日'], $date, $this->locale));
         }
@@ -277,6 +295,9 @@ class Japan extends AbstractProvider
      *
      * Health And Sports Day was established since 1966 on October 10th. After 2000 it was changed to be the second
      * monday of October.
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     private function calculateHealthAndSportsDay()
     {
@@ -286,7 +307,7 @@ class Japan extends AbstractProvider
         } elseif ($this->year >= 1996) {
             $date = new DateTime("$this->year-10-10", new DateTimeZone($this->timezone));
         }
-        if (! is_null($date)) {
+        if (null !== $date) {
             $this->addHoliday(new Holiday('healthandSportsDay', ['en_US' => 'Health And Sports Day', 'ja_JP' => '体育の日'],
                 $date, $this->locale));
         }
@@ -300,6 +321,9 @@ class Japan extends AbstractProvider
      * festival called Shūki kōrei-sai (秋季皇霊祭).
      *
      * @link http://www.h3.dion.ne.jp/~sakatsu/holiday_topic.htm (in Japanese)
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     private function calculateAutumnalEquinoxDay()
     {
@@ -316,7 +340,7 @@ class Japan extends AbstractProvider
             $day = null;
         }
 
-        if (! is_null($day)) {
+        if (null !== $day) {
             $this->addHoliday(new Holiday('autumnalEquinoxDay', ['en_US' => 'Autumnal Equinox Day', 'ja_JP' => '秋分の日'],
                 new DateTime("$this->year-9-$day", new DateTimeZone($this->timezone)), $this->locale));
         }
@@ -327,6 +351,9 @@ class Japan extends AbstractProvider
      *
      * Generally if a national holiday falls on a Sunday, the holiday is observed the next working day (not being
      * another holiday).
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     private function calculateSubstituteHolidays()
     {
@@ -338,7 +365,7 @@ class Japan extends AbstractProvider
             $substituteDay = clone $date;
 
             // If holidays falls on a Sunday
-            if ($date->format('w') == 0) {
+            if (0 === (int)$date->format('w')) {
                 if ($this->year >= 2007) {
                     // Find next week day (not being another holiday)
                     while (in_array($substituteDay, $dates)) {
@@ -355,7 +382,7 @@ class Japan extends AbstractProvider
                 }
 
                 // Add a new holiday that is substituting the original holiday
-                if (! is_null($substituteDay)) {
+                if (null !== $substituteDay) {
                     $substituteHoliday = new Holiday('substituteHoliday:' . $shortName, [
                         'en_US' => $date->translations['en_US'] . ' Observed',
                         'ja_JP' => '振替休日 (' . $date->translations['ja_JP'] . ')',
@@ -371,6 +398,9 @@ class Japan extends AbstractProvider
      * Calculate public bridge holidays.
      *
      * Any day that falls between two other national holidays also becomes a holiday, known as a bridge holiday.
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     private function calculateBridgeHolidays()
     {
@@ -383,12 +413,12 @@ class Japan extends AbstractProvider
             $datesIterator->next();
 
             // Skip if next holiday is not set
-            if (is_null($datesIterator->current())) {
+            if (null === $datesIterator->current()) {
                 continue;
             }
 
             // Determine if gap between holidays is one day and create bridge holiday
-            if ($previous->diff($datesIterator->current())->format('%a') == 2) {
+            if (2 === (int)$previous->diff($datesIterator->current())->format('%a')) {
                 $bridgeDate = clone $previous;
                 $bridgeDate->add(new DateInterval('P1D'));
 

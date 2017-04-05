@@ -33,6 +33,9 @@ class UnitedKingdom extends AbstractProvider
 
     /**
      * Initialize holidays for the United Kingdom.
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function initialize()
     {
@@ -60,6 +63,9 @@ class UnitedKingdom extends AbstractProvider
      *
      * @link https://en.wikipedia.org/wiki/Public_holidays_in_the_United_Kingdom
      * @link http://www.timeanddate.com/holidays/uk/new-year-day
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function calculateNewYearsDay()
     {
@@ -76,7 +82,7 @@ class UnitedKingdom extends AbstractProvider
         $newYearsDay = new DateTime("$this->year-01-01", new DateTimeZone($this->timezone));
 
         // If New Years Day falls on a Saturday or Sunday, it is observed the next Monday (January 2nd or 3rd)
-        if (in_array($newYearsDay->format('w'), [0, 6])) {
+        if (in_array((int)$newYearsDay->format('w'), [0, 6], true)) {
             $newYearsDay->modify('next monday');
         }
 
@@ -94,6 +100,9 @@ class UnitedKingdom extends AbstractProvider
      * often run to a holiday timetable.
      *
      * @link http://www.timeanddate.com/holidays/uk/early-may-bank-holiday
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     private function calculateMayDayBankHoliday()
     {
@@ -116,6 +125,9 @@ class UnitedKingdom extends AbstractProvider
      * open or closed, according to local custom. Public transport systems often run to a holiday timetable.
      *
      * @link http://www.timeanddate.com/holidays/uk/spring-bank-holiday
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     private function calculateSpringBankHoliday()
     {
@@ -145,6 +157,9 @@ class UnitedKingdom extends AbstractProvider
      *
      * @link http://www.timeanddate.com/holidays/uk/christmas-day
      * @link http://www.timeanddate.com/holidays/uk/boxing-day
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function calculateChristmasHolidays()
     {
@@ -157,13 +172,13 @@ class UnitedKingdom extends AbstractProvider
         $substituteChristmasDay = clone $christmasDay;
         $substituteBoxingDay    = clone $boxingDay;
 
-        if (in_array($christmasDay->format('w'), [0, 6])) {
+        if (in_array((int)$christmasDay->format('w'), [0, 6], true)) {
             $substituteChristmasDay->add(new DateInterval('P2D'));
             $this->addHoliday(new Holiday('substituteHoliday:christmasDay', [], $substituteChristmasDay, $this->locale,
                 Holiday::TYPE_BANK));
         }
 
-        if (in_array($boxingDay->format('w'), [0, 6])) {
+        if (in_array((int)$boxingDay->format('w'), [0, 6], true)) {
             $substituteBoxingDay->add(new DateInterval('P2D'));
             $this->addHoliday(new Holiday('substituteHoliday:secondChristmasDay', [], $substituteBoxingDay,
                 $this->locale, Holiday::TYPE_BANK));

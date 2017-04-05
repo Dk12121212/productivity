@@ -36,6 +36,9 @@ class Romania extends AbstractProvider
 
     /**
      * Initialize holidays for Romania.
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function initialize()
     {
@@ -67,19 +70,16 @@ class Romania extends AbstractProvider
         $this->calculateChildrensDay(); // Since 18.11.2016 (Law 220/2016), Celebrated on 1st of June
     }
 
-
     /**
-     * National Day.
+     * Day after New Year's Day
      *
-     * Great Union Day (Romanian: Ziua Marii Uniri, also called Unification Day) .
-     * Occurring on December 1, is the national holiday of Romania.
-     * It commemorates the assembly of the delegates of ethnic Romanians held in Alba Iulia,
-     * which declared the Union of Transylvania with Romania.
+     * 2nd of January one of Romania's official non-working holidays
      *
-     * @link https://en.wikipedia.org/wiki/Great_Union_Day
-     * @link https://ro.wikipedia.org/wiki/Ziua_na%C8%9Bional%C4%83_a_Rom%C3%A2niei
+     * @link https://en.wikipedia.org/wiki/Public_holidays_in_Romania
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
-
     public function calculateDayAfterNewYearsDay()
     {
         $this->addHoliday(new Holiday('dayAfterNewYearsDay', [
@@ -88,15 +88,19 @@ class Romania extends AbstractProvider
         ], new DateTime("$this->year-01-02", new DateTimeZone($this->timezone)), $this->locale));
     }
 
-
     /**
-     * Day after New Year's Day
+     * Celebration of United Principalities
      *
-     * 2nd of January one of Romania's official non-working holidays
+     * On 24 January 1862, the Principality of Moldavia and the Principality of Wallachia
+     * formally united to create the Romanian United Principalities.
+     * It is officially a non-working holiday since 7 October 2016.
      *
-     * @link https://en.wikipedia.org/wiki/Public_holidays_in_Romania
+     *
+     * @link https://en.wikipedia.org/wiki/United_Principalities
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
-
     public function calculateUnitedPrincipalitiesDay()
     {
         // The law is official since 21.12.2014.
@@ -108,36 +112,40 @@ class Romania extends AbstractProvider
         }
     }
 
-
-    /**
-     * Celebration of United Principalities
-     *
-     * On 24 January 1862, the Principality of Moldavia and the Principality of Wallachia
-     * formally united to create the Romanian United Principalities.
-     * It is officially a non-working holiday since 7 October 2016.
-     *
-     *
-     * @link https://en.wikipedia.org/wiki/United_Principalities
-     */
-
-    public function calculateStAndrewDay()
-    {
-        if ($this->year >= 2012) {
-            $this->addHoliday(new Holiday('stAndrewDay', [
-                'en_US' => 'Saint Andrew\'s Day',
-                'ro_RO' => 'Sfântul Andrei'
-            ], new DateTime($this->year . "-11-30", new DateTimeZone($this->timezone)), $this->locale));
-        }
-    }
-
     /**
      * St. Andrew's day
      *
      * Saint Andrew is the patron saint of Romania.
      *
      * @link https://en.wikipedia.org/wiki/St._Andrew%27s_Day
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
+    public function calculateStAndrewDay()
+    {
+        if ($this->year >= 2012) {
+            $this->addHoliday(new Holiday('stAndrewDay', [
+                'en_US' => 'Saint Andrew\'s Day',
+                'ro_RO' => 'Sfântul Andrei'
+            ], new DateTime($this->year . '-11-30', new DateTimeZone($this->timezone)), $this->locale));
+        }
+    }
 
+    /**
+     * National Day.
+     *
+     * Great Union Day (Romanian: Ziua Marii Uniri, also called Unification Day) .
+     * Occurring on December 1, is the national holiday of Romania.
+     * It commemorates the assembly of the delegates of ethnic Romanians held in Alba Iulia,
+     * which declared the Union of Transylvania with Romania.
+     *
+     * @link https://en.wikipedia.org/wiki/Great_Union_Day
+     * @link https://ro.wikipedia.org/wiki/Ziua_na%C8%9Bional%C4%83_a_Rom%C3%A2niei
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
+     */
     public function calculateNationalDay()
     {
         $national_day = null;
@@ -147,15 +155,15 @@ class Romania extends AbstractProvider
             $national_day = "$this->year-12-01";
         }
 
-        if ($this->year >= 1948 and $this->year <= 1989) {
+        if ($this->year >= 1948 && $this->year <= 1989) {
             $national_day = "$this->year-08-23";
         }
 
-        if ($this->year >= 1866 and $this->year <= 1947) {
+        if ($this->year >= 1866 && $this->year <= 1947) {
             $national_day = "$this->year-05-10";
         }
 
-        if (! is_null($national_day)) {
+        if (null !== $national_day) {
             $this->addHoliday(new Holiday('nationalDay', [
                 'en_US' => 'National Day',
                 'ro_RO' => 'Ziua Națională'
@@ -169,8 +177,9 @@ class Romania extends AbstractProvider
      * Constantin Brâncuși (February 19, 1876 – March 16, 1957) was a Romanian sculptor, painter and photographer.
      *
      * @link https://en.wikipedia.org/wiki/Constantin_Br%C3%A2ncu%C8%99i
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
-
     public function calculateConstantinBrancusiDay()
     {
         if ($this->year >= 2016) {
@@ -189,6 +198,8 @@ class Romania extends AbstractProvider
      * according to the Law 220/2016 (18.11.2016)
      *
      * @link https://en.wikipedia.org/wiki/Children%27s_Day
+     * @throws \InvalidArgumentException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function calculateChildrensDay()
     {
@@ -207,7 +218,6 @@ class Romania extends AbstractProvider
             ], new DateTime("$this->year-06-01", new DateTimeZone($this->timezone)), $this->locale));
         }
     }
-
 
     /**
      * @param int    $year

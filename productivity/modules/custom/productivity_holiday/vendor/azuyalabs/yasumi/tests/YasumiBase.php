@@ -40,6 +40,10 @@ trait YasumiBase
      * @param int    $year                   holiday calendar year
      * @param string $type                   The type of holiday. Use the following constants: TYPE_NATIONAL,
      *                                       TYPE_OBSERVANCE, TYPE_SEASON, TYPE_BANK or TYPE_OTHER.
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function assertDefinedHolidays($expectedHolidays, $provider, $year, $type)
     {
@@ -65,7 +69,7 @@ trait YasumiBase
 
         // Loop through all known holidays and assert they are defined by the provider class
         foreach ($expectedHolidays as $holiday) {
-            $this->assertArrayHasKey($holiday, $holidays->getArrayCopy());
+            $this->assertArrayHasKey($holiday, iterator_to_array($holidays));
         }
 
         unset($holidays);
@@ -78,6 +82,11 @@ trait YasumiBase
      * @param string   $shortName string the short name of the holiday to be checked against
      * @param int      $year      holiday calendar year
      * @param DateTime $expected  the date to be checked against
+     *
+     * @throws \Yasumi\Exception\UnknownLocaleException
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \PHPUnit_Framework_AssertionFailedError
      */
     public function assertHoliday($provider, $shortName, $year, $expected)
     {
@@ -85,8 +94,8 @@ trait YasumiBase
         $holiday  = $holidays->getHoliday($shortName);
 
         $this->assertInstanceOf('Yasumi\Provider\\' . str_replace('/', '\\', $provider), $holidays);
-        $this->assertInstanceOf('Yasumi\Holiday', $holiday);
-        $this->assertTrue(isset($holiday));
+        $this->assertInstanceOf(Holiday::class, $holiday);
+        $this->assertNotNull($holiday);
         $this->assertEquals($expected, $holiday);
         $this->assertTrue($holidays->isHoliday($holiday));
 
@@ -99,6 +108,11 @@ trait YasumiBase
      * @param string $provider  the holiday provider (i.e. country/state) for which the holiday need to be tested
      * @param string $shortName the short name of the holiday to be checked against
      * @param int    $year      holiday calendar year
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \Yasumi\Exception\UnknownLocaleException
+     * @throws \PHPUnit_Framework_AssertionFailedError
      */
     public function assertNotHoliday($provider, $shortName, $year)
     {
@@ -106,7 +120,7 @@ trait YasumiBase
         $holiday  = $holidays->getHoliday($shortName);
 
         $this->assertInstanceOf('Yasumi\Provider\\' . str_replace('/', '\\', $provider), $holidays);
-        $this->assertFalse(isset($holiday));
+        $this->assertNull($holiday);
         $this->assertFalse($holidays->isHoliday($holiday));
 
         unset($holiday, $holidays);
@@ -119,6 +133,11 @@ trait YasumiBase
      * @param string $shortName    string the short name of the holiday to be checked against
      * @param int    $year         holiday calendar year
      * @param array  $translations the translations to be checked against
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \Yasumi\Exception\UnknownLocaleException
+     * @throws \PHPUnit_Framework_AssertionFailedError
      */
     public function assertTranslatedHolidayName($provider, $shortName, $year, $translations)
     {
@@ -126,8 +145,8 @@ trait YasumiBase
         $holiday  = $holidays->getHoliday($shortName);
 
         $this->assertInstanceOf('Yasumi\Provider\\' . str_replace('/', '\\', $provider), $holidays);
-        $this->assertInstanceOf('Yasumi\Holiday', $holiday);
-        $this->assertTrue(isset($holiday));
+        $this->assertInstanceOf(Holiday::class, $holiday);
+        $this->assertNotNull($holiday);
         $this->assertTrue($holidays->isHoliday($holiday));
 
         if (is_array($translations) && ! empty($translations)) {
@@ -149,6 +168,11 @@ trait YasumiBase
      * @param string $shortName string the short name of the holiday to be checked against
      * @param int    $year      holiday calendar year
      * @param string $type      the type to be checked against
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \PHPUnit_Framework_AssertionFailedError
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function assertHolidayType($provider, $shortName, $year, $type)
     {
@@ -156,8 +180,8 @@ trait YasumiBase
         $holiday  = $holidays->getHoliday($shortName);
 
         $this->assertInstanceOf('Yasumi\Provider\\' . str_replace('/', '\\', $provider), $holidays);
-        $this->assertInstanceOf('Yasumi\Holiday', $holiday);
-        $this->assertTrue(isset($holiday));
+        $this->assertInstanceOf(Holiday::class, $holiday);
+        $this->assertNotNull($holiday);
         $this->assertEquals($type, $holiday->getType());
 
         unset($holiday, $holidays);
@@ -171,6 +195,11 @@ trait YasumiBase
      * @param string $shortName         string the short name of the holiday to be checked against
      * @param int    $year              holiday calendar year
      * @param string $expectedDayOfWeek the expected week day (i.e. "Saturday", "Sunday", etc.)
+     *
+     * @throws \PHPUnit_Framework_AssertionFailedError
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
+     * @throws \Yasumi\Exception\UnknownLocaleException
      */
     public function assertDayOfWeek($provider, $shortName, $year, $expectedDayOfWeek)
     {
@@ -178,8 +207,8 @@ trait YasumiBase
         $holiday  = $holidays->getHoliday($shortName);
 
         $this->assertInstanceOf('Yasumi\Provider\\' . str_replace('/', '\\', $provider), $holidays);
-        $this->assertInstanceOf('Yasumi\Holiday', $holiday);
-        $this->assertTrue(isset($holiday));
+        $this->assertInstanceOf(Holiday::class, $holiday);
+        $this->assertNotNull($holiday);
         $this->assertTrue($holidays->isHoliday($holiday));
         $this->assertEquals($expectedDayOfWeek, $holiday->format('l'));
 
@@ -281,7 +310,7 @@ trait YasumiBase
             }
 
             // Corrected date of the Paschal full moon, - days after 21st March
-            if (($pfm == 29) || ($pfm == 28 && $golden > 11)) {
+            if (($pfm === 29) || ($pfm === 28 && $golden > 11)) {
                 --$pfm;
             }
 

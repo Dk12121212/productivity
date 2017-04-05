@@ -6,7 +6,7 @@
         <?php foreach($tracking['sum']['projects'] as $project_nid => $data): ?>
           <li class="list-group-item">
             <span class="badge badge-primary"><?php print $data['sum']; ?></span>
-            <?php print $data['name']; ?>
+            <a href="<?php print url('node/' . $project_nid); ?>"><?php print $data['name']; ?></a>
           </li>
         <?php endforeach; ?>
         <li class="list-group-item">

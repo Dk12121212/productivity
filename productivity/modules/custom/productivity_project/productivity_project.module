@@ -83,6 +83,10 @@ function productivity_project_menu() {
 
   return $items;
 }
+
+/**
+ * @param $node
+ */
 function productivity_project_page_acceptance_post($node) {
   $saved_data = array();
   foreach ($_POST as $key => $data) {
@@ -103,6 +107,10 @@ function productivity_project_page_acceptance_post($node) {
   drupal_json_output('TRUE');
 }
 
+/**
+ * @param $node
+ * @return string
+ */
 function productivity_project_page_acceptance($node) {
   $nid = $node->nid;
   drupal_add_js(array('submitAcceptanceURL' => base_path() . "node/$nid/acceptance/post"), 'setting');

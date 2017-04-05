@@ -133,9 +133,13 @@ function _bootstrap_subtheme_create_rate_table($node, $wrapper, &$rows) {
       );
       _bootstrap_subtheme_render($rows, $key, $rate->value(), 'multifield', $fields);
 
-      // Add days.
-      $rows[$key]['days'] = productivity_project_get_total_days($rate->field_hours->value());
+      // TODO: Remove deprecated.
       $rows[$key]['recalculate'] = l(t('Recalculate'), 'recalculate-project-time/' . $node->nid . '/' . $rate->field_issue_type->value());
+
+      // Total with new tracking datas
+      $totals = productivity_tracking_get_tracking_total($node->nid, $rate->field_issue_type->value());
+      $rows[$key]['hours_new'] = $totals[0]->total_done ;
+      $rows[$key]['estimated'] = $totals[0]->total_estimate ;
 
       // Override work type titles.
       $rows[$key]['field_issue_type'] = empty($rows[$key]['field_issue_type_label']) ? $rows[$key]['field_issue_type'] : $rows[$key]['field_issue_type_label'];
@@ -148,9 +152,10 @@ function _bootstrap_subtheme_create_rate_table($node, $wrapper, &$rows) {
     'Total Scope',
     'Rate',
     'Rate Type',
-    'Hours',
-    'Days',
-    'actions'
+    'Hours (old)',
+    'actions(old)',
+    'Hours (new)',
+    'Estimated (new)',
   );
 
   return theme('table', array('header' => $header, 'rows' => $rows));

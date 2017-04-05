@@ -10,6 +10,29 @@
 function productivity_user_field_default_field_bases() {
   $field_bases = array();
 
+  // Exported field_base: 'field_country'.
+  $field_bases['field_country'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_country',
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'country_field',
+    'settings' => array(
+      'allowed_values' => array(),
+      'allowed_values_function' => 'country_field_countries',
+      'profile2_private' => FALSE,
+    ),
+    'translatable' => 0,
+    'type' => 'country',
+  );
+
   // Exported field_base: 'field_employment_status'.
   $field_bases['field_employment_status'] = array(
     'active' => 1,

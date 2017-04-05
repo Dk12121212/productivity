@@ -26,6 +26,9 @@ projects[ctools][version] = "1.12"
 projects[currency][subdir] = "contrib"
 projects[currency][version] = "2.6"
 
+projects[country_field][subdir] = "contrib"
+projects[country_field][version] = "1.0"
+
 projects[date][subdir] = "contrib"
 projects[date][version] = "2.9"
 

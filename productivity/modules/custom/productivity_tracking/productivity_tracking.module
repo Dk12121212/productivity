@@ -75,7 +75,7 @@ function productivity_tracking_get_query_strings($args) {
     $date = "$day.$month.$year";
   }
 
-  $uid = isset($_GET['uid']) ? $_GET['uid'] : (isset($args[0]) ? $args[0] : 1);
+  $uid = isset($_GET['uid']) ? $_GET['uid'] : (isset($args[0]) ? $args[0] : FALSE);
 
   return [
   'day' => $day,
@@ -696,10 +696,14 @@ function productivity_tracking_get_tracking_by_user($uid, $year = FALSE, $month 
   $query
     ->condition('type', 'tracking')
     ->condition('status', NODE_PUBLISHED)
-    ->condition('t.field_track_log_field_employee_target_id', $uid)
     ->orderBy('t.field_track_log_id')
     ->orderBy('gpi.field_github_project_id_value')
     ->orderBy('i.field_issue_id_value');
+
+
+  if ($uid) {
+    $query->condition('t.field_track_log_field_employee_target_id', $uid);
+  }
 
   if ($work_type) {
     $query->condition('t.field_track_log_field_issue_type_value', $work_type);
@@ -994,8 +998,8 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
   // Build skeleton of array, one item per day.
   $new_data = array();
   $new_data['days']  = [];
-  // Stub for table first column.
 
+  // Stub for table first column.
   $first_of_the_month =  strtotime(1 . '.' . $month . '.' . $year);
   $new_data['days']['#'][]  = [
       'length' => $account->name,
@@ -1013,8 +1017,6 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
       'mlid' => '0',
     ];
   $new_data['sum']  = array(
-    'month' => 0,
-    'projects' => array(),
     'days' => array(),
   );
 
@@ -1155,21 +1157,8 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
       ));
     }
 
-
     $key = $day['day'];
     $new_data['days'][$key][] = $day;
-
-    // Sums per project.
-    if (empty($new_data['sum']['projects'][$project_nid])) {
-      $node = node_load($project_nid);
-      $new_data['sum']['projects'][$project_nid] = array(
-         'sum' => $day['length'],
-         'name' => $node->title,
-      );
-    }
-    else {
-      $new_data['sum']['projects'][$project_nid]['sum'] += $day['length'];
-    }
 
     // Sums per day.
     if (empty($new_data['sum']['days'][$key])) {
@@ -1179,8 +1168,6 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
       $new_data['sum']['days'][$key] += $day['length'];
     }
 
-    // Sums per month.
-    $new_data['sum']['month'] += $day['length'];
   }
 
   // Fill in vacation other personal global days.
@@ -1240,6 +1227,60 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
         'expandable' => TRUE,
       );
     }
+  }
+
+  // Return single user.
+  $cached_data = $new_data;
+  return $new_data;
+}
+
+/**
+ * Build project month total.
+ *
+ * @param $month
+ * @param $year
+ *
+ * @return array|mixed
+ */
+function productivity_tracking_get_tracking_totals($month, $year, $uid) {
+  // Static caching.
+  $cached_data = &drupal_static(__FUNCTION__ . "$year-$month-$uid");
+  if (isset($cached_data)) {
+    return $cached_data;
+  }
+
+  // Build skeleton of array, one item per day.
+  $new_data = array();
+
+  $new_data['sum']  = array(
+    'month' => 0,
+    'projects' => array(),
+  );
+
+  // Get tracking data.
+  $tracking = productivity_tracking_get_tracking_by_user($uid, $year, $month);
+
+  // Prepare table for tracking data.
+  while($track_record = $tracking->fetchAssoc()) {
+    // Pr data.
+    $pr_time = $track_record['field_track_log_field_time_spent_value'];
+    // Issue data.
+    $project_nid = $track_record['field_project_target_id'];
+
+    // Sums per project.
+    if (empty($new_data['sum']['projects'][$project_nid])) {
+      $node = node_load($project_nid);
+      $new_data['sum']['projects'][$project_nid] = array(
+        'sum' => $pr_time,
+        'name' => $node->title,
+      );
+    }
+    else {
+      $new_data['sum']['projects'][$project_nid]['sum'] += $pr_time;
+    }
+
+    // Sums per month.
+    $new_data['sum']['month'] += $pr_time;
   }
 
   // Return single user.

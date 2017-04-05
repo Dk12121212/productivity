@@ -22,7 +22,7 @@ function productivity_tracking_project_sum_content_type_render($subtype, $conf, 
   $year = $variables['year'];
   $month = $variables['month'];
 
-  $variables['tracking'] = productivity_tracking_get_month_structure($month, $year, $uid);
+  $variables['tracking'] = productivity_tracking_get_tracking_totals($month, $year, $uid);
 
   $block = new stdClass();
   $block->module = 'productivity_tracking';

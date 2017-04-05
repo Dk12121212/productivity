@@ -35,7 +35,7 @@ function productivity_tracking_tracking_admin_content_type_render($subtype, $con
   $variables['urls'] = [];
   // Create links with relative query string.
   foreach ($users as $uid => $user) {
-    $variables['urls'][$uid] = l($user->name, 'user', [
+    $variables['urls'][$user->name] = l($user->name, 'user', [
       'query' => [
         'uid' => $uid,
         'day' => date('d', $timestamp),
@@ -45,6 +45,7 @@ function productivity_tracking_tracking_admin_content_type_render($subtype, $con
     ]);
   }
 
+  ksort($variables['urls']);
   $block = new stdClass();
   $block->module = 'productivity_tracking';
   $block->title = '';

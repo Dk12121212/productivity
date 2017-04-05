@@ -971,12 +971,6 @@ function productivity_tracking_get_term_status($name) {
   return $term;
 }
 
-
-function productivity_tracking_country_from_iso($country){
-  require_once DRUPAL_ROOT . '/includes/locale.inc';
-  $countries = country_get_list();
-  return $countries[$country] ? $countries[$country] : FALSE;
-}
 /**
  * Build an associative array by day.
  *
@@ -1009,24 +1003,20 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
 
   // Get weekends and holidays for given user.
   $account = user_load($uid);
-  $country = 'Israel';
+  $country = 'IL';
   // Weekend Friday Saturday.
   $weekend_days = array(5, 6);
 
   if (isset($account->field_country['und'][0]['value'])) {
-    $country = productivity_tracking_country_from_iso($account->field_country['und'][0]['value']);
-    if ($country != 'Israel') {
+    $country = $account->field_country['und'][0]['value'];
+    if ($country != 'IL') {
       // Weekend Saturday Sunday.
-      $weekend_days = array(6, 7);
-
+      $weekend_days = array(6, 0);
     }
   }
   $holidays = productivity_holiday_per_month($month, $year, $country);
-  dpm($holidays);
 
-
-
-  // Go over days of the month.
+  // Go over days of the month and add WE and stuns.
   for ($i = 1; $i <= $last_day_this_month; $i++) {
     // Add leading zeros.
     $key = str_pad($i, 2, '0', STR_PAD_LEFT);
@@ -1042,23 +1032,41 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
       ]
     ]);
 
-    $week_day = date( "w", strtotime($i . '.' . $month . '.' . $year));
-
-    // If Weekend.
-    if (in_array($week_day, $weekend_days)) {
+    // Holydays
+    if (isset($holidays[$key])) {
       $day_item = array(
         'id' => 'new',
-        'type' => 'weekend',
+        'type' => 'holiday',
         'day' => $key,
-        'length' => 'W',
-        'projectName' => 'Weekend',
+        'length' => 'H',
+        'projectName' => $holidays[$key]['label'],
         'employee' => $uid,
         'tracking' => FALSE,
         'href' => $default_url,
-        'title' => 'Weekend',
+        'title' => $holidays[$key]['label'],
       );
       // Add item for weekend.
       $new_data['days'][$key][] = $day_item;
+    }
+    else {
+      $week_day = date("w", strtotime($i . '.' . $month . '.' . $year));
+
+      // If Weekend.
+      if (in_array($week_day, $weekend_days)) {
+        $day_item = array(
+          'id' => 'new',
+          'type' => 'weekend',
+          'day' => $key,
+          'length' => 'W',
+          'projectName' => 'Weekend',
+          'employee' => $uid,
+          'tracking' => FALSE,
+          'href' => $default_url,
+          'title' => 'Weekend',
+        );
+        // Add item for weekend.
+        $new_data['days'][$key][] = $day_item;
+      }
     }
     // Add global day to user skeleton.
     if (isset($assoc_globals[$key])) {

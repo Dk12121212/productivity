@@ -31,7 +31,7 @@
                     <?php endif; ?>
                     <!--      Non tracking data            -->
                     <?php if (!isset($track['pr_href'])): ?>
-                      <li>
+                      <li data-toggle="tooltip" title="<?php print check_plain($track['title']); ?>" class="<?php print $track['type']; ?>">
                         <?php print $track['length']; ?>
                     <?php endif; ?>
                   </li>

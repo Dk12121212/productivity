@@ -1,0 +1,5 @@
+name = Productivity Holiday
+description = Provides on-the-fly calculation of holidays in various countries.
+core = 7.x
+files[] = moofie-holidays/NativeCalendar.php
+files[] = moofie-holidays/JewishCalendar.php

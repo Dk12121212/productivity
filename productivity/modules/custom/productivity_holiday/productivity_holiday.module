@@ -1,0 +1,88 @@
+<?php
+
+/**
+ * @file
+ * Nationwide holiday handling for Productivity.
+ */
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+use Yasumi\Yasumi;
+
+/**
+ * Returns the list of holidays for a country in a given month.
+ *
+ * @param int $month
+ *   Numerical, 0-11, month of the year.
+ * @param int $year
+ *   The given year on 4 digits.
+ * @param string $location
+ *   Country name.
+ *
+ * @return array
+ *   A numerically indexed array with the holidays.
+ *   Example:
+ *     [
+ *        'date' => '2017-01-01',
+ *        'label' => 'New Year',
+ *     ]
+ */
+function productivity_holiday_per_month($month, $year, $location = 'Israel') {
+  $holidays = [];
+
+  if ($location == 'Israel') {
+    // Based on https://github.com/mooffie/holidays .
+    return productivity_holiday_per_month_israel($month, $year);
+  }
+
+  $holiday_provider = Yasumi::create($location, $year);
+  $holidays_month = $holiday_provider->between(new DateTime($month . '/01/' . $year), new DateTime($month . '/31/' . $year));
+  foreach ($holidays_month as $holiday) {
+    $holidays[] = [
+      'date' => $holiday->format('Y-m-d'),
+      'label' => $holiday->getName(),
+    ];
+  }
+  return $holidays;
+}
+
+/**
+ * Returns the list of holidays for Israel in a given month.
+ *
+ * @param int $month
+ *   Numerical, 0-11, month of the year.
+ * @param int $year
+ *   The given year on 4 digits.
+ *
+ * @return array
+ *   A numerically indexed array with the holidays.
+ *   Example:
+ *     [
+ *        'date' => '2017-01-01',
+ *        'label' => 'New Year',
+ *     ]
+ */
+function productivity_holiday_per_month_israel($month, $year) {
+  $jcal = NativeCalendar::factory('Jewish');
+  $jcal->settings(array(
+    'method' => 'israel',
+    'eves' => TRUE,
+  ));
+
+  $holidays = [];
+  for ($day = 1; $day <= 31; $day++) {
+    $time = mktime(12, 0, 0, $month, $day, $year);
+    if (date('m', $time) == $month) {
+      foreach ($jcal->getHolidays($time) as $holiday) {
+        $holidays[] = [
+          'date' => date('Y-m-d', $time),
+          'label' => $holiday['name'],
+          'is_day_off' => $holiday['is_day_off'],
+        ];
+
+      }
+    }
+
+  }
+  return $holidays;
+}

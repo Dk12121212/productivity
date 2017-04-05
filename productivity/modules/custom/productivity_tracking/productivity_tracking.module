@@ -664,7 +664,8 @@ function productivity_tracking_get_tracking_total($project_nid, $work_type = FAL
   }
 
   // List of issues for a project nid.
-  $query = db_select('node', 'n');
+  $query = db_select('node', 'n')
+    ->fields('n', array('uid'));
 
   $node_fields = [
     'p' => 'field_project',
@@ -682,7 +683,13 @@ function productivity_tracking_get_tracking_total($project_nid, $work_type = FAL
     ->condition('status', NODE_PUBLISHED);
 
   if ($uid) {
-    $query->condition('t.field_track_log_field_employee_target_id', $uid);
+
+    if ($uid == 'all') {
+      $query->groupBy('n.uid');
+    }
+    else {
+      $query->condition('t.field_track_log_field_employee_target_id', $uid);
+    }
   }
 
   if ($project_nid) {
@@ -703,7 +710,12 @@ function productivity_tracking_get_tracking_total($project_nid, $work_type = FAL
   $query->addExpression('SUM(t.field_track_log_field_time_spent_value)', 'total_done');
   $query->addExpression('SUM(e.field_time_estimate_value)', 'total_estimate');
 
-  $total = $query->execute()->fetchAll();
+  if ($uid == 'all') {
+    $total = $query->execute()->fetchAllKeyed();
+  }
+  else {
+    $total = $query->execute()->fetchAll();
+  }
 
   return $total;
 }

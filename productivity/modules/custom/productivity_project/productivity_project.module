@@ -878,23 +878,8 @@ function productivity_project_get_developer_chart($node = NULL) {
   if (!$node || !$node->nid) {
     return;
   }
-  $project_id = $node->nid;
 
-  // Get all work done in a project and specific type.
-  $query = db_select('node', 'n');
-  $query->join('field_data_field_project', 'p', 'n.nid = p.entity_id');
-  $query->join('field_data_field_track_hours', 'h', 'n.nid = h.entity_id');
-
-  $query->fields('n', array('uid'))
-    ->condition('p.field_project_target_id', $project_id)
-    ->condition('n.type', 'time_tracking');
-  $query->fields('h', array('field_track_hours_value'));
-  $query->addExpression('SUM(h.field_track_hours_value)');
-
-  $query->groupBy('n.uid');
-
-  $result = $query->execute()->fetchAll();
-
+  $result = productivity_tracking_get_tracking_total($node->nid, FALSE, 'all');
   if (empty($result)) {
     return array();
   }
@@ -902,10 +887,10 @@ function productivity_project_get_developer_chart($node = NULL) {
   $developers = array();
   $developer_hours = array();
 
-  foreach ($result as $developer_data) {
-    $wrapper = entity_metadata_wrapper('user', $developer_data->uid);
+  foreach ($result as $uid => $developer_data) {
+    $wrapper = entity_metadata_wrapper('user', $uid);
     $developers[] = $wrapper->label();
-    $developer_hours[] = floatval($developer_data->expression);
+    $developer_hours[] = floatval($developer_data);
   }
 
   $chart = array(

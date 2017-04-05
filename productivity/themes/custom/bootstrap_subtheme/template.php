@@ -28,12 +28,11 @@ function bootstrap_subtheme_preprocess_node__project__full(&$variables) {
 
   $rows = array();
   $variables['table'] = _bootstrap_subtheme_create_rate_table($node, $wrapper, $rows);
-  $variables['recalculate_hours_days_link'] = l(t('Recalculate project\'s hours & days.'), 'recalculate-project-time/' . $node->nid);
 
-  $year = date('Y');
-  $month = date('m', strtotime("-1 month"));
-  $project_id = $node->nid;
-  $variables['monthly_report_link'] = l(t('Monthly report'), "/monthly-report/$project_id/$year/$month/false");
+  $totals = productivity_tracking_get_tracking_total($node->nid);
+  $variables['project_total'] = $totals[0]->total_done ;
+  $variables['project_estimated'] = $totals[0]->total_estimate ;
+
 
   // Add charts.
   $chart = productivity_project_get_developer_chart($node);

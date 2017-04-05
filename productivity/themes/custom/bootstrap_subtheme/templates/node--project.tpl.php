@@ -86,8 +86,8 @@
   <div class="col-lg-4 col-sm-6 col-xs-12">
     <div class="main-box infographic-box">
       <i class="fa fa-hand-o-up emerald-bg"></i>
-      <span class="headline"><?php print t('Total Hours Done') ?></span>
-      <span class="value"><?php print render($content['field_hours']); ?></span>
+      <span class="headline"><?php print t('Total Hours Done (estimate)') ?></span>
+      <span class="value"><?php print $project_total . ' (' . $project_estimated . ')'; ?></span>
     </div>
   </div>
   <div class="col-lg-4 col-sm-6 col-xs-12">
@@ -143,12 +143,6 @@
 
   <div class="col-xs-12">
     <ul>
-      <li>
-        <?php print $recalculate_hours_days_link; ?>
-      </li>
-      <li>
-        <?php print $monthly_report_link; ?>
-      </li>
       <li>
         <?php print l(t('Issues Diagram'), 'admin/reports/issue-diagram/' . $nid); ?>
       </li>

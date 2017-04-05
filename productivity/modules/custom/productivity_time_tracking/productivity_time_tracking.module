@@ -432,7 +432,8 @@ function productivity_time_tracking_send_reminder($account) {
  * That did not filled time tracking yesterday.
  */
 function productivity_time_tracking_cron() {
-
+  // Disable old legacy notofocation.
+  return;
   $now = date('H', time());
   $timetosend = explode('-', variable_get('time_to_send_reminder', '9-13'));
   if (intval($now) < $timetosend[0] || intval($now) > $timetosend[1]) {

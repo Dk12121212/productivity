@@ -205,7 +205,7 @@ function _bootstrap_subtheme_get_hours_type_chart($rows) {
   $hours = array();
   foreach ($rows as $row) {
     $types[] = strip_tags($row['field_issue_type']);
-    $hours[] = floatval(strip_tags($row['field_hours']));
+    $hours[] = floatval(strip_tags($row['hours_new']));
   }
 
   $chart = array(

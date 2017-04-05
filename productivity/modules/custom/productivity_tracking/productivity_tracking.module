@@ -75,7 +75,7 @@ function productivity_tracking_get_query_strings($args) {
     $date = "$day.$month.$year";
   }
 
-  $uid = isset($_GET['uid']) ? $_GET['uid'] : isset($args[0]) ? $args[0] : 1;
+  $uid = isset($_GET['uid']) ? $_GET['uid'] : (isset($args[0]) ? $args[0] : 1);
 
   return [
   'day' => $day,
@@ -995,11 +995,20 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
   $new_data = array();
   $new_data['days']  = [];
   // Stub for table first column.
+
+  $first_of_the_month =  strtotime(1 . '.' . $month . '.' . $year);
   $new_data['days']['#'][]  = [
       'length' => $account->name,
       'title' => $account->name,
       'type' => 'user',
-      'pr_href' => url('user/' . $uid),
+      'pr_href' => url('user', [
+        'query' => [
+          'uid' => $uid,
+          'day' => date('d', $first_of_the_month),
+          'month' => date('m', $first_of_the_month),
+          'year' => date('Y', $first_of_the_month)
+        ]
+      ]),
       'type' => 'name',
       'mlid' => '0',
     ];

@@ -24,20 +24,20 @@
                 <td>
                   <ul class="list-unstyled">
                     <?php foreach($tracks as $track): ?>
-                      <!--     User name   -->
-                      <?php if ($track['type'] == 'name'): ?>
+                      <?php if ($track['type'] == 'name' && !$expanded): ?>
+                        <!--     User name   -->
                         <li class="<?php print $track['type']; ?>">
                           <a href="<?php print $track['pr_href']; ?>" target="_blank"><?php print $track['length']; ?></a>
                         </li>
                       <?php endif; ?>
-                      <!--     tracking data            -->
                       <?php  if ($track['type'] == 'tracking'): ?>
+                        <!--     tracking data            -->
                         <li<?php print ' mlid="' . $track['mlid'] . '"'; if (!$expanded && $track['expandable'] ) { print ' style="display:none"';} ?>>
                           <a href="<?php print $track['pr_href']; ?>" data-toggle="tooltip" title="<?php print check_plain($track['title']); ?>" class="<?php print $track['class']; ?>" target="_blank"><?php print $track['length']; ?></a>
                         </li>
                       <?php endif; ?>
-                      <!--      Non tracking data            -->
                       <?php if ($track['type'] == 'global'):  ?>
+                        <!--      Non tracking data            -->
                         <li data-toggle="tooltip" title="<?php print check_plain($track['title']); ?>" class="<?php print $track['class']; ?>">
                           <?php print $track['length']; ?>
                         </li>
@@ -61,5 +61,26 @@
 <style>
   .table tbody > tr.track-item > td {
     vertical-align: bottom;
+  }
+  table tbody > tr.track-item .weekend {
+    color: blueviolet;
+  }
+  table tbody > tr.track-item .vacation {
+    color: #002F31;
+  }
+  table tbody > tr.track-item .holiday {
+    color: brown;
+  }
+  table tbody > tr.track-item .empty {
+    color: red;
+  }
+  table tbody > tr.track-item .Sick {
+    color: #761c19;
+  }
+  table tbody > tr.track-item .Miluim {
+    color: darkgreen;
+  }
+  table tbody > tr.track-item .Convention {
+      color: tomato;
   }
 </style>

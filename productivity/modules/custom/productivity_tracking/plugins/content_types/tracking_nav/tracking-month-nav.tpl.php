@@ -81,6 +81,6 @@
     color: darkgreen;
   }
   table tbody > tr.track-item .Convention {
-      color: tomato;
+      color: seagreen;
   }
 </style>

@@ -18,31 +18,39 @@
         </tr>
         </thead>
         <tbody>
-        <tr class="track-item">
-          <?php foreach($tracking['days'] as $key => $tracks): ?>
-            <td>
-              <ul class="list-unstyled">
-                <?php foreach($tracks as $track): ?>
-                    <?php if (isset($track['pr_href'])): ?>
-                      <li mlid="<?php print $track['mlid']; ?>">
-                      <a href="<?php print $track['pr_href']; ?>" data-toggle="tooltip" title="<?php print check_plain($track['title']); ?>" class="<?php print $track['type']; ?>" target="_blank">
-                        <?php print $track['length']; ?>
-                      </a>
-                    <?php endif; ?>
-                    <!--      Non tracking data            -->
-                    <?php if (!isset($track['pr_href'])): ?>
-                      <li data-toggle="tooltip" title="<?php print check_plain($track['title']); ?>" class="<?php print $track['type']; ?>">
-                        <?php print $track['length']; ?>
-                    <?php endif; ?>
-                  </li>
-                <?php endforeach; ?>
-                <li>
-                  <strong><?php if (isset($tracking['sum']['days'][$key])) { print $tracking['sum']['days'][$key];} ?></strong>
-                </li>
-              </ul>
-            </td>
+          <?php foreach($tracks as $key => $tracking): ?>
+            <tr class="track-item">
+              <?php foreach($tracking['days'] as $key => $tracks): ?>
+                <td>
+                  <ul class="list-unstyled">
+                    <?php foreach($tracks as $track): ?>
+                      <!--     User name   -->
+                      <?php if ($track['type'] == 'name'): ?>
+                        <li class="<?php print $track['type']; ?>">
+                          <a href="<?php print $track['pr_href']; ?>" target="_blank"><?php print $track['length']; ?></a>
+                        </li>
+                      <?php endif; ?>
+                      <!--     tracking data            -->
+                      <?php  if ($track['type'] == 'tracking'): ?>
+                        <li<?php print ' mlid="' . $track['mlid'] . '"'; if (!$expanded && $track['expandable'] ) { print ' style="display:none"';} ?>>
+                          <a href="<?php print $track['pr_href']; ?>" data-toggle="tooltip" title="<?php print check_plain($track['title']); ?>" class="<?php print $track['class']; ?>" target="_blank"><?php print $track['length']; ?></a>
+                        </li>
+                      <?php endif; ?>
+                      <!--      Non tracking data            -->
+                      <?php if ($track['type'] == 'global'):  ?>
+                        <li data-toggle="tooltip" title="<?php print check_plain($track['title']); ?>" class="<?php print $track['class']; ?>">
+                          <?php print $track['length']; ?>
+                        </li>
+                      <?php endif; ?>
+                    <?php endforeach; ?>
+                    <li>
+                      <strong><?php if (isset($tracking['sum']['days'][$key])) { print $tracking['sum']['days'][$key];} ?></strong>
+                    </li>
+                  </ul>
+                </td>
+              <?php endforeach; ?>
+            </tr>
           <?php endforeach; ?>
-        </tr>
         </tbody>
       </table>
     </div>

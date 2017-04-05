@@ -75,7 +75,7 @@ function productivity_tracking_get_query_strings($args) {
     $date = "$day.$month.$year";
   }
 
-  $uid = isset($_GET['uid']) ? $_GET['uid'] : $args[0];
+  $uid = isset($_GET['uid']) ? $_GET['uid'] : isset($args[0]) ? $args[0] : 1;
 
   return [
   'day' => $day,
@@ -990,11 +990,19 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
   $last_day_this_month  = date('t', strtotime('1.' . $month . '.' . $year));
   $assoc_globals = productivity_timewatch_get_global_days($year, $month);
 
+  $account = user_load($uid);
   // Build skeleton of array, one item per day.
   $new_data = array();
-  $new_data['days']  = array();
+  $new_data['days']  = [];
   // Stub for table first column.
-  $new_data['days']['#']  = array();
+  $new_data['days']['#'][]  = [
+      'length' => $account->name,
+      'title' => $account->name,
+      'type' => 'user',
+      'pr_href' => url('user/' . $uid),
+      'type' => 'name',
+      'mlid' => '0',
+    ];
   $new_data['sum']  = array(
     'month' => 0,
     'projects' => array(),
@@ -1002,7 +1010,6 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
   );
 
   // Get weekends and holidays for given user.
-  $account = user_load($uid);
   $country = 'IL';
   // Weekend Friday Saturday.
   $weekend_days = array(5, 6);
@@ -1032,11 +1039,12 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
       ]
     ]);
 
-    // Holydays
+    // Holidays
     if (isset($holidays[$key])) {
       $day_item = array(
         'id' => 'new',
-        'type' => 'holiday',
+        'type' => 'global',
+        'class' => 'holiday',
         'day' => $key,
         'length' => 'H',
         'projectName' => $holidays[$key]['label'],
@@ -1044,6 +1052,7 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
         'tracking' => FALSE,
         'href' => $default_url,
         'title' => $holidays[$key]['label'],
+        'expandable' => FALSE,
       );
       // Add item for weekend.
       $new_data['days'][$key][] = $day_item;
@@ -1055,7 +1064,8 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
       if (in_array($week_day, $weekend_days)) {
         $day_item = array(
           'id' => 'new',
-          'type' => 'weekend',
+          'type' => 'global',
+          'class' => 'weekend',
           'day' => $key,
           'length' => 'W',
           'projectName' => 'Weekend',
@@ -1063,6 +1073,7 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
           'tracking' => FALSE,
           'href' => $default_url,
           'title' => 'Weekend',
+          'expandable' => FALSE,
         );
         // Add item for weekend.
         $new_data['days'][$key][] = $day_item;
@@ -1113,7 +1124,8 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
     $day['day'] = date('d', strtotime($pr_date));
     $day['pr_href'] = $pr_url;
     $day['issue_href'] = $issue_url;
-    $day['type'] = $pr_work_type;
+    $day['type'] = 'tracking';
+    $day['class'] = $pr_work_type;
     $day['title'] = $pr_title;
     $day['tracking'] = TRUE;
     $day['repo'] = $repo_id;
@@ -1124,6 +1136,7 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
     // Don't allow to edit the fields outside of the PR.
     $day['disabled'] = 'disabled';
     $day['nodelink'] = $node_link;
+    $day['expandable'] = TRUE;
 
     $time_diff_h_dec = number_format((strtotime($pr_date_end) - strtotime($pr_date)) / 3600, 1);
 
@@ -1164,6 +1177,7 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
   // Fill in vacation other personal global days.
   $non_regular = productivity_timewatch_get_user_sessions($uid, $year, $month, TRUE);
   $day = [];
+  $day['expandable'] = FALSE;
   foreach ($non_regular as $special_day) {
     $wrapper = entity_metadata_wrapper('node', $special_day);
 
@@ -1171,7 +1185,9 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
     $day['length'] = strtoupper(substr($wrapper->field_session_type->label(), 0, 1));
     $day['day'] = date('d', $wrapper->field_session_date->value->value());
     $day['pr_href'] = url('node/' . $wrapper->getIdentifier() . '/edit');
-    $day['type'] = $wrapper->field_session_type->label();
+    $day['type'] = 'tracking';
+    $day['expandable'] = FALSE;
+    $day['class'] = $wrapper->field_session_type->label();
     $day['mlid'] = 0;
 
     // Hover title.
@@ -1179,9 +1195,6 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
     $to = date('H:m', $wrapper->field_session_date->value2->value());
     $title = $wrapper->field_special_day_name->value() ? $wrapper->field_special_day_name->value() : $wrapper->field_session_type->label();
     $day['title'] = "$title - $from -> $to";
-
-    $day['tracking'] = FALSE;
-
 
     $key = $day['day'];
     $new_data['days'][$key][] = $day;
@@ -1206,7 +1219,8 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
       $row[] = array(
         // Set id to new to get the proper link on angular.
         'id' => 'new',
-        'type' => 'empty',
+        'class' => 'empty',
+        'type' => 'global',
         'day' => (string) $key,
         'length' => 'E',
         'projectName' => 'Log work',
@@ -1214,6 +1228,7 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
         'tracking' => FALSE,
         'href' => $default_url,
         'title' => 'Empty',
+        'expandable' => TRUE,
       );
     }
   }

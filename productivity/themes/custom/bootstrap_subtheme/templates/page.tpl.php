@@ -288,6 +288,12 @@
                     <span>Dashboard</span>
                   </a>
                 </li>
+                <li class="<?php print ($path == 'dashboard-tracking') ? 'active' : '';?>">
+                  <a href="<?php print url('dashboard-tracking'); ?>">
+                    <i class="fa fa-calendar-times-o"></i>
+                    <span>Tracking</span>
+                  </a>
+                </li>
                 <li class="<?php print ($path == 'payments') ? 'active' : '';?>">
                   <a href="<?php print $base_path;?>payments">
                     <i class="fa fa-money"></i>
@@ -313,8 +319,8 @@
                     <span>Projects</span>
                   </a>
                 </li>
-                <li class="<?php print ($path == 'admin/content/github') ? 'active' : '';?>">
-                  <a href="<?php print $base_path;?>admin/content/github">
+                <li class="<?php print ($path == 'user') ? 'active' : '';?>">
+                  <a href="<?php print url('user'); ?>">
                     <i class="fa fa-github"></i>
                     <span>Github</span>
                   </a>

@@ -300,7 +300,6 @@ function productivity_timewatch_get_global_days($year, $month) {
 
   // Get TID of global days.
   $tids = taxonomy_get_term_by_name('Funday', 'session_types');
-  $tids += taxonomy_get_term_by_name('Holiday', 'session_types');
   $query = new EntityFieldQuery();
   $query
     ->entityCondition('entity_type', 'node')

@@ -61,6 +61,29 @@ function productivity_tracking_default_page_manager_pages() {
   $display->content = array();
   $display->panels = array();
   $pane = new stdClass();
+  $pane->pid = 'new-0a8c71a5-a064-4cc6-9e75-7180abee162d';
+  $pane->panel = 'bottom';
+  $pane->type = 'project_sum';
+  $pane->subtype = 'project_sum';
+  $pane->shown = TRUE;
+  $pane->access = array();
+  $pane->configuration = array(
+    'override_title' => 0,
+    'override_title_text' => '',
+    'override_title_heading' => 'h2',
+  );
+  $pane->cache = array();
+  $pane->style = array(
+    'settings' => NULL,
+  );
+  $pane->css = array();
+  $pane->extras = array();
+  $pane->position = 0;
+  $pane->locks = array();
+  $pane->uuid = '0a8c71a5-a064-4cc6-9e75-7180abee162d';
+  $display->content['new-0a8c71a5-a064-4cc6-9e75-7180abee162d'] = $pane;
+  $display->panels['bottom'][0] = 'new-0a8c71a5-a064-4cc6-9e75-7180abee162d';
+  $pane = new stdClass();
   $pane->pid = 'new-272f1a99-da75-4d3d-81d0-a0cecf62d3bc';
   $pane->panel = 'top';
   $pane->type = 'tracking_nav';

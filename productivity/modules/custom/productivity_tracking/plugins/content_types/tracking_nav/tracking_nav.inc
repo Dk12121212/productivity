@@ -22,7 +22,6 @@ function productivity_tracking_tracking_nav_content_type_render($subtype, $conf,
   $date = $variables['date'];
   $year = $variables['year'];
   $month = $variables['month'];
-  $day = $variables['day'];
 
   // Build date links.
   $date_relative = [

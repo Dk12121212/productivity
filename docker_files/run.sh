@@ -48,7 +48,7 @@ cd /var/www/html/productivity/productivity/libraries/dompdf
 composer install --no-interaction --prefer-source
 
 #Run SimpleTest
-print_message "Run SimpleTest."
+echo "Run SimpleTest."
 export PATH="$HOME/.composer/vendor/bin:$PATH"
 drush @productivity en simpletest -y
 cd /var/www/html/productivity

@@ -35,18 +35,10 @@ class ProductivityMigrateTracker extends ProductivityMigrate {
       'ProductivityMigrateUser',
       'ProductivityMigrateProject',
     );
-    //  date,employee,project,work length,length unit(hours/days),work description
-    $field_names = array(
-      'title',
-    );
-    $this->addSimpleMappings($field_names);
 
     $this
       ->addFieldMapping('field_project', 'field_project')
       ->sourceMigration('ProductivityMigrateProject');
-
-    $this
-      ->addFieldMapping('field_project', 'project');
 
   }
 

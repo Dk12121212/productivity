@@ -1,6 +1,9 @@
 name = Productivity tracking
 core = 7.x
 package = productivity
+
+files[] = productivity_tracking.test
+files[] = tests/ProductivityTrackingTestIssueParsing.test
 dependencies[] = ctools
 dependencies[] = date
 dependencies[] = entityreference

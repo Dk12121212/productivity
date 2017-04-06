@@ -104,6 +104,29 @@ function productivity_tracking_ctools_plugin_directory($module, $plugin) {
  */
 function productivity_tracking_theme($existing, $type, $theme, $path) {
   return array(
+    'productivity_time_tracking_monthly_report' => array(
+      'variables' => array(
+        'project_title' => NULL,
+        'table' => NULL,
+        'table_titles' => NULL,
+      ),
+      'path' => drupal_get_path('module', 'productivity_tracking') . '/monthly_report',
+      'template' => 'monthly_report',
+    ),
+    'productivity_time_tracking_monthly_report_table' => array(
+      'variables' => array(
+        'project_title' => NULL,
+        'table' => NULL,
+        'table_titles' => NULL,
+      ),
+      'path' => drupal_get_path('module', 'productivity_tracking') . '/monthly_report',
+      'template' => 'monthly_report_table',
+    ),
+    'productivity_time_tracking_project_report' => array(
+      'variables' => array(),
+      'path' => drupal_get_path('module', 'productivity_tracking') . '/project_report',
+      'template' => 'project_report',
+    ),
     'tracking_burn_table' => array(
       'variables' => array(),
       'template' => 'productivity_tracking_burn_table',

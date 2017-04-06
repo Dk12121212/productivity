@@ -56,7 +56,7 @@ function productivity_project_menu() {
     'weight' => -10,
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
-    'file path' => drupal_get_path('module', 'productivity_time_tracking') . '/project_report',
+    'file path' => drupal_get_path('module', 'productivity_tracking') . '/project_report',
     'file' => '/project_report.inc',
   );
 
@@ -623,6 +623,8 @@ function productivity_project_recalcualte_rate_total_hours($project_id, $rate_ty
 
 /**
  * Recalculate project total hours per rate
+ *
+ * TODO: Deprecated.
  */
 function productivity_project_get_tracking($project_id, $rate_type = FALSE) {
   // Get all work done in a project and specific type.

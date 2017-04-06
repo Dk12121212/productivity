@@ -21,6 +21,8 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
 
   public function setUp() {
     parent::setUp();
+
+    module_enable('productivity_tracking');
   }
 
   public function testTitleParsing() {

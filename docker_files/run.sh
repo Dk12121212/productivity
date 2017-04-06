@@ -20,15 +20,6 @@ echo -e "\n [RUN] Install NodeJS."
 curl -sL https://deb.nodesource.com/setup_5.x | bash -
 apt-get install -y nodejs
 
-# Install Sass and Compass for Grunt to work.
-echo -e "\n [RUN] Install Compass and Sass"
-gem install compass
-
-# Install Grunt & Bower.
-echo -e "\n [RUN] Install Grunt."
-npm install -g grunt-cli
-echo -e "\n [RUN] Install Bower."
-npm install -g bower
 
 # Install php packages required for running a web server from drush on php 5.3
 echo -e "\n [RUN] Install php packages."
@@ -55,6 +46,16 @@ cp default.config.sh config.sh
 echo -e "\n [RUN] Install DOMPDF"
 cd /var/www/html/productivity/productivity/libraries/dompdf
 composer install --no-interaction --prefer-source
+
+#Run SimpleTest
+print_message "Run SimpleTest."
+export PATH="$HOME/.composer/vendor/bin:$PATH"
+drush @productivity en simpletest -y
+cd /var/www/html/productivity
+php ./www/scripts/run-tests.sh --php $(which php) --concurrency 4 --verbose --color --url http://localhost Productivity 2>&1 | tee /tmp/simpletest-result.txt
+egrep -i "([1-9]+ fail)|(Fatal error)|([1-9]+ exception)" /tmp/simpletest-result.txt && exit 1
+
+exit 0
 
 # Install Firefox (iceweasel)
 echo -e "\n [RUN] Installing Firefox."
@@ -89,35 +90,12 @@ php composer.phar update
 cp behat.local.docker.yml behat.local.yml
 cd ../..
 
-# Install client and Behat for client
-echo -e "\n [RUN] Install client and Behat for client."
-cd client
-npm cache clean
-npm install
-bower install --allow-root
-cp config.docker.json config.json
-cd ../behat
-cp behat.local.docker.yml behat.local.yml
-composer install --prefer-source
-cd ..
-
 # Start up Selenium server
 echo -e "\n [RUN] Starting up Selenium server.\n"
 DISPLAY=:1 xvfb-run java -jar ~/selenium/selenium-server-standalone-2.53.0.jar > ~/sel.log 2>&1 &
 
-#Start Grunt server.
-echo -e "\n [RUN] Starting Grunt server.\n"
-cd client
-grunt serve > ~/grunt.log 2>&1 &
-
-echo -e "\n [WAIT] Servers needs some time to start...\n"
-# Wait for Grunt to finish loading.
-until $(curl --output /dev/null --silent --head --fail http://127.0.0.1:9001/); do sleep 1; echo '.'; done
-echo -e "\nOkay."
 
 # Output server logs:
-echo -e "\n [RUN] Look at my Grunt log: \n"
-cat ~/grunt.log
 echo -e "\n [RUN] Look at my Selenium log: \n"
 cat ~/sel.log
 

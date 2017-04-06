@@ -55,8 +55,6 @@ cd /var/www/html/productivity
 php ./www/scripts/run-tests.sh --php $(which php) --concurrency 4 --verbose --color --url http://localhost Productivity 2>&1 | tee /tmp/simpletest-result.txt
 egrep -i "([1-9]+ fail)|(Fatal error)|([1-9]+ exception)" /tmp/simpletest-result.txt && exit 1
 
-exit 0
-
 # Install Firefox (iceweasel)
 echo -e "\n [RUN] Installing Firefox."
 apt-get update

@@ -1,14 +1,6 @@
 <?php
 
 /**
-* Implements of hook_install().
-*/
-function productivity_tracking_install() {
-  // Use schema API to create database table.
-  drupal_install_schema('productivity_tracking');
-}
-
-/**
 * Implements of hook_uninstall().
 */
 function productivity_tracking_uninstall() {

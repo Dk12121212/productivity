@@ -148,7 +148,7 @@ function productivity_setup_set_variables() {
     'jquery_update_jquery_version' => '1.10',
     'jquery_update_jquery_admin_version' => '1.5',
     'productivity_time_tracking_hours_count_as_day' => 7,
-    'site_frontpage' => 'dashboard',
+    'site_frontpage' => 'user',
     'composer_manager_vendor_dir' => 'profiles/productivity/composer/vendor',
     'composer_manager_file_dir' => 'sites/default/files',
   );

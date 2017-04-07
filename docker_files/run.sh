@@ -11,19 +11,19 @@ service mysql start
 
 # Before install.
 echo "\r\n [RUN] Updating system ...\r\n"
-apt-get update
+apt-get -qq update
 echo -e "\n [RUN] Composer self-update."
 composer self-update
 
 # Install NodeJS
 echo -e "\n [RUN] Install NodeJS."
 curl -sL https://deb.nodesource.com/setup_5.x | bash -
-apt-get install -y nodejs
+apt-get install -y -qq nodejs
 
 
 # Install php packages required for running a web server from drush on php 5.3
 echo -e "\n [RUN] Install php packages."
-apt-get install -y --force-yes php5-cgi php5-mysql
+apt-get install -y --force-yes -qq php5-cgi -qq php5-mysql
 # Fix error sending mails.
 echo 'sendmail_path = /bin/true' >> /etc/php.ini
 #echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
@@ -58,7 +58,7 @@ egrep -i "([1-9]+ fail)|(Fatal error)|([1-9]+ exception)" /tmp/simpletest-result
 # Install Firefox (iceweasel)
 echo -e "\n [RUN] Installing Firefox."
 apt-get update
-apt-get -y install iceweasel
+apt-get -y install -qq iceweasel
 
 # Install Selenium.
 echo -e "\n [RUN] Installing Selenium."
@@ -71,14 +71,14 @@ cd ~/selenium
 echo -e "\n [RUN] Installing Selenium and headless Java runtime.\n"
 wget http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.0.jar
 cd /var/www/html/productivity/productivity
-apt-get install openjdk-7-jre-headless -y
+apt-get install -qq openjdk-7-jre-headless -y
 
 # Install headless GUI for browser.'Xvfb is a display server that performs graphical operations in memory'
 echo -e "\n [RUN] Installing XVFB (headless GUI for Firefox).\n"
 # on mac use instruction here:
 # http://stackoverflow.com/questions/18868743/how-to-install-selenium-webdriver-on-mac-os
 # and put in behat dir this: https://github.com/mozilla/geckodriver/releases
-apt-get install xvfb -y
+apt-get install -qq xvfb -y
 
 # Install Behat for backend.
 echo -e "\n [RUN] Install Behat for back end."

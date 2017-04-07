@@ -101,4 +101,4 @@ cd /var/www/html/productivity
 
 # Run Behat tests.
 echo -e "\n [RUN] Start tests.\n"
-cd ../productivity/behat && ./bin/behat --tags=~@wip
+cd productivity/behat && ./bin/behat --tags=~@wip

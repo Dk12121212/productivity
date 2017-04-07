@@ -1,0 +1,58 @@
+<?php
+
+/**
+* Implements of hook_install().
+*/
+function productivity_tracking_install() {
+  // Use schema API to create database table.
+  drupal_install_schema('productivity_tracking');
+}
+
+/**
+* Implements of hook_uninstall().
+*/
+function productivity_tracking_uninstall() {
+  // Remove tables.
+  drupal_uninstall_schema('productivity_tracking');
+}
+
+/**
+* Implements of hook_schema().
+*/
+function productivity_tracking_schema() {
+  $schema['productivity_github_webhook_duplicates'] = array(
+    'description' => t('Stores data to prevent duplicate creating of stubs.'),
+    'fields' => array(
+      'id' => array(
+        'description' => 'The primary identifier for a type.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE
+      ),
+      'issue_id' => array(
+        'description' => 'Github repo and issue id.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE
+      ),
+      'uuid' => array(
+        'description' => 'UUID.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => ''
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  return $schema;
+}
+
+/**
+ * Create schema for duplicates.
+ */
+function productivity_tracking_update_7000() {
+  // Use schema API to create database table.
+  drupal_install_schema('productivity_tracking');
+}

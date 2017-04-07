@@ -362,7 +362,6 @@ function productivity_tracking_payload() {
  * Handle PR event.
  */
 function productivity_tracking_gh_payload($payload, $event) {
-
   // Get related issue from PR body.
   if ($event == 'pull_request') {
     $pr = $payload['pull_request'];
@@ -425,7 +424,10 @@ function productivity_tracking_gh_payload($payload, $event) {
     ];
 
 
-    $wrapper = productivity_tracking_get_tracking_node($data_issue, TRUE);
+    if(!$wrapper = productivity_tracking_get_tracking_node($data_issue, TRUE)) {
+      // Case of race condition.
+      continue;
+    }
 
     // Only create tracking stub if a new PR was pushed.
     // This will be later used to prepopulate the tracking for developers.
@@ -844,7 +846,6 @@ function productivity_tracking_parse_time_estimate($string) {
   // Look for [12], [12H], [12h], [12.5h], [12.5H], [12.4] formats.
   if (preg_match('/\[([0-9]+\.?[0-9]+)[h|H]?\]/', $string, $matches)) {
     // The issue has a time estimate.
-    dpm($matches);
     $estimate = empty($matches[1]) ? (empty($matches[2]) ? 0 : $matches[2]) : $matches[1];
   }
   return $estimate;
@@ -991,6 +992,49 @@ function productivity_tracking_create_multifields_track($data) {
 }
 
 /**
+ * Check already in process same issue.
+ */
+function productivity_tracking_check_race_condition($data) {
+  // We need to take care of race condition, 2 request for same issue
+  // might come together, and we don't want duplicates to be created.
+  // The technique is to use a variable that mark processing and to wait 5 sec.
+  $uuid = ctools_uuid_generate();
+  $issue_id = $data['repo'] . '/' . $data['issue_id'];
+  db_insert('productivity_github_webhook_duplicates')
+    ->fields(array(
+      'issue_id' => $issue_id,
+      'uuid' => $uuid,
+    ))
+    ->execute();
+
+  sleep(5);
+
+  $query_duplicates = db_select('productivity_github_webhook_duplicates', 'g')
+    ->condition('g.issue_id', $issue_id, '=')
+    ->fields('g', array('uuid'))
+    ->orderBy('g.uuid')
+    ->execute();
+
+  $count = $query_duplicates->rowCount();
+  $chosen_request = $query_duplicates->fetchAssoc();
+
+  // Delete the temp db entry.
+  $res = db_delete('productivity_github_webhook_duplicates')
+    ->condition('uuid', $uuid)
+    ->execute();
+
+  if ($res != 1) {
+    watchdog('productivity', "Unable to delete entry in productivity_github_webhook_duplicates for uuid $uuid", WATCHDOG_CRITICAL);
+  }
+  // We have a duplicate, if it's the first one than let go, otherwise
+  // don't create.
+  if ($count > 1 && $chosen_request['uuid'] != $uuid) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
  * Try to find a matching tacking node, or create one.
  *
  * @param $data
@@ -1002,12 +1046,17 @@ function productivity_tracking_create_multifields_track($data) {
  *  'project' - Required for new
  *  'estimate' -  Required for new
  *  'uid' -  Required for new
- *  'status' -  Required for new
+ *  'status' -  Required for ne
  */
 function productivity_tracking_get_tracking_node($data, $update_existing = FALSE) {
 
   $node = FALSE;
   if ($data['issue_id'] && $data['repo']) {
+
+    if (productivity_tracking_check_race_condition($data)) {
+      return FALSE;
+    }
+
     // Look for a tracking of the same issue.
     $query = new EntityFieldQuery();
     $result = $query
@@ -1019,6 +1068,7 @@ function productivity_tracking_get_tracking_node($data, $update_existing = FALSE
       ->range(0, 1)
       ->execute();
 
+    // Found existing, re-use.
     if (!empty($result['node'])) {
       $nid = reset($result['node']);
       $node = node_load($nid->nid);
@@ -1054,6 +1104,7 @@ function productivity_tracking_get_tracking_node($data, $update_existing = FALSE
       'uid' => $user->uid ? $data['uid'] : $user->uid,
       'status' => 1,
     );
+
     $node = entity_create('node', $values);
 
     $wrapper = entity_metadata_wrapper('node', $node);

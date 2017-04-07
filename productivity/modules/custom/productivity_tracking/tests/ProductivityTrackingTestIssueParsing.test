@@ -25,7 +25,7 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
     module_enable(array('productivity_tracking'));
   }
 
-  public function testTitleParsing() {
+  public function testTitleParsingEstimation() {
 
     $strings = [
       ['12', "Create a view of the team members [12]"],
@@ -39,5 +39,15 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
       $estimate = productivity_tracking_parse_time_estimate($string[1]);
       $this->assertEqual($string[0], $estimate, '', 'Productivity');
     }
+  }
+
+  // Check the issue is created on payload push.
+  public function testPayloadIssue() {
+    $path = drupal_get_path('module', 'productivity_tracking') . '/tests/json/';
+    $json = file_get_contents($path . 'issuePayload.json');
+    $payload = json_decode($json, TRUE);
+    productivity_tracking_gh_payload($payload, 'issues');
+    
+
   }
 }

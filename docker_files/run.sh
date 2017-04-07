@@ -26,7 +26,6 @@ echo -e "\n [RUN] Install php packages."
 apt-get install -y --force-yes -qq php5-cgi -qq php5-mysql
 # Fix error sending mails.
 echo 'sendmail_path = /bin/true' >> /etc/php.ini
-#echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
 # Install Drush & create alias.
 echo -e "\n [RUN] Install Drush."
@@ -57,7 +56,6 @@ egrep -i "([1-9]+ fail)|(Fatal error)|([1-9]+ exception)" /tmp/simpletest-result
 
 # Install Firefox (iceweasel)
 echo -e "\n [RUN] Installing Firefox."
-apt-get update
 apt-get -y install -qq iceweasel
 
 # Install Selenium.

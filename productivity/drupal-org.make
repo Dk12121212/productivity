@@ -141,11 +141,6 @@ projects[restful][download][type] = "git"
 projects[restful][download][url] = "https://github.com/RESTful-Drupal/restful.git"
 projects[restful][download][branch] = "7.x-1.x"
 
-projects[rollbar][subdir] = "contrib"
-projects[rollbar][download][type] = "git"
-projects[rollbar][download][url] = "https://github.com/thepearson/drupal_rollbar.git
-projects[rollbar][download][branch] = "master"
-
 projects[smtp][subdir] = "contrib"
 projects[smtp][version] = "1.3"
 

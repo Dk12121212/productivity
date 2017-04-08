@@ -11,31 +11,21 @@ service mysql start
 
 # Before install.
 echo "\r\n [RUN] Updating system ...\r\n"
-apt-get update
+apt-get -qq update
 echo -e "\n [RUN] Composer self-update."
 composer self-update
 
 # Install NodeJS
 echo -e "\n [RUN] Install NodeJS."
 curl -sL https://deb.nodesource.com/setup_5.x | bash -
-apt-get install -y nodejs
+apt-get install -y -qq nodejs
 
-# Install Sass and Compass for Grunt to work.
-echo -e "\n [RUN] Install Compass and Sass"
-gem install compass
-
-# Install Grunt & Bower.
-echo -e "\n [RUN] Install Grunt."
-npm install -g grunt-cli
-echo -e "\n [RUN] Install Bower."
-npm install -g bower
 
 # Install php packages required for running a web server from drush on php 5.3
 echo -e "\n [RUN] Install php packages."
-apt-get install -y --force-yes php5-cgi php5-mysql
+apt-get install -y --force-yes -qq php5-cgi -qq php5-mysql
 # Fix error sending mails.
 echo 'sendmail_path = /bin/true' >> /etc/php.ini
-#echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
 # Install Drush & create alias.
 echo -e "\n [RUN] Install Drush."
@@ -56,10 +46,17 @@ echo -e "\n [RUN] Install DOMPDF"
 cd /var/www/html/productivity/productivity/libraries/dompdf
 composer install --no-interaction --prefer-source
 
+#Run SimpleTest
+echo "Run SimpleTest."
+export PATH="$HOME/.composer/vendor/bin:$PATH"
+drush @productivity en simpletest -y
+cd /var/www/html/productivity
+php ./www/scripts/run-tests.sh --php $(which php) --concurrency 4 --verbose --color --url http://localhost Productivity 2>&1 | tee /tmp/simpletest-result.txt
+egrep -i "([1-9]+ fail)|(Fatal error)|([1-9]+ exception)" /tmp/simpletest-result.txt && exit 1
+
 # Install Firefox (iceweasel)
 echo -e "\n [RUN] Installing Firefox."
-apt-get update
-apt-get -y install iceweasel
+apt-get -y install -qq iceweasel
 
 # Install Selenium.
 echo -e "\n [RUN] Installing Selenium."
@@ -72,14 +69,14 @@ cd ~/selenium
 echo -e "\n [RUN] Installing Selenium and headless Java runtime.\n"
 wget http://selenium-release.storage.googleapis.com/2.53/selenium-server-standalone-2.53.0.jar
 cd /var/www/html/productivity/productivity
-apt-get install openjdk-7-jre-headless -y
+apt-get install -qq openjdk-7-jre-headless -y
 
 # Install headless GUI for browser.'Xvfb is a display server that performs graphical operations in memory'
 echo -e "\n [RUN] Installing XVFB (headless GUI for Firefox).\n"
 # on mac use instruction here:
 # http://stackoverflow.com/questions/18868743/how-to-install-selenium-webdriver-on-mac-os
 # and put in behat dir this: https://github.com/mozilla/geckodriver/releases
-apt-get install xvfb -y
+apt-get install -qq xvfb -y
 
 # Install Behat for backend.
 echo -e "\n [RUN] Install Behat for back end."
@@ -89,35 +86,12 @@ php composer.phar update
 cp behat.local.docker.yml behat.local.yml
 cd ../..
 
-# Install client and Behat for client
-echo -e "\n [RUN] Install client and Behat for client."
-cd client
-npm cache clean
-npm install
-bower install --allow-root
-cp config.docker.json config.json
-cd ../behat
-cp behat.local.docker.yml behat.local.yml
-composer install --prefer-source
-cd ..
-
 # Start up Selenium server
 echo -e "\n [RUN] Starting up Selenium server.\n"
 DISPLAY=:1 xvfb-run java -jar ~/selenium/selenium-server-standalone-2.53.0.jar > ~/sel.log 2>&1 &
 
-#Start Grunt server.
-echo -e "\n [RUN] Starting Grunt server.\n"
-cd client
-grunt serve > ~/grunt.log 2>&1 &
-
-echo -e "\n [WAIT] Servers needs some time to start...\n"
-# Wait for Grunt to finish loading.
-until $(curl --output /dev/null --silent --head --fail http://127.0.0.1:9001/); do sleep 1; echo '.'; done
-echo -e "\nOkay."
 
 # Output server logs:
-echo -e "\n [RUN] Look at my Grunt log: \n"
-cat ~/grunt.log
 echo -e "\n [RUN] Look at my Selenium log: \n"
 cat ~/sel.log
 
@@ -125,4 +99,4 @@ cd /var/www/html/productivity
 
 # Run Behat tests.
 echo -e "\n [RUN] Start tests.\n"
-cd behat && ./bin/behat --tags=~@wip && cd ../productivity/behat && ./bin/behat --tags=~@wip
+cd productivity/behat && ./bin/behat --tags=~@wip

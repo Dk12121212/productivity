@@ -1,5 +1,5 @@
 {
     "require": {
-        "azuyalabs/yasumi": "^1.6"
+        "azuyalabs/yasumi": "dev-master"
     }
 }

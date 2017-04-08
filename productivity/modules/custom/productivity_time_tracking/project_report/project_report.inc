@@ -11,8 +11,8 @@
 function productivity_time_tracking_project_table($node = FALSE) {
   global $base_url;
   // Add JavaScript file with the base url of the page.
-  drupal_add_js(drupal_get_path('module', 'productivity_time_tracking') . '/project_report/project_report.js');
-  drupal_add_css(drupal_get_path('module', 'productivity_time_tracking') . '/project_report/project_report.css');
+  drupal_add_js(drupal_get_path('module', 'productivity_tracking') . '/project_report/project_report.js');
+  drupal_add_css(drupal_get_path('module', 'productivity_tracking') . '/project_report/project_report.css');
   drupal_add_css("//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/css/select2.min.css", array('type' => 'external'));
   drupal_add_css('https://fonts.googleapis.com/css?family=Abril+Fatface', array('type' => 'external'));
   drupal_add_js("//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/js/select2.min.js", array('type' => 'external'));

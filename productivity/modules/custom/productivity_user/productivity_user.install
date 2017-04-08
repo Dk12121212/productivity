@@ -125,3 +125,10 @@ function productivity_user_update_7005() {
       ->execute();
   }
 }
+
+/**
+ * Enable productivity_holiday.
+ */
+function productivity_user_update_7006() {
+  module_enable(array('productivity_holiday', 'country_field'));
+}

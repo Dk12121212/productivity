@@ -75,6 +75,7 @@ dependencies[] = productivity_payment
 dependencies[] = productivity_restful
 dependencies[] = productivity_salary
 dependencies[] = productivity_time_tracking
+dependencies[] = productivity_tracking
 dependencies[] = productivity_timewatch
 dependencies[] = productivity_user
 

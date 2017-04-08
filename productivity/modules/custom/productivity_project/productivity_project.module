@@ -42,34 +42,21 @@ function productivity_project_menu() {
     'page arguments' => array(1),
     'access callback' => 'node_access',
     'access arguments' => array('update', 1),
-    'weight' => 0,
+    'weight' => 10,
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
-  );
-
-  $items['node/%node/issues'] = array(
-    'title' => t('Issues'),
-    'page callback' => 'productivity_github_time_display_tracking_issue_table',
-    'page arguments' => array(1),
-    'access callback' => 'node_access',
-    'access arguments' => array('update', 1),
-    'weight' => 0,
-    'type' => MENU_LOCAL_TASK,
-    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
-    'file path' => drupal_get_path('module', 'productivity_github'),
-    'file' => '/productivity_github.table.inc',
   );
 
   $items['node/%node/project-work-report'] = array(
-    'title' => t('Tracking report per month'),
+    'title' => t('Tracking report (summary)'),
     'page callback' => 'productivity_time_tracking_project_table',
     'page arguments' => array(1),
     'access callback' => 'node_access',
     'access arguments' => array('update', 1),
-    'weight' => 0,
+    'weight' => -10,
     'type' => MENU_LOCAL_TASK,
     'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
-    'file path' => drupal_get_path('module', 'productivity_time_tracking') . '/project_report',
+    'file path' => drupal_get_path('module', 'productivity_tracking') . '/project_report',
     'file' => '/project_report.inc',
   );
 
@@ -83,6 +70,10 @@ function productivity_project_menu() {
 
   return $items;
 }
+
+/**
+ * @param $node
+ */
 function productivity_project_page_acceptance_post($node) {
   $saved_data = array();
   foreach ($_POST as $key => $data) {
@@ -103,6 +94,10 @@ function productivity_project_page_acceptance_post($node) {
   drupal_json_output('TRUE');
 }
 
+/**
+ * @param $node
+ * @return string
+ */
 function productivity_project_page_acceptance($node) {
   $nid = $node->nid;
   drupal_add_js(array('submitAcceptanceURL' => base_path() . "node/$nid/acceptance/post"), 'setting');
@@ -628,6 +623,8 @@ function productivity_project_recalcualte_rate_total_hours($project_id, $rate_ty
 
 /**
  * Recalculate project total hours per rate
+ *
+ * TODO: Deprecated.
  */
 function productivity_project_get_tracking($project_id, $rate_type = FALSE) {
   // Get all work done in a project and specific type.
@@ -883,23 +880,8 @@ function productivity_project_get_developer_chart($node = NULL) {
   if (!$node || !$node->nid) {
     return;
   }
-  $project_id = $node->nid;
 
-  // Get all work done in a project and specific type.
-  $query = db_select('node', 'n');
-  $query->join('field_data_field_project', 'p', 'n.nid = p.entity_id');
-  $query->join('field_data_field_track_hours', 'h', 'n.nid = h.entity_id');
-
-  $query->fields('n', array('uid'))
-    ->condition('p.field_project_target_id', $project_id)
-    ->condition('n.type', 'time_tracking');
-  $query->fields('h', array('field_track_hours_value'));
-  $query->addExpression('SUM(h.field_track_hours_value)');
-
-  $query->groupBy('n.uid');
-
-  $result = $query->execute()->fetchAll();
-
+  $result = productivity_tracking_get_tracking_total($node->nid, FALSE, 'all');
   if (empty($result)) {
     return array();
   }
@@ -907,10 +889,10 @@ function productivity_project_get_developer_chart($node = NULL) {
   $developers = array();
   $developer_hours = array();
 
-  foreach ($result as $developer_data) {
-    $wrapper = entity_metadata_wrapper('user', $developer_data->uid);
+  foreach ($result as $uid => $developer_data) {
+    $wrapper = entity_metadata_wrapper('user', $uid);
     $developers[] = $wrapper->label();
-    $developer_hours[] = floatval($developer_data->expression);
+    $developer_hours[] = floatval($developer_data);
   }
 
   $chart = array(

@@ -18,10 +18,11 @@ $plugin = array(
 function productivity_tracking_tracking_nav_content_type_render($subtype, $conf, $args, $context) {
   $variables = productivity_tracking_get_query_strings($args);
 
-  $uid = $variables['uid'];
   $date = $variables['date'];
   $year = $variables['year'];
   $month = $variables['month'];
+  $uid = $variables['uid'];
+  $path = menu_get_item()['map'][0];
 
   // Build date links.
   $date_relative = [
@@ -33,7 +34,7 @@ function productivity_tracking_tracking_nav_content_type_render($subtype, $conf,
 
   // Create links with relative query string.
   foreach ($date_relative as $key => $timestamp) {
-    $variables['urls'][$key] = url('user', [
+    $variables['urls'][$key] = url($path, [
       'query' => [
         'uid' => $variables['uid'],
         'day' => date('d', $timestamp),
@@ -43,13 +44,11 @@ function productivity_tracking_tracking_nav_content_type_render($subtype, $conf,
     ]);
   }
 
-  $variables['tracking'] = productivity_tracking_get_month_structure($month, $year, $uid);
-
   $variables['days_link'] = [];
   // URLS for each day
   for ($i = 1; $i <= date('t', strtotime('1.' . $month . '.' . $year)); $i++) {
     $timestamp = strtotime($i . '.' . $month . '.' . $year);
-    $variables['days_link'][$i] = l($i, 'user', [
+    $variables['days_link'][$i] = l($i, $path, [
       'query' => [
         'uid' => $uid,
         'day' => date('d', $timestamp),
@@ -58,6 +57,20 @@ function productivity_tracking_tracking_nav_content_type_render($subtype, $conf,
       ]
     ]);
   }
+
+  if (empty($conf['all_users'])) {
+    $variables['expanded'] = TRUE;
+    $variables['tracks'][$uid] = productivity_tracking_get_month_structure($month, $year, $uid);
+  }
+  else {
+    $variables['expanded'] = FALSE;
+    $uids = productivity_user_get_active_uids($month, $year);
+    foreach ($uids as $uid) {
+      $variables['tracks'][$uid] = productivity_tracking_get_month_structure($month, $year, $uid);
+    }
+  }
+
+
 
   $block = new stdClass();
   $block->module = 'productivity_tracking';
@@ -70,7 +83,21 @@ function productivity_tracking_tracking_nav_content_type_render($subtype, $conf,
  * Edit form.
  */
 function productivity_tracking_tracking_nav_content_type_edit_form($form, &$form_state) {
+  $conf = $form_state['conf'];
+  $form['all_users'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('All users'),
+    '#default_value' => !empty($conf['all_users']) ? $conf['all_users'] : FALSE,
+  );
+
   return $form;
+}
+
+
+function productivity_tracking_tracking_nav_content_type_edit_form_submit($form, &$form_state) {
+  foreach (array('all_users') as $key) {
+    $form_state['conf'][$key] = $form_state['values'][$key];
+  }
 }
 
 /**

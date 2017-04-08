@@ -17,14 +17,10 @@ function productivity_timewatch_monthly_employee_report_callback($account = FALS
 use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
 function productivity_timewatch_monthly_employee_report_pdf_callback($account, $year, $month) {
 
-
   $html = productivity_timewatch_build_report($account, $year, $month);
   if (!$html) {
     return "No Data for this user.";
   }
-  // Composer's auto-loading functionality
-  require libraries_get_path('dompdf') . "/autoload.inc.php";
-  require libraries_get_path('css-to-inline') . "/vendor/autoload.php";
 
   // Set inline CSS.
   $css1 = drupal_get_path('theme', 'bootstrap_subtheme') . '/bootstrap/css/bootstrap.css';

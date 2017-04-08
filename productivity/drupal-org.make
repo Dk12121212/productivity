@@ -26,6 +26,9 @@ projects[ctools][version] = "1.12"
 projects[currency][subdir] = "contrib"
 projects[currency][version] = "2.6"
 
+projects[country_field][subdir] = "contrib"
+projects[country_field][version] = "1.0"
+
 projects[date][subdir] = "contrib"
 projects[date][version] = "2.9"
 
@@ -171,12 +174,6 @@ projects[migrate][version] = "2.8"
 
 projects[migrate_extras][subdir] = "development"
 projects[migrate_extras][version] = "2.5"
-
-; Libraries
-libraries[dompdf][type] = "libraries"
-libraries[dompdf][download][type] = "get"
-libraries[dompdf][download][type] = "get"
-libraries[dompdf][download][url] = "https://github.com/dompdf/dompdf/releases/download/v0.7.0/dompdf_0-7-0.zip"
 
 ; Themes
 projects[bootstrap][subdir] = "contrib"

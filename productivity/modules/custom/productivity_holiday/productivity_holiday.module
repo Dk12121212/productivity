@@ -5,7 +5,7 @@
  * Nationwide holiday handling for Productivity.
  */
 
-require_once __DIR__ . '/vendor/autoload.php';
+//require_once __DIR__ . '/vendor/autoload.php';
 
 use Yasumi\Yasumi;
 

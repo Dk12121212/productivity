@@ -6,7 +6,9 @@
         "knplabs/github-api": "~1.7.1",
         "psr/log": "1.0.x-dev",
         "rollbar/rollbar": "1.0.0-beta",
-        "azuyalabs/yasumi": "dev-master"
+        "azuyalabs/yasumi": "dev-master",
+        "tijsverkoyen/css-to-inline-styles": "1.5",
+        "dompdf/dompdf": "^0.8.0"
     },
     "config": {
         "autoloader-suffix": "ComposerManager",

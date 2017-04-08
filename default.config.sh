@@ -90,16 +90,6 @@ function post_install {
   echo "\$conf['github_public'] = '<your-client-id>';" >> www/sites/default/settings.php
   echo "\$conf['github_secret'] = '<your-client-secret>';"  >> www/sites/default/settings.php
 
-   # install Dompdf
-  cd productivity/www/profiles/productivity/libraries/dompdf
-  composer install --no-interaction --prefer-source
-
-  cd productivity/www/profiles/productivity/libraries
-  mkdir css-to-inline
-  cd css-to-inline
-  composer require tijsverkoyen/css-to-inline-styles:1.5
-
-
   cd productivity/www/profiles/productivity/composer
   composer install
 }

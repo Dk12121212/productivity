@@ -141,6 +141,11 @@ projects[restful][download][type] = "git"
 projects[restful][download][url] = "https://github.com/RESTful-Drupal/restful.git"
 projects[restful][download][branch] = "7.x-1.x"
 
+projects[rollbar][subdir] = "contrib"
+projects[rollbar][download][type] = "git"
+projects[rollbar][download][url] = "https://github.com/thepearson/drupal_rollbar.git
+projects[rollbar][download][branch] = "master"
+
 projects[smtp][subdir] = "contrib"
 projects[smtp][version] = "1.3"
 
@@ -174,12 +179,6 @@ projects[migrate][version] = "2.8"
 
 projects[migrate_extras][subdir] = "development"
 projects[migrate_extras][version] = "2.5"
-
-; Libraries
-libraries[dompdf][type] = "libraries"
-libraries[dompdf][download][type] = "get"
-libraries[dompdf][download][type] = "get"
-libraries[dompdf][download][url] = "https://github.com/dompdf/dompdf/releases/download/v0.7.0/dompdf_0-7-0.zip"
 
 ; Themes
 projects[bootstrap][subdir] = "contrib"

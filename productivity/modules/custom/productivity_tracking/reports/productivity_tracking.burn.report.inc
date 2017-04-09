@@ -89,6 +89,10 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE) {
   while($track_record = $tracking->fetchAssoc()) {
     // Pr data.
     $pr_time = $track_record['field_track_log_field_time_spent_value'];
+
+    if ($pr_time == '0') {
+      continue;
+    }
     $pr_gh_id = $track_record['field_track_log_field_issue_id_value'];
     $pr_title = $track_record['field_track_log_field_issue_label_value'];
     $pr_work_type = $track_record['field_track_log_field_issue_type_value'];
@@ -143,13 +147,13 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE) {
       $table['rows']["nid_" . $nid]['main'] = $issue_row;
 
       // Init first total value.
-      $totals[$nid] = floatval($pr_time);
+      $totals[$nid] = (double)$pr_time;
       // Sum estimate.
       $total_row['data']['estimate'] += $estimate;
     }
     else {
       // Add up total work time.
-      $totals[$nid] += floatval($pr_time);
+      $totals[$nid] += (double) $pr_time;
 
       // Update actual.
       $table['rows']["nid_" . $nid]['main']['data']['actual'] = $totals[$nid];

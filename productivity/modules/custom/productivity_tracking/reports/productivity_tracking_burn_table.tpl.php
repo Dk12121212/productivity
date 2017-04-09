@@ -1,15 +1,13 @@
 <div class="report-container">
-  <div class="back-link noprint">
-    <?php print $backlink; ?>
-  </div>
   <div>
     <ul class="nav nav-tabs noprint" role="tablist">
       <?php foreach ($tables as $name => $data): ?>
         <!-- Nav tabs -->
         <li role="presentation" class="<?php print $data['class']; ?>">
-  <!--        <span class="badge badge-primary">--><?php //print $data['totals']['data']['actual']; ?><!--</span>-->
+          <a class="" href="#<?php print $name; ?>" aria-controls="<?php print $name; ?>" role="tab" data-toggle="tab"><?php print $data['title']; ?>
+          <span class="badge badge-primary"><?php print $data['totals']['data']['actual']; ?></span>
           <span class="badge badge-danger"><?php print $data['totals']['data']['overtime']['data']; ?></span>
-          <a href="#<?php print $name; ?>" aria-controls="<?php print $name; ?>" role="tab" data-toggle="tab"><?php print $data['title']; ?></a>
+          </a>
         </li>
       <?php endforeach; ?>
     </ul>

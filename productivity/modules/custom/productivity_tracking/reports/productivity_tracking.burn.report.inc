@@ -19,7 +19,6 @@ function productivity_tracking_burn_report_callback($project_node) {
   drupal_set_title(t('@project burn table', array('@project' => $project_node->title)));
 
   $variables = [];
-  $variables['backlink'] = l(t('<< Back to project'), "node/{$project_node->nid}");
   $wrapper = entity_metadata_wrapper('node', $project_node);
   $active =  'active';
   // Create one table per type.

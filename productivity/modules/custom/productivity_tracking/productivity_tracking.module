@@ -788,6 +788,9 @@ function productivity_tracking_get_tracking_by_user($uid, $year = FALSE, $month 
   }
 
   $query
+    ->leftjoin("node", 'node_project', 'p.field_project_target_id = node_project.nid');
+
+  $query
     ->leftjoin("taxonomy_term_data", 'issue_status', 'issue_status.tid = st.field_issue_status_target_id');
 
   $query
@@ -795,6 +798,7 @@ function productivity_tracking_get_tracking_by_user($uid, $year = FALSE, $month 
 
   $query
     ->fields('n', array('title', 'nid', 'uid'))
+    ->fields('node_project', array('title'))
     ->fields('e', array('field_time_estimate_value'))
     ->fields('i', array('field_issue_id_value'))
     ->fields('gpi', array('field_github_project_id_value'))
@@ -805,8 +809,8 @@ function productivity_tracking_get_tracking_by_user($uid, $year = FALSE, $month 
     ->fields('p', array('field_project_target_id'));
 
   $query
-    ->condition('type', 'tracking')
-    ->condition('status', NODE_PUBLISHED)
+    ->condition('n.type', 'tracking')
+    ->condition('n.status', NODE_PUBLISHED)
     ->orderBy('t.field_track_log_id')
     ->orderBy('gpi.field_github_project_id_value')
     ->orderBy('i.field_issue_id_value');
@@ -1339,7 +1343,7 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
 
     // Sums per day.
     if (empty($new_data['sum']['days'][$key])) {
-      $new_data['sum']['days'][$key] = $day['length'];
+      $new_data['sum']['days'][$key] = (double) $day['length'];
     }
     else {
       $new_data['sum']['days'][$key] += $day['length'];
@@ -1443,23 +1447,23 @@ function productivity_tracking_get_tracking_totals($month, $year, $uid, $project
     $pr_time = $track_record['field_track_log_field_time_spent_value'];
     // Issue data.
     $project_nid = $track_record['field_project_target_id'];
-
+    $project_key = $track_record['node_project_title'] . '-' . $project_nid;
     // Sums per project.
-    if (empty($new_data['sum']['projects'][$project_nid])) {
-      $node = node_load($project_nid);
-      $new_data['sum']['projects'][$project_nid] = array(
+    if (empty($new_data['sum']['projects'][$project_key])) {
+      $new_data['sum']['projects'][$project_key] = array(
         'sum' => $pr_time,
-        'name' => $node->title,
+        'name' => $track_record['node_project_title'],
+        'nid' => $project_nid,
       );
     }
     else {
-      $new_data['sum']['projects'][$project_nid]['sum'] += $pr_time;
+      $new_data['sum']['projects'][$project_key]['sum'] += $pr_time;
     }
 
     // Sums per month.
     $new_data['sum']['month'] += $pr_time;
   }
-
+  ksort($new_data['sum']['projects']);
   // Return single user.
   $cached_data = $new_data;
   return $new_data;

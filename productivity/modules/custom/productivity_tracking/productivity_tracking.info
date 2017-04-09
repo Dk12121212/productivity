@@ -1,8 +1,6 @@
 name = Productivity tracking
 core = 7.x
 package = productivity
-
-files[] = tests/ProductivityTrackingTestIssueParsing.test
 dependencies[] = ctools
 dependencies[] = date
 dependencies[] = entityreference
@@ -56,3 +54,4 @@ features[variable][] = node_preview_tracking
 features[variable][] = node_submitted_tracking
 features[views_view][] = new_tracking
 features_exclude[dependencies][taxonomy] = taxonomy
+files[] = tests/ProductivityTrackingTestIssueParsing.test

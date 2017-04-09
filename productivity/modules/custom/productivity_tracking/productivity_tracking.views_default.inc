@@ -386,10 +386,12 @@ function productivity_tracking_views_default_views() {
   $handler->display->display_options['filters']['field_track_log_field_date_value']['id'] = 'field_track_log_field_date_value';
   $handler->display->display_options['filters']['field_track_log_field_date_value']['table'] = 'field_data_field_track_log';
   $handler->display->display_options['filters']['field_track_log_field_date_value']['field'] = 'field_track_log_field_date_value';
+  $handler->display->display_options['filters']['field_track_log_field_date_value']['operator'] = 'starts';
   $handler->display->display_options['filters']['field_track_log_field_date_value']['group'] = 1;
   $handler->display->display_options['filters']['field_track_log_field_date_value']['exposed'] = TRUE;
   $handler->display->display_options['filters']['field_track_log_field_date_value']['expose']['operator_id'] = 'field_track_log_field_date_value_op';
   $handler->display->display_options['filters']['field_track_log_field_date_value']['expose']['label'] = 'date';
+  $handler->display->display_options['filters']['field_track_log_field_date_value']['expose']['description'] = 'Start with (ex. 2017-02...)';
   $handler->display->display_options['filters']['field_track_log_field_date_value']['expose']['operator'] = 'field_track_log_field_date_value_op';
   $handler->display->display_options['filters']['field_track_log_field_date_value']['expose']['identifier'] = 'field_track_log_field_date_value';
   $handler->display->display_options['filters']['field_track_log_field_date_value']['expose']['remember_roles'] = array(
@@ -457,6 +459,21 @@ function productivity_tracking_views_default_views() {
   $handler->display->display_options['filters']['title']['expose']['operator'] = 'title_op';
   $handler->display->display_options['filters']['title']['expose']['identifier'] = 'title';
   $handler->display->display_options['filters']['title']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
+  /* Filter criterion: Content: Track log (field_track_log:field_issue_type_value) */
+  $handler->display->display_options['filters']['field_track_log_field_issue_type_value']['id'] = 'field_track_log_field_issue_type_value';
+  $handler->display->display_options['filters']['field_track_log_field_issue_type_value']['table'] = 'field_data_field_track_log';
+  $handler->display->display_options['filters']['field_track_log_field_issue_type_value']['field'] = 'field_track_log_field_issue_type_value';
+  $handler->display->display_options['filters']['field_track_log_field_issue_type_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_track_log_field_issue_type_value']['expose']['operator_id'] = 'field_track_log_field_issue_type_value_op';
+  $handler->display->display_options['filters']['field_track_log_field_issue_type_value']['expose']['label'] = 'Work Type';
+  $handler->display->display_options['filters']['field_track_log_field_issue_type_value']['expose']['operator'] = 'field_track_log_field_issue_type_value_op';
+  $handler->display->display_options['filters']['field_track_log_field_issue_type_value']['expose']['identifier'] = 'field_track_log_field_issue_type_value';
+  $handler->display->display_options['filters']['field_track_log_field_issue_type_value']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
     3 => 0,

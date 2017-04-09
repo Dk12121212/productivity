@@ -560,11 +560,43 @@ function productivity_user_field_default_field_instances() {
     ),
   );
 
+  // Exported field_instance: 'user-user-field_weekend_days'.
+  $field_instances['user-user-field_weekend_days'] = array(
+    'bundle' => 'user',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'Default is according to country, only set if you want to override the default.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 9,
+      ),
+    ),
+    'entity_type' => 'user',
+    'field_name' => 'field_weekend_days',
+    'label' => 'Weekend days',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => 0,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(),
+      'type' => 'options_select',
+      'weight' => 17,
+    ),
+  );
+
   // Translatables
   // Included for use with string extractors like potx.
   t('Country');
   t('Date');
   t('Date of start and end of employment.');
+  t('Default is according to country, only set if you want to override the default.');
   t('Employment status');
   t('Full Name');
   t('Full name');
@@ -581,6 +613,7 @@ function productivity_user_field_default_field_instances() {
   t('The % of time for the project.');
   t('The country of residence, will be used to generate holidays and weekends.');
   t('The project for madaan.');
+  t('Weekend days');
 
   return $field_instances;
 }

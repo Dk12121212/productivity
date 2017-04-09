@@ -1198,6 +1198,17 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
       $weekend_days = array(6, 0);
     }
   }
+
+  // Weekend days overriden in user profile.
+  if (isset($account->field_weekend_days['und'][0]['value'])) {
+    if ($account->field_weekend_days['und'][0]['value'] == 'ss') {
+      $weekend_days = array(6, 0);
+    }
+    else {
+      $weekend_days = array(5, 6);
+    }
+  }
+
   $holidays = productivity_holiday_per_month($month, $year, $country);
 
   // Go over days of the month and add WE and stubs.

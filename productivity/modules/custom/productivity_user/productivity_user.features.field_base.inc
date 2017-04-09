@@ -334,8 +334,8 @@ function productivity_user_field_default_field_bases() {
     'module' => 'list',
     'settings' => array(
       'allowed_values' => array(
-        'fs|Friday, Saturday' => 'fs => Friday, Saturday',
-        'ss|Saturday, Sunday' => 'ss => Saturday, Sunday',
+        'fs' => 'Friday, Saturday',
+        'ss' => 'Saturday, Sunday',
       ),
       'allowed_values_function' => '',
       'profile2_private' => FALSE,

@@ -1328,7 +1328,7 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
 
     // Sums per day.
     if (empty($new_data['sum']['days'][$key])) {
-      $new_data['sum']['days'][$key] = $day['length'];
+      $new_data['sum']['days'][$key] = (double) $day['length'];
     }
     else {
       $new_data['sum']['days'][$key] += $day['length'];

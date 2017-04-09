@@ -60,17 +60,23 @@ function productivity_tracking_tracking_nav_content_type_render($subtype, $conf,
 
   if (empty($conf['all_users'])) {
     $variables['expanded'] = TRUE;
-    $variables['tracks'][$uid] = productivity_tracking_get_month_structure($month, $year, $uid);
+    $variables['tracks'][$uid] = [
+      'uid' => $uid,
+      'data' => productivity_tracking_get_month_structure($month, $year, $uid),
+    ];
   }
   else {
     $variables['expanded'] = FALSE;
     $uids = productivity_user_get_active_uids($month, $year);
     foreach ($uids as $uid) {
-      $variables['tracks'][$uid] = productivity_tracking_get_month_structure($month, $year, $uid);
+      $user = user_load($uid);
+      $variables['tracks'][$user->name] = [
+        'uid' => $uid,
+        'data' => productivity_tracking_get_month_structure($month, $year, $uid),
+        ];
+      ksort($variables['tracks']);
     }
   }
-
-
 
   $block = new stdClass();
   $block->module = 'productivity_tracking';

@@ -18,9 +18,9 @@
         </tr>
         </thead>
         <tbody>
-          <?php foreach($tracks as $key => $tracking): ?>
+          <?php foreach($tracks as $tracking): ?>
             <tr class="track-item">
-              <?php foreach($tracking['days'] as $key => $tracks): ?>
+              <?php foreach($tracking['data']['days'] as $key => $tracks): ?>
                 <td>
                   <ul class="list-unstyled">
                     <?php foreach($tracks as $track): ?>
@@ -44,7 +44,7 @@
                       <?php endif; ?>
                     <?php endforeach; ?>
                     <li>
-                      <strong><?php if (isset($tracking['sum']['days'][$key])) { print $tracking['sum']['days'][$key];} ?></strong>
+                      <strong><?php if (isset($tracking['data']['sum']['days'][$key])) { print $tracking['data']['sum']['days'][$key];} ?></strong>
                     </li>
                   </ul>
                 </td>

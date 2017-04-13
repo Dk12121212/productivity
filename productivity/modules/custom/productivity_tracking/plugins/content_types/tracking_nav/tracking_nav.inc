@@ -23,6 +23,9 @@ function productivity_tracking_tracking_nav_content_type_render($subtype, $conf,
   $month = $variables['month'];
   $uid = $variables['uid'];
   $path = menu_get_item()['map'][0];
+  if ($path == 'tracking') {
+    $path = 'user';
+  }
 
   // Build date links.
   $date_relative = [

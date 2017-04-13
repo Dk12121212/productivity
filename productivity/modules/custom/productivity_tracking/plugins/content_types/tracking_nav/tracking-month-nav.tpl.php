@@ -30,7 +30,7 @@
                           <a href="<?php print $track['pr_href']; ?>" target="_blank"><?php print $track['length']; ?></a>
                         </li>
                       <?php endif; ?>
-                      <?php  if ($track['type'] == 'tracking'): ?>
+                      <?php  if (isset($track['class']) && $track['class'] == 'tracking'): ?>
                         <!--     tracking data            -->
                         <li<?php print ' mlid="' . $track['mlid'] . '"'; if (!$expanded && $track['expandable'] ) { print ' style="display:none"';} ?>>
                           <a href="<?php print $track['pr_href']; ?>" data-toggle="tooltip" title="<?php print check_plain($track['title']); ?>" class="<?php print $track['class']; ?>" target="_blank"><?php print $track['length']; ?></a>

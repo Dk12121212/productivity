@@ -1316,8 +1316,9 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
     $day['day'] = date('d', strtotime($pr_date));
     $day['pr_href'] = $pr_url;
     $day['issue_href'] = $issue_url;
-    $day['type'] = 'tracking';
-    $day['class'] = $pr_work_type;
+    // Work type.
+    $day['type'] = $pr_work_type;
+    $day['class'] = 'tracking';
     $day['title'] = $pr_title;
     $day['tracking'] = TRUE;
     $day['repo'] = $repo_id;

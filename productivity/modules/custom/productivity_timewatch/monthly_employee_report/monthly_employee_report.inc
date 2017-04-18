@@ -38,7 +38,7 @@ function productivity_timewatch_monthly_employee_report_pdf_callback($account, $
   $dompdf->render();
   $filename = $account->name . "-$year-$month.pdf";
   $pdf_content = $dompdf->output($filename);
-  $file = file_save_data($pdf_content, 'public://' . $filename, FILE_EXISTS_REPLACE);
+  $file = file_save_data($pdf_content, 'private://' . $filename, FILE_EXISTS_REPLACE);
   $http_headers = array(
     'Content-Type' => 'application/pdf',
     'Content-Disposition' => 'attachment; filename="' . $filename . '"',

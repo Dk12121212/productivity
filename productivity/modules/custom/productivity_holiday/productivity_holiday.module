@@ -42,9 +42,14 @@ function productivity_holiday_per_month($month, $year, $location = 'IL') {
   $holidays_month = $holiday_provider->between(new DateTime($month . '/01/' . $year), new DateTime($month . '/31/' . $year));
   foreach ($holidays_month as $holiday) {
     $holidays[$holiday->format('d')] = [
-      'label' => $holiday->getName(),
+      'title' => $holiday->getName(),
+      'type' => 'Holiday',
+      'start' => '1492495200',
+      'end' => '1492527600',
+      'nid' => 0,
     ];
   }
+
   return $holidays;
 }
 
@@ -79,7 +84,11 @@ function productivity_holiday_per_month_israel($month, $year) {
         // Only day off.
         if ($holiday['is_day_off']) {
           $holidays[date('d', $time)] = [
-            'label' => $holiday['name'],
+            'title' => $holiday['name'],
+            'type' => 'Holiday',
+            'start' => '1492495200',
+            'end' => '1492527600',
+            'nid' => 0,
           ];
         }
       }

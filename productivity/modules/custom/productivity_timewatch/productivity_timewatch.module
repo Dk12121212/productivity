@@ -281,7 +281,7 @@ function productivity_timewatch_get_user_sessions($uid, $year, $month, $non_regu
  * @return $node_keys
  *  All the nodes return from the query.
  */
-function productivity_timewatch_get_global_days($year, $month) {
+function productivity_timewatch_get_fundays($year, $month) {
 
   if ($month == 'all') {
     $project_start_month = format_string("01-01-@year", array('@year' => $year));
@@ -325,11 +325,14 @@ function productivity_timewatch_get_global_days($year, $month) {
     $wrapper = entity_metadata_wrapper('node', $node);
     $day =  date('d', $node->field_session_date['und'][0]['value']);
     $day_key = str_pad($day, 2, '0', STR_PAD_LEFT);
-    $bydate_result[$day_key]['type'] = $wrapper->field_session_type->label();
-    $bydate_result[$day_key]['label'] = $wrapper->field_special_day_name->value();
+    $bydate_result[$day_key]['type'] = 'global';
+    $bydate_result[$day_key]['class'] = 'funday';
+    $bydate_result[$day_key]['title'] = $name = $wrapper->field_special_day_name->value() ? $name : $wrapper->field_session_type->label();
     $bydate_result[$day_key]['start'] = $node->field_session_date['und'][0]['value'];
     $bydate_result[$day_key]['end'] = $node->field_session_date['und'][0]['value2'];
     $bydate_result[$day_key]['nid'] = $node->nid;
+    $bydate_result[$day_key]['length'] = 'F';
+    $bydate_result[$day_key]['tracking'] = FALSE;
   }
   return $bydate_result;
 }
@@ -389,8 +392,18 @@ function productivity_timewatch_get_employee_sessions($account, $month, $year) {
  *   end of the month of if we are in is the middle of the current month.
  *
  */
-function productivity_timewatch_build_month_skeleton($month, $year, &$potentials, $last_day_this_month){
-  $globals = productivity_timewatch_get_global_days($year, $month);
+function productivity_timewatch_build_month_skeleton($month, $year, &$potentials, $last_day_this_month) {
+  // Get Holidays.
+  $globals = productivity_holiday_per_month($month, $year);
+  $fundays = productivity_timewatch_get_fundays($year, $month);
+  // Combine holidays and fundays.
+  if ($globals && $fundays) {
+    $globals += $fundays;
+  }
+  elseif (!$globals) {
+    $globals = $fundays;
+  }
+
   $array = array();
 
   // Loop into the days of the month.
@@ -406,7 +419,7 @@ function productivity_timewatch_build_month_skeleton($month, $year, &$potentials
     $date = strtotime($date_string);
     $week_day =  date('l', $date);
     // Special day, holiday or funday.
-    $special_day_name = isset($globals[$day_key]) ? $globals[$day_key]['label'] : FALSE;
+    $special_day_name = isset($globals[$day_key]) ? $globals[$day_key]['title'] : FALSE;
 
     $array[$key]  = array(
       '01.Date' => date('d/m/y', $date),

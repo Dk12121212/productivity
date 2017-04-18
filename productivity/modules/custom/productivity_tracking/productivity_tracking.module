@@ -1363,7 +1363,8 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
     $day['length'] = strtoupper(substr($wrapper->field_session_type->label(), 0, 1));
     $day['day'] = date('d', $wrapper->field_session_date->value->value());
     $day['pr_href'] = url('node/' . $wrapper->getIdentifier() . '/edit');
-    $day['type'] = 'tracking';
+    $day['type'] = 'global';
+    $day['tracking'] = FALSE;
     $day['expandable'] = FALSE;
     $day['class'] = $wrapper->field_session_type->label();
     $day['mlid'] = 0;

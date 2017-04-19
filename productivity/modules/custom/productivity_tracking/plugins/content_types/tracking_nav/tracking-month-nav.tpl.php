@@ -43,8 +43,11 @@
                         </li>
                       <?php endif; ?>
                     <?php endforeach; ?>
-                    <li>
+                    <li data-toggle="tooltip" title="Total logged">
                       <strong><?php if (isset($tracking['data']['sum']['days'][$key])) { print $tracking['data']['sum']['days'][$key];} ?></strong>
+                    </li>
+                    <li data-toggle="tooltip" title="Timewatch total">
+                      <strong><?php if (isset($tracking['timewatch']['days_sum'][$key])) { print $tracking['timewatch']['days_sum'][$key];} ?></strong>
                     </li>
                   </ul>
                 </td>

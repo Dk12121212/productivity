@@ -61,7 +61,7 @@ function productivity_timewatch_theme() {
  * Implements hook_ctools_plugin_directory().
  */
 function productivity_timewatch_ctools_plugin_directory($module, $plugin) {
-  if ($module == 'restful') {
+  if (($module == 'restful') || ($module == 'ctools')){
     return 'plugins/' . $plugin;
   }
 }
@@ -373,13 +373,13 @@ function productivity_timewatch_get_employee_sessions($account, $month, $year) {
   }
 
   $month_array = productivity_timewatch_build_month_skeleton($month, $year, $summary['6.potential']['total_minutes'], $endday);
-  dpm($month_array);
   // Get all sessions for the project.
   $madaan = array();
-  $month_array =  productivity_timewatch_create_sessions_array($node_keys, $summary, $madaan, $month_array, $endday);
+  $results = productivity_timewatch_create_sessions_array($node_keys, $summary, $madaan, $month_array, $endday);
 
   return [
-    'days' => $month_array,
+    'days' => $results['days'],
+    'days_sum' => $results['days_sum'],
     'summary' => $summary,
     'madaan' => $madaan,
   ];
@@ -480,6 +480,7 @@ function productivity_timewatch_create_sessions_array($node_keys, &$summary, &$m
     'actual' => '100%',
   );
   $daily_sum = array();
+  $daily_sum_nomalized = array();
   foreach ($node_keys as $nid) {
     $wrapper = entity_metadata_wrapper('node', $nid);
     $node_account = $wrapper->author->value();
@@ -546,6 +547,7 @@ function productivity_timewatch_create_sessions_array($node_keys, &$summary, &$m
         ) + $month_array[$day_key];
 
       $daily_sum[$day_key] = $total_minutes;
+      $daily_sum_nomalized[$day] = $total_minutes;
       // Multiple entrance in same day, summarize total day on last day.
       if ($key > 0) {
         // If more than one entrance in a day, display total only in last line.
@@ -567,6 +569,7 @@ function productivity_timewatch_create_sessions_array($node_keys, &$summary, &$m
         $month_array[$day_key]['09.all day total'] = productivity_timewatch_format_total($total_minutes + $daily_sum[$previous_day_key]);
         $month_array[$previous_day_key]['09.all day total'] = '';
         $daily_sum[$day_key] =  $daily_sum[$previous_day_key] + $total_minutes;
+        $daily_sum_nomalized[$day] =  $daily_sum[$previous_day_key] + $total_minutes;
       }
       // Sort by key.
       ksort($month_array[$day_key]);
@@ -611,13 +614,23 @@ function productivity_timewatch_create_sessions_array($node_keys, &$summary, &$m
       $summary['4.total']['total_minutes'] += $total_minutes;
     }
   }
+  // Convert sums to hours.
+  foreach ($daily_sum_nomalized as &$day_sum) {
+    $day_sum = productivity_timewatch_format_total($day_sum);
+  }
   // Sort by day.
   ksort($month_array);
-  return $month_array;
+  return [
+    'days' => $month_array,
+    'days_sum' => $daily_sum_nomalized,
+    ];
 }
 
 /**
  * Format hours and minutes to -> hh:mm (dec value in Hours).
+ *
+ * @param $dec
+ *  Use decimal format for minutes.
  */
 function productivity_timewatch_format_total($minutes, $dec = FALSE) {
   $hours = floor($minutes / 60);

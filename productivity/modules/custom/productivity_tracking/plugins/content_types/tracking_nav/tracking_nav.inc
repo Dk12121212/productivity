@@ -64,9 +64,11 @@ function productivity_tracking_tracking_nav_content_type_render($subtype, $conf,
 
   if (empty($conf['all_users'])) {
     $variables['expanded'] = TRUE;
+    $account = user_load($uid);
     $variables['tracks'][$uid] = [
       'uid' => $uid,
       'data' => productivity_tracking_get_month_structure($month, $year, $uid),
+      'timewatch' => productivity_timewatch_get_employee_sessions($account, $month, $year)
     ];
   }
   else {

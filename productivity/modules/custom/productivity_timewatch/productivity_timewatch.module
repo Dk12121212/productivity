@@ -632,14 +632,14 @@ function productivity_timewatch_create_sessions_array($node_keys, &$summary, &$m
  * @param $dec
  *  Use decimal format for minutes.
  */
-function productivity_timewatch_format_total($minutes, $dec = FALSE) {
+function productivity_timewatch_format_total($minutes, $dec = FALSE, $decimals = 2) {
   $hours = floor($minutes / 60);
   $minutes = floor($minutes % 60);
   if (!$dec) {
     $return = $hours . ':' . str_pad($minutes, 2, '0', STR_PAD_LEFT);
   }
   else {
-    $return = number_format($hours + ($minutes / 60), 2);
+    $return = number_format($hours + ($minutes / 60), $decimals);
   }
   return $return;
 }

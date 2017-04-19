@@ -23,16 +23,28 @@ function productivity_timewatch_monthly_totals_content_type_render($subtype, $co
 
   $account = user_load($uid);
   $timewatch = productivity_timewatch_get_employee_sessions($account, $month, $year);
+  $total =  productivity_tracking_get_tracking_totals($month, $year, $uid);
 
   // Return early in of no tracking.
   if (!isset($timewatch['summary']['1.Regular'])) {
     return;
   }
+  $regular = productivity_timewatch_format_total($timewatch['summary']['1.Regular']['total_minutes'], TRUE, 0);
+  $percent = number_format(100 / $regular *  $total['sum']['month'], 1);
+
+  $content = productivity_timewatch_create_summary_table($timewatch['summary']);
+  $content .= '<strong>';
+  $content .=  t('Out of !regular Hours, you reported !actual Hours, which is !percent%', [
+   '!regular' => $regular,
+   '!actual' => $total['sum']['month'],
+   '!percent' => $percent,
+  ]);
+  $content .= '</strong>';
 
   $block = new stdClass();
   $block->module = 'productivity_tracking';
   $block->title = 'Timewatch summary';
-  $block->content = productivity_timewatch_create_summary_table($timewatch['summary']);;
+  $block->content = $content;
   return $block;
 }
 

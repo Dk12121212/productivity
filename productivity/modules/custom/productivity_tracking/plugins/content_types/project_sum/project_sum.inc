@@ -26,7 +26,7 @@ function productivity_tracking_project_sum_content_type_render($subtype, $conf, 
 
   $block = new stdClass();
   $block->module = 'productivity_tracking';
-  $block->title = '';
+  $block->title = 'Monthly project breakdown';
   $block->content = theme('productivity_tracking_project_sum', $variables);
   return $block;
 }

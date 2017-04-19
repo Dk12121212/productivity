@@ -54,6 +54,8 @@ function productivity_tracking_default_page_manager_pages() {
       'default' => NULL,
       'top' => NULL,
       'bottom' => NULL,
+      'bottom-right' => NULL,
+      'bottom-left' => NULL,
     ),
   );
   $display->cache = array();
@@ -65,7 +67,7 @@ function productivity_tracking_default_page_manager_pages() {
   $display->panels = array();
   $pane = new stdClass();
   $pane->pid = 'new-0a8c71a5-a064-4cc6-9e75-7180abee162d';
-  $pane->panel = 'bottom';
+  $pane->panel = 'bottom-left';
   $pane->type = 'project_sum';
   $pane->subtype = 'project_sum';
   $pane->shown = TRUE;
@@ -85,7 +87,7 @@ function productivity_tracking_default_page_manager_pages() {
   $pane->locks = array();
   $pane->uuid = '0a8c71a5-a064-4cc6-9e75-7180abee162d';
   $display->content['new-0a8c71a5-a064-4cc6-9e75-7180abee162d'] = $pane;
-  $display->panels['bottom'][0] = 'new-0a8c71a5-a064-4cc6-9e75-7180abee162d';
+  $display->panels['bottom-left'][0] = 'new-0a8c71a5-a064-4cc6-9e75-7180abee162d';
   $pane = new stdClass();
   $pane->pid = 'new-272f1a99-da75-4d3d-81d0-a0cecf62d3bc';
   $pane->panel = 'top';

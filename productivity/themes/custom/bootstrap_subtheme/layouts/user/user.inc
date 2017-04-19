@@ -8,7 +8,8 @@ $plugin = array(
   'theme' => 'user',
   'regions' => array(
     'top' => t('Top'),
-    'bottom' => t('Bottom'),
+    'bottom-right' => t('Bottom Right'),
+    'bottom-left' => t('Bottom Left'),
     'attendance' => t('Attendance'),
     'tracking' => t('Tracking'),
   ),

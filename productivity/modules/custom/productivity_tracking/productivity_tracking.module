@@ -1162,7 +1162,7 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
 
   // Global days
   $last_day_this_month  = date('t', strtotime('1.' . $month . '.' . $year));
-  $assoc_globals = productivity_timewatch_get_global_days($year, $month);
+  $assoc_globals = productivity_timewatch_get_fundays($year, $month);
 
   $account = user_load($uid);
   // Build skeleton of array, one item per day.
@@ -1239,11 +1239,11 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
         'class' => 'holiday',
         'day' => $key,
         'length' => 'H',
-        'projectName' => $holidays[$key]['label'],
+        'projectName' => $holidays[$key]['title'],
         'employee' => $uid,
         'tracking' => FALSE,
         'href' => $default_url,
-        'title' => $holidays[$key]['label'],
+        'title' => $holidays[$key]['title'],
         'expandable' => FALSE,
       );
       // Add item for weekend.

@@ -2,7 +2,7 @@
   <ul class="list-group">
     <?php foreach($tracking['sum']['projects'] as $project_key => $data): ?>
       <li class="list-group-item">
-        <span class="badge badge-primary"><?php print $data['sum']; ?></span>
+        <span class="badge badge-primary" title="ds" nid="<?php print $data['nid']; ?>"><?php print $data['sum']; ?></span>
         <a href="<?php print url('node/' . $data['nid']); ?>"><?php print $data['name']; ?></a>
       </li>
     <?php endforeach; ?>

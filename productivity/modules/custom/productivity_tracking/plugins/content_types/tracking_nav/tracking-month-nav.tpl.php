@@ -23,6 +23,7 @@
               <?php foreach($tracking['data']['days'] as $key => $tracks): ?>
                 <td>
                   <ul class="list-unstyled">
+                    <?php $classes = ''?>
                     <?php foreach($tracks as $track): ?>
                       <?php if ($track['type'] == 'name' && !$expanded): ?>
                         <!--     User name   -->
@@ -32,8 +33,9 @@
                       <?php endif; ?>
                       <?php  if (isset($track['class']) && $track['class'] == 'tracking'): ?>
                         <!--     tracking data            -->
+                        <?php $classes .= ' ' . $track['project_nid']; ?>
                         <li<?php print ' mlid="' . $track['mlid'] . '"'; if (!$expanded && $track['expandable'] ) { print ' style="display:none"';} ?>>
-                          <a href="<?php print $track['pr_href']; ?>" data-toggle="tooltip" title="<?php print check_plain($track['title']); ?>" class="<?php print $track['class']; ?>" target="_blank"><?php print $track['length']; ?></a>
+                          <a href="<?php print $track['pr_href']; ?>" data-toggle="tooltip" title="<?php print check_plain("{$track['projectName']}: {$track['title']}"); ?>" class="<?php print $track['class'] . ' ' . $track['project_nid']; ?>" target="_blank"><?php print $track['length']; ?></a>
                         </li>
                       <?php endif; ?>
                       <?php if ($track['type'] == 'global'):  ?>
@@ -43,7 +45,7 @@
                         </li>
                       <?php endif; ?>
                     <?php endforeach; ?>
-                    <li data-toggle="tooltip" title="Total logged">
+                    <li data-toggle="tooltip" title="Total logged" class="<?php print $classes; ?>">
                       <strong><?php if (isset($tracking['data']['sum']['days'][$key])) { print $tracking['data']['sum']['days'][$key];} ?></strong>
                     </li>
                     <li data-toggle="tooltip" title="Timewatch total">
@@ -62,6 +64,10 @@
 
 
 <style>
+  .highlight {
+    font-weight: bold;
+    background: yellow;
+  }
   .table tbody > tr.track-item > td {
     vertical-align: bottom;
   }

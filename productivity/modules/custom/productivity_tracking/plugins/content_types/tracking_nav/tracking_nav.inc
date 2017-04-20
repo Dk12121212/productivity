@@ -16,6 +16,8 @@ $plugin = array(
  * Render callback.
  */
 function productivity_tracking_tracking_nav_content_type_render($subtype, $conf, $args, $context) {
+  drupal_add_js(drupal_get_path('module', 'productivity_tracking') . '/plugins/content_types/tracking_nav/tracking-nav.js');
+
   $variables = productivity_tracking_get_query_strings($args);
 
   $date = $variables['date'];
@@ -83,7 +85,6 @@ function productivity_tracking_tracking_nav_content_type_render($subtype, $conf,
       ksort($variables['tracks']);
     }
   }
-
   $block = new stdClass();
   $block->module = 'productivity_tracking';
   $block->title = '';

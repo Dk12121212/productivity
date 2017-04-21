@@ -87,6 +87,7 @@ function productivity_tracking_get_query_strings($args) {
   'year' => $year,
   'uid' => $uid,
   'date' => $date,
+  'today' => ($day == date('d')),
   ];
 }
 

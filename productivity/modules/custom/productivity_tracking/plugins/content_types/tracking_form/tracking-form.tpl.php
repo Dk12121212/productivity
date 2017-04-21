@@ -1,7 +1,7 @@
 <form id="trackform" name="trackform">
   <div class="row clearfix">
     <div class="col-md-12 column">
-      <legend>Tracking for <?php print "$username: $day/$month/$year"; ?></legend>
+      <legend style="text-align: center;"><?php print "$username: $day/$month/$year"; if($today) { print ' - (Today)'; }; ?></legend>
       <table id="table-tracking" class="table table-bordered table-hover">
         <thead>
           <tr>

@@ -51,7 +51,7 @@
                 $('#trackform')
                   .find('select, textarea, input')
                   .each(function () {
-                    if ($(this).prop('required') && $(this).val() == "") {
+                    if ($(this).parents('tr').attr('delete') != 1  && $(this).prop('required') && $(this).val() == "") {
                       fail = true;
                       name = $(this).attr('name');
                       fail_log += name + " is required \n";

@@ -22,6 +22,10 @@
           <?php endforeach; ?>
         </tbody>
       </table>
+      <div style="margin-right: 8%;" class="pull-right">
+        <strong>Sum: </strong>
+        <span id="table-sum">0</span>
+      </div>
     </div>
   </div>
 

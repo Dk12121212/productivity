@@ -6,9 +6,25 @@
 
     Drupal.behaviors.trackingTable = {
         attach: function (context, settings) {
+            // Set sum.
+            var sum = 0;
+            $('#trackform .issue-time').each(function() {
+                sum += parseFloat($(this).val());
+            });
+            $('#table-sum').text(sum.toFixed(2));
+
+            // Update sum.
+            $('#trackform .issue-time').bind('input', function() {
+                var sum = 0;
+                $('#trackform .issue-time').each(function() {
+                    sum += parseFloat($(this).val());
+                });
+                $('#table-sum').text(sum.toFixed(2));
+            });
+
+
             // Get counter.
             var i = Drupal.settings.rowNumber;
-
             $("#add_row").click(function () {
                 $('#table-tracking')
                   .append($("#attr").clone().attr('id', 'attr' + (i)));

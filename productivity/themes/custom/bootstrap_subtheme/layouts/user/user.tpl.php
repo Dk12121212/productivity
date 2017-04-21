@@ -20,6 +20,24 @@
           </div>
           <div class="tab-pane fade in active" id="tab-calendar">
             <?php print $content['attendance']; ?>
+              <!--    <form class="form-horizontal">-->
+              <!--        <fieldset>-->
+              <!-- Form Name -->
+              <!-- Select Basic -->
+              <!--        <div class="form-group">-->
+              <!--          <label class="col-md-4 control-label" for="selectbasic">Day type</label>-->
+              <!--          <div class="col-md-4">-->
+              <!--            <select id="selectbasic" name="selectbasic" class="form-control">-->
+              <!--              <option value="regular">Regular</option>-->
+              <!--              <option value="sick">Sick</option>-->
+              <!--              <option value="vacation">Vacation</option>-->
+              <!--              <option value="miluim">Miluim</option>-->
+              <!--              <option value="convention">Convention</option>-->
+              <!--            </select>-->
+              <!--          </div>-->
+              <!--        </div>-->
+              <!--        </fieldset>-->
+              <!--      </form>-->
           </div>
         </div>
       </div>

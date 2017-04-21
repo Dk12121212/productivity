@@ -23,7 +23,7 @@
     <?php endif; ?>
   </td>
   <td width="12%">
-    <form class="form-inline">
+    <div class="form-inline">
       <div class="form-group">
         <label class="sr-only" for="exampleInputAmount">Amount (in dollars)</label>
         <div class="input-group">
@@ -33,10 +33,10 @@
           <input value="<?php print $tracking['pr']; ?>" type="number" name='pr' placeholder='#' class="form-control"/>
         </div>
       </div>
-    </form>
+    </div>
   </td>
   <td width="28%">
-    <input value="<?php print check_plain($tracking['title']); ?>" type="text" name='title' placeholder='Description - Leave empty to get title of PR from GH ' class="form-control"/>
+    <input value="<?php print check_plain($tracking['title']); ?>" type="text" name='title' placeholder='Description - Leave empty to get title of PR from GH ' class="form-control" required/>
   </td>
   <td width="10%">
     <select id="selectType" name="type" class="form-control" value="<?php print $tracking['type']; ?>">

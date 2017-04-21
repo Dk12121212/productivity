@@ -12,8 +12,8 @@
         <thead>
         <tr>
           <th>#</th>
-          <?php foreach($days_link as $link): ?>
-            <th><?php print $link; ?></th>
+          <?php foreach($days_link as $key => $link): ?>
+            <th <?php if($day == $key) { print 'class="active"'; } ?>><?php print $link; ?></th>
           <?php endforeach; ?>
         </tr>
         </thead>
@@ -64,6 +64,9 @@
 
 
 <style>
+  .table>thead>tr>th.active {
+    background-color: #F5F60C;
+  }
   .highlight {
     font-weight: bold;
     background: yellow;

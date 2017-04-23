@@ -67,7 +67,7 @@
   .table>thead>tr>th.active {
     background-color: #F5F60C;
   }
-  .table td, .table th {
+  .month-nav .table td, .table th {
     text-align: center;
   }
   .highlight {

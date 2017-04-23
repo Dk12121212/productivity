@@ -199,7 +199,7 @@ function create_multifields_track($track, $total_time_spent, $clean_repo, $gh_us
     $log['field_issue_id']['und'][0]['value'] = $pr_id;
   }
 
-  $term = productivity_tracking_get_term_status($status);
+  $term = productivity_tracking_get_term($status);
   $log['field_issue_status']['und'][0]['target_id'] = $term->tid;
 
   if ($old_track_node_wrapper->field_employee->value()) {
@@ -308,7 +308,7 @@ function get_new_tracking($issue) {
   $wrapper->field_github_project_id->set($issue['github_repo']);
 
 
-  $term = productivity_tracking_get_term_status($issue['status']);
+  $term = productivity_tracking_get_term($issue['status']);
 
   $wrapper->field_issue_status->set($term);
   return $wrapper;

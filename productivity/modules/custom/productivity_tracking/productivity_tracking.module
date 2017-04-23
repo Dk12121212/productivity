@@ -460,7 +460,7 @@ function productivity_tracking_gh_payload($payload, $event) {
         $node->field_track_log['und'][$found_key]['field_issue_label']['und'][0]['value'] = $pr['title'];
         $node->field_track_log['und'][$found_key]['field_date']['und'][0]['value2'] = date("Y-m-d H:i:s",strtotime($pr['updated_at']));
 
-        $term = productivity_tracking_get_term_status($pr['state']);
+        $term = productivity_tracking_get_term($pr['state']);
         $node->field_track_log['und'][$found_key]['field_issue_status']['und'][0]['target_id'] = $term->tid;
       }
       else {
@@ -656,6 +656,65 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
   if ($work_type) {
     $query->condition('t.field_track_log_field_issue_type_value', $work_type);
   }
+
+  $result = $query->execute();
+
+  return $result;
+}
+
+/**
+ * Get entity reference connections.
+ *
+ * @param $project_nid
+ *  The project nid.
+ *
+ * @param $work_type
+ *  qa, dev, management or other type.
+ *
+ * @return
+ *   SelectQuery::execute();
+ */
+function productivity_tracking_get_tracking_nodes($project_nid = FALSE) {
+  // List of issues for a project nid.
+  $query = db_select('node', 'n');
+
+  $node_fields = [
+    'p' => 'field_project',
+    'e' => 'field_time_estimate',
+    'i' => 'field_issue_id',
+    'gpi' => 'field_github_project_id',
+    'st' => 'field_issue_status',
+    'b' => 'body',
+  ];
+
+  foreach ($node_fields as $alias => $field) {
+    $query
+      ->leftjoin("field_data_$field", $alias, "n.nid = $alias.entity_id");
+  }
+
+  $query
+    ->leftjoin("taxonomy_term_data", 'issue_status', 'issue_status.tid = st.field_issue_status_target_id');
+
+
+  $query
+    ->fields('n', array('title', 'nid', 'uid'))
+    ->fields('e', array('field_time_estimate_value'))
+    ->fields('i', array('field_issue_id_value'))
+    ->fields('gpi', array('field_github_project_id_value'))
+    ->fields('b')
+    ->fields('issue_status', array('name'))
+    ->fields('p', array('field_project_target_id'));
+
+  if ($project_nid) {
+    $query
+      ->condition('p.field_project_target_id', $project_nid);
+  }
+
+  $query
+    ->condition('type', 'tracking')
+    ->condition('status', NODE_PUBLISHED)
+    ->orderBy('gpi.field_github_project_id_value')
+    ->orderBy('i.field_issue_id_value');
 
   $result = $query->execute();
 
@@ -1013,7 +1072,7 @@ function productivity_tracking_create_multifields_track($data) {
   // Last push use as last edited field.
   $log['field_last_push']['und'][0]['value'] = date("Y-m-d H:i:s");
   $log['field_issue_id']['und'][0]['value'] =  $data['issue_id'];
-  $term = productivity_tracking_get_term_status( $data['status']);
+  $term = productivity_tracking_get_term( $data['status']);
   $log['field_issue_status']['und'][0]['target_id'] = $term->tid;
   $log['field_github_username']['und'][0]['value'] =  $data['github_username'];
   $log['field_time_spent']['und'][0]['value'] = $data['time_spent'];
@@ -1109,7 +1168,7 @@ function productivity_tracking_get_tracking_node($data, $update_existing = FALSE
       // Update estimate and status.
       if ($update_existing) {
         $wrapper->field_time_estimate->set($data['estimate']);
-        $term = productivity_tracking_get_term_status($data['status']);
+        $term = productivity_tracking_get_term($data['status']);
         $wrapper->field_issue_status->set($term);
       }
     }
@@ -1146,7 +1205,7 @@ function productivity_tracking_get_tracking_node($data, $update_existing = FALSE
     $wrapper->body->value->set($data['title']);
 
     $wrapper->field_time_estimate->set($data['estimate']);
-    $term = productivity_tracking_get_term_status($data['status']);
+    $term = productivity_tracking_get_term($data['status']);
     $wrapper->field_issue_status->set($term);
   }
 
@@ -1156,8 +1215,8 @@ function productivity_tracking_get_tracking_node($data, $update_existing = FALSE
 /**
  * Get or create status term.
  */
-function productivity_tracking_get_term_status($name) {
-  $vocab = taxonomy_vocabulary_machine_name_load('issue_status');
+function productivity_tracking_get_term($name, $vocab_machine_name = 'issue_status') {
+  $vocab = taxonomy_vocabulary_machine_name_load($vocab_machine_name);
   $term = taxonomy_get_term_by_name($name);
 
   if (!$term) {

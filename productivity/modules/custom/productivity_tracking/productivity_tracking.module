@@ -935,7 +935,7 @@ function productivity_tracking_parse_time_estimate($string) {
   $matches = array();
   $estimate = 0;
   // Look for [12], [12H], [12h], [12.5h], [12.5H], [12.4] formats.
-  if (preg_match('/\[([0-9]+\.?[0-9]+)[h|H]?\]/', $string, $matches)) {
+  if (preg_match('/\[([0-9]*\.?[0-9]*)[h|H]?\]/', $string, $matches)) {
     // The issue has a time estimate.
     $estimate = empty($matches[1]) ? (empty($matches[2]) ? 0 : $matches[2]) : $matches[1];
   }

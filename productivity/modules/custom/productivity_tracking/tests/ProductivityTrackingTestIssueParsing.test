@@ -28,12 +28,17 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
   public function testTitleParsingEstimation() {
 
     $strings = [
+      ['1', "Create a view of the team members [1]"],
       ['12', "Create a view of the team members [12]"],
       ['12.2', "Create a view of the team members [12.2] and some text here"],
+      ['1', "Create a view of the team members [1h]"],
       ['120', "Create a view of the team members [120h]"],
+      ['1', "Create a view of the team members [1H]"],
       ['12', "Create a view of the team members [12H]"],
       ['12.2', "Create a view of the team members [12.2h]"],
+      ['1.2', "Create a view of the team members [1.2h]"],
       ['12.2', "Create a view of the team members [12.2H] and some text here"],
+      ['1.1', "Create a view of the team members [1.1H] and some text here"],
     ];
     foreach ($strings as $string) {
       $estimate = productivity_tracking_parse_time_estimate($string[1]);

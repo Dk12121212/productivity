@@ -369,7 +369,7 @@ function productivity_tracking_gh_payload($payload, $event) {
     // Look in body for issue.
     $issues = productivity_tracking_parse_related_issue($payload['pull_request']['body'], $payload['repository']['name'], $payload['repository']['owner']['login']);
     // Look in title for issue.
-    $issues += productivity_tracking_parse_related_issue($payload['pull_request']['title'], $payload['repository']['name'], $payload['repository']['owner']['login'], TRUE);
+    $issues += productivity_tracking_parse_related_issue($payload['pull_request']['title'], $payload['repository']['name'], $payload['repository']['owner']['login']);
 
   }
   // Issue event.
@@ -951,13 +951,8 @@ function productivity_tracking_parse_time_estimate($string) {
  * @return array().
  *   An array with GH issue array with info from GH.
  */
-function productivity_tracking_parse_related_issue($string, $repo, $user, $no_hash = FALSE) {
-  if ($no_hash) {
-    $re = '/(\d+)/';
-  }
-  else {
-    $re = '/#(\d+)/';
-  }
+function productivity_tracking_parse_related_issue($string, $repo, $user {
+  $re = '/#(\d+)/';
   $str = $string;
   preg_match_all($re, $str, $matches);
   $issues = [];

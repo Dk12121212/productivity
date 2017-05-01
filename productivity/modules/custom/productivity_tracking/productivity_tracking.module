@@ -373,7 +373,7 @@ function productivity_tracking_gh_payload($payload, $event) {
 
   }
   // Issue event.
-  else {
+  elseif ($event == 'issues') {
     // Take issue info straight from payload.
     $pr = FALSE;
     $issues[] = [
@@ -381,6 +381,10 @@ function productivity_tracking_gh_payload($payload, $event) {
       'estimate' => productivity_tracking_parse_time_estimate($payload['issue']['title']),
       'related_issues' => [],
     ];
+  }
+  // Unsupported event.
+  else {
+    throw new \Exception("Unsupported event type: $event");
   }
 
   // No issue connected.
@@ -406,94 +410,110 @@ function productivity_tracking_gh_payload($payload, $event) {
 
   // Go ovre all related issue and get related tracking node.
   foreach ($issues as $issue) {
-    $uid = productivity_tracking_get_uid_by_github_username(check_plain($payload['sender']['login']));
-    $project_nid = productivity_tracking_get_project_by_repository($payload['repository']);
-
-    // Bypass if project or user are not in the system.
-    if (!$project_nid || !$uid) {
-      continue;
-    }
-
-    $data_issue = [
-      'issue_id' => $issue['issue']['number'],
-      'repo' => $payload['repository']['full_name'],
-      'title' => $issue['issue']['title'],
-      'project' => $project_nid,
-      'estimate' => $issue['estimate'],
-      'status' => $issue['issue']['state'],
-      'uid' => $uid,
-    ];
-
-
-    if(!$wrapper = productivity_tracking_get_tracking_node($data_issue, TRUE)) {
-      // Case of race condition.
-      continue;
-    }
-
-    // Only create tracking stub if a new PR was pushed.
-    // This will be later used to prepopulate the tracking for developers.
-    if ($pr) {
-      $node = $wrapper->value();
-      $logs = array();
-
-      // We should create one stub log per day per user per issue number.
-      // issue_id.
-      $found_key = -1;
-      if (isset($node->field_track_log['und'])) {
-        foreach ($node->field_track_log['und'] as $key => $existing_log) {
-          // Convert date.
-          $existing_pr_day = date('Ymd', strtotime($existing_log['field_date']['und'][0]['value']));
-          $pr_payload_date = date('Ymd', strtotime($payload['pull_request']['updated_at']));
-
-          // Check if we have a match for same PR, same day, Same user.
-          if ($existing_log['field_github_username']['und'][0]['value'] == $payload['sender']['login']
-            && $existing_log['field_issue_id']['und'][0]['value'] == $pr['number']
-            && $existing_pr_day == $pr_payload_date) {
-            $found_key = $key;
-            break;
-          }
-        }
-      }
-      // Update existing log, with new info.
-      if ($found_key != -1) {
-        // Update info that might change.
-        $node->field_track_log['und'][$found_key]['field_issue_label']['und'][0]['value'] = $pr['title'];
-        $node->field_track_log['und'][$found_key]['field_date']['und'][0]['value2'] = date("Y-m-d H:i:s",strtotime($pr['updated_at']));
-
-        $term = productivity_tracking_get_term($pr['state']);
-        $node->field_track_log['und'][$found_key]['field_issue_status']['und'][0]['target_id'] = $term->tid;
-      }
-      else {
-        $data = [
-          'date_start' => date("Y-m-d H:i:s",strtotime($pr['updated_at'])),
-          'date_end' => date("Y-m-d H:i:s",strtotime($pr['updated_at'])),
-          'label' => $pr['title'],
-          'issue_id' => $pr['number'],
-          'status' => $pr['state'],
-          'github_username' => $payload['sender']['login'],
-          'time_spent' => 0,
-          'issue_type' => '',
-          'uid' => $uid,
-        ];
-        // Create a new tracking data.
-        $logs['und'][] = productivity_tracking_create_multifields_track($data, $wrapper);
-
-        // Rebuild structure with previous logs.
-        if (isset($node->field_track_log['und'])) {
-          foreach ($node->field_track_log['und'] as $existing_log) {
-            $logs['und'][] = $existing_log;
-          }
-        }
-        $node->field_track_log = $logs;
-      }
-    }
-
-    // Save node.
-    $wrapper->save();
+    // Save stub or existing issue.
+    productivity_tracking_save_tracking(check_plain($issue, $pr, $payload['sender']['login']), $payload['repository']);
   }
 
 }
 
+/**
+ * Save issue data and pr in tracking node.
+ *
+ * @param $issue
+ *  the issue to save
+ * @param $pr
+ *   The pr related or FALSe if no PR
+ * @param $gh_username
+ * @param $repo
+ *   Repo array
+ * @return bool
+ */
+function productivity_tracking_save_tracking($issue, $pr, $gh_username, $repo, $just_update = FALSE, $check_race_condition = TRUE) {
+  $uid = productivity_tracking_get_uid_by_github_username($gh_username);
+  $project_nid = productivity_tracking_get_project_by_repository($repo);
+
+  // Bypass if project or user are not in the system.
+  if (!$project_nid || !$uid) {
+    return FALSE;
+  }
+
+  $data_issue = [
+    'issue_id' => $issue['issue']['number'],
+    'repo' => $repo['full_name'],
+    'title' => $issue['issue']['title'],
+    'project' => $project_nid,
+    'estimate' => $issue['estimate'],
+    'status' => $issue['issue']['state'],
+    'uid' => $uid,
+  ];
+
+
+  if(!$wrapper = productivity_tracking_get_tracking_node($data_issue, TRUE, $just_update, $check_race_condition)) {
+    // Case of race condition, or issue not found with just_update = true.
+    return FALSE;
+  }
+
+  // Only create tracking stub if a new PR was pushed.
+  // This will be later used to prepopulate the tracking for developers.
+  if ($pr) {
+    $node = $wrapper->value();
+    $logs = array();
+
+    // We should create one stub log per day per user per issue number.
+    // issue_id.
+    $found_key = -1;
+    if (isset($node->field_track_log['und'])) {
+      foreach ($node->field_track_log['und'] as $key => $existing_log) {
+        // Convert date.
+        $existing_pr_day = date('Ymd', strtotime($existing_log['field_date']['und'][0]['value']));
+        $pr_payload_date = date('Ymd', strtotime($pr['updated_at']));
+
+        // Check if we have a match for same PR, same day, Same user.
+        if ($existing_log['field_github_username']['und'][0]['value'] == $gh_username
+          && $existing_log['field_issue_id']['und'][0]['value'] == $pr['number']
+          && $existing_pr_day == $pr_payload_date) {
+          $found_key = $key;
+          break;
+        }
+      }
+    }
+    // Update existing log, with new info.
+    if ($found_key != -1) {
+      // Update info that might change.
+      $node->field_track_log['und'][$found_key]['field_issue_label']['und'][0]['value'] = $pr['title'];
+      $node->field_track_log['und'][$found_key]['field_date']['und'][0]['value2'] = date("Y-m-d H:i:s",strtotime($pr['updated_at']));
+
+      $term = productivity_tracking_get_term($pr['state']);
+      $node->field_track_log['und'][$found_key]['field_issue_status']['und'][0]['target_id'] = $term->tid;
+    }
+    else {
+      $data = [
+        'date_start' => date("Y-m-d H:i:s",strtotime($pr['updated_at'])),
+        'date_end' => date("Y-m-d H:i:s",strtotime($pr['updated_at'])),
+        'label' => $pr['title'],
+        'issue_id' => $pr['number'],
+        'status' => $pr['state'],
+        'github_username' => $payload['sender']['login'],
+        'time_spent' => 0,
+        'issue_type' => '',
+        'uid' => $uid,
+      ];
+      // Create a new tracking data.
+      $logs['und'][] = productivity_tracking_create_multifields_track($data, $wrapper);
+
+      // Rebuild structure with previous logs.
+      if (isset($node->field_track_log['und'])) {
+        foreach ($node->field_track_log['und'] as $existing_log) {
+          $logs['und'][] = $existing_log;
+        }
+      }
+      $node->field_track_log = $logs;
+    }
+  }
+
+  // Save node.
+  return $wrapper->save();
+}
 /**
  *
  * Get the project ID from the repository name.
@@ -951,7 +971,7 @@ function productivity_tracking_parse_time_estimate($string) {
  * @return array().
  *   An array with GH issue array with info from GH.
  */
-function productivity_tracking_parse_related_issue($string, $repo, $user {
+function productivity_tracking_parse_related_issue($string, $repo, $user) {
   $re = '/#(\d+)/';
   $str = $string;
   preg_match_all($re, $str, $matches);
@@ -969,9 +989,9 @@ function productivity_tracking_parse_related_issue($string, $repo, $user {
 /**
  * Return PR or issue info with estimate from github API.
  */
-function productivity_tracking_get_issue_info($repo, $issue_id, $user = 'Gizra', $with_related = TRUE) {
+function productivity_tracking_get_issue_info($repo, $issue_id, $user = 'Gizra', $with_related = TRUE, $no_cache = FALSE) {
   // Get ifo from GH.
-  $issue = productivity_tracking_get_issue($repo, $issue_id, $user);
+  $issue = productivity_tracking_get_issue($repo, $issue_id, $user, $no_cache);
 
   if (empty($issue)) {
     return [
@@ -1002,11 +1022,11 @@ function productivity_tracking_get_issue_info($repo, $issue_id, $user = 'Gizra',
 /**
  * Return PR or issue info from github API.
  */
-function productivity_tracking_get_issue($repo, $issue_id, $user = 'Gizra') {
+function productivity_tracking_get_issue($repo, $issue_id, $user = 'Gizra', $no_cache = FALSE) {
   $cid = "$user/$repo/$issue_id";
   $data = &drupal_static($cid);
 
-  if (!isset($data)) {
+  if (!isset($data) && !$no_cache) {
     if ($cache = cache_get($cid)) {
       $data = $cache->data;
     }
@@ -1134,13 +1154,15 @@ function productivity_tracking_check_race_condition($data) {
  *  'uid' -  Required for new
  *  'status' -  Required for ne
  */
-function productivity_tracking_get_tracking_node($data, $update_existing = FALSE) {
+function productivity_tracking_get_tracking_node($data, $update_existing = FALSE, $just_update = FALSE, $check_race_condition = TRUE) {
 
   $node = FALSE;
   if ($data['issue_id'] && $data['repo']) {
 
-    if (productivity_tracking_check_race_condition($data)) {
-      return FALSE;
+    if ($check_race_condition) {
+      if (productivity_tracking_check_race_condition($data)) {
+        return FALSE;
+      }
     }
 
     // Look for a tracking of the same issue.
@@ -1168,6 +1190,11 @@ function productivity_tracking_get_tracking_node($data, $update_existing = FALSE
       }
     }
   }
+  // Don't create a new node.
+  if ($just_update) {
+    return $node;
+  }
+
   // Not found, create a new one.
   if (!$node) {
     // If it's a GH related tracking.

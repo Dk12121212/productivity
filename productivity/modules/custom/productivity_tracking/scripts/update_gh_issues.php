@@ -34,10 +34,10 @@ while($track_record = $tracking->fetchAssoc()) {
   $clean_repo = $clean_repo[1];
 
   // Prevent duplicate
-  if ($issue_id) {
+  if ($issue_id && $clean_repo && $gh_user) {
     print "Updating node $nid \n";
     $wrapper = entity_metadata_wrapper('node', $nid);
-    $issue_info = productivity_tracking_get_issue_info($clean_repo, $issue_id, $gh_user);
+    $issue_info = productivity_tracking_get_issue_info($clean_repo, $issue_id, $gh_user, FALSE, TRUE);
     $wrapper->field_time_estimate->set($issue_info['estimate']);
 
     // Save status.
@@ -52,4 +52,5 @@ while($track_record = $tracking->fetchAssoc()) {
 
   $count--;
   print "$count tracking left. \n";
+  return;
 }

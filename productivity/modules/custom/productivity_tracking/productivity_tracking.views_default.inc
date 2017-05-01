@@ -46,13 +46,12 @@ function productivity_tracking_views_default_views() {
     'timestamp' => 'title',
     'changed' => 'changed',
     'field_project' => 'field_project',
-    'field_date' => 'field_date',
+    'field_track_log' => 'field_track_log',
     'edit_node' => 'edit_node',
     'delete_node' => 'edit_node',
-    'field_day_type' => 'field_day_type',
-    'field_employee' => 'field_employee',
-    'field_track_hours' => 'field_track_hours',
-    'field_work_length' => 'field_work_length',
+    'field_time_estimate' => 'field_time_estimate',
+    'field_issue_id' => 'field_issue_id',
+    'field_issue_status' => 'field_issue_status',
   );
   $handler->display->display_options['style_options']['default'] = 'changed';
   $handler->display->display_options['style_options']['info'] = array(
@@ -87,8 +86,8 @@ function productivity_tracking_views_default_views() {
       'separator' => '',
       'empty_column' => 0,
     ),
-    'field_date' => array(
-      'sortable' => 1,
+    'field_track_log' => array(
+      'sortable' => 0,
       'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
@@ -104,29 +103,22 @@ function productivity_tracking_views_default_views() {
       'separator' => '',
       'empty_column' => 0,
     ),
-    'field_day_type' => array(
+    'field_time_estimate' => array(
+      'sortable' => 0,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'field_issue_id' => array(
       'sortable' => 1,
       'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
     ),
-    'field_employee' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'field_track_hours' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'field_work_length' => array(
-      'sortable' => 1,
+    'field_issue_status' => array(
+      'sortable' => 0,
       'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
@@ -254,6 +246,7 @@ function productivity_tracking_views_default_views() {
   $handler->display->display_options['fields']['field_track_log']['settings'] = array(
     'view_mode' => 'default',
   );
+  $handler->display->display_options['fields']['field_track_log']['group_rows'] = FALSE;
   $handler->display->display_options['fields']['field_track_log']['delta_offset'] = '0';
   /* Field: Content: Edit link */
   $handler->display->display_options['fields']['edit_node']['id'] = 'edit_node';
@@ -432,22 +425,6 @@ function productivity_tracking_views_default_views() {
   );
   $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['reference_display'] = 'entity_ref_list:entityreference_1';
   $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['reference_arguments'] = 'project';
-  /* Filter criterion: Field: Employee (field_employee) (reference filter) */
-  $handler->display->display_options['filters']['field_employee_target_id_entityreference_filter']['id'] = 'field_employee_target_id_entityreference_filter';
-  $handler->display->display_options['filters']['field_employee_target_id_entityreference_filter']['table'] = 'field_data_field_employee';
-  $handler->display->display_options['filters']['field_employee_target_id_entityreference_filter']['field'] = 'field_employee_target_id_entityreference_filter';
-  $handler->display->display_options['filters']['field_employee_target_id_entityreference_filter']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['field_employee_target_id_entityreference_filter']['expose']['operator_id'] = 'field_employee_target_id_entityreference_filter_op';
-  $handler->display->display_options['filters']['field_employee_target_id_entityreference_filter']['expose']['label'] = 'Employee';
-  $handler->display->display_options['filters']['field_employee_target_id_entityreference_filter']['expose']['operator'] = 'field_employee_target_id_entityreference_filter_op';
-  $handler->display->display_options['filters']['field_employee_target_id_entityreference_filter']['expose']['identifier'] = 'field_employee_target_id_entityreference_filter';
-  $handler->display->display_options['filters']['field_employee_target_id_entityreference_filter']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    3 => 0,
-    4 => 0,
-  );
-  $handler->display->display_options['filters']['field_employee_target_id_entityreference_filter']['reference_display'] = 'user_list:entityreference_1';
   /* Filter criterion: Content: Title */
   $handler->display->display_options['filters']['title']['id'] = 'title';
   $handler->display->display_options['filters']['title']['table'] = 'node';
@@ -479,6 +456,15 @@ function productivity_tracking_views_default_views() {
     3 => 0,
     4 => 0,
   );
+  /* Filter criterion: Field: Employee (field_employee) */
+  $handler->display->display_options['filters']['field_employee_target_id']['id'] = 'field_employee_target_id';
+  $handler->display->display_options['filters']['field_employee_target_id']['table'] = 'field_data_field_employee';
+  $handler->display->display_options['filters']['field_employee_target_id']['field'] = 'field_employee_target_id';
+  $handler->display->display_options['filters']['field_employee_target_id']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_employee_target_id']['expose']['operator_id'] = 'field_employee_target_id_op';
+  $handler->display->display_options['filters']['field_employee_target_id']['expose']['label'] = 'Employee (field_employee)';
+  $handler->display->display_options['filters']['field_employee_target_id']['expose']['operator'] = 'field_employee_target_id_op';
+  $handler->display->display_options['filters']['field_employee_target_id']['expose']['identifier'] = 'field_employee_target_id';
   $handler->display->display_options['path'] = 'admin/content/new-tracking';
   $handler->display->display_options['menu']['type'] = 'tab';
   $handler->display->display_options['menu']['title'] = 'New Tracking';

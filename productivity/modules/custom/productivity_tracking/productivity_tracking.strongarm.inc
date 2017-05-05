@@ -52,6 +52,7 @@ function productivity_tracking_strongarm() {
   $strongarm->name = 'node_options_tracking';
   $strongarm->value = array(
     0 => 'status',
+    1 => 'revision',
   );
   $export['node_options_tracking'] = $strongarm;
 

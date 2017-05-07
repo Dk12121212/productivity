@@ -20,9 +20,9 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    parent::setUp();
+    $this->profile = 'productivity';
 
-    module_enable(array('productivity_tracking'));
+    parent::setUp();
   }
 
   public function testTitleParsingEstimation() {
@@ -51,12 +51,25 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
     $path = drupal_get_path('module', 'productivity_tracking') . '/tests/json/';
     $json = file_get_contents($path . 'issuePayload.json');
     $payload = json_decode($json, TRUE);
+
+    $user1 = $this->drupalCreateUser();
+    $user1->field_github_username['und']['0']['value'] = 'ordavidil';
+    user_save($user1);
+    $settings = array(
+      'type' => 'project',
+      'title' => 'Productivity',
+      'field_github_repository_name' => array(LANGUAGE_NONE => array(array('value' => 'Gizra/productivity'))),
+    );
+    $project_node = $this->drupalCreateNode($settings);
+
+
+
     productivity_tracking_gh_payload($payload, 'issues');
+
 
     $data['repo'] = $payload['repository']['full_name'];
     $data['issue'] = $payload['issue'];
     $wrapper = productivity_tracking_get_tracking_node($data, FALSE, TRUE, FALSE);
-
     $this->assertEqual($wrapper->field_time_estimate->value(), '3.5', 'Estimate saved correctly', 'Productivity');
     $this->assertEqual($wrapper->field_project->label(), 'Productivity', 'Project saved correctly', 'Productivity');
     $this->assertEqual($wrapper->body->value(), 'Create a view of the team members [3.5h]', 'Body saved correctly', 'Productivity');

@@ -1097,7 +1097,7 @@ function productivity_tracking_create_multifields_track($data) {
   // Last push use as last edited field.
   $log['field_last_push']['und'][0]['value'] = date("Y-m-d H:i:s");
   $log['field_issue_id']['und'][0]['value'] =  $data['pr_id'];
-  $term = productivity_tracking_get_term( $data['status']);
+  $term = productivity_tracking_get_term($data['status']);
   $log['field_issue_status']['und'][0]['target_id'] = $term->tid;
   $log['field_github_username']['und'][0]['value'] =  $data['github_username'];
   $log['field_time_spent']['und'][0]['value'] = $data['time_spent'];

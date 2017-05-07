@@ -62,10 +62,7 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
     );
     $project_node = $this->drupalCreateNode($settings);
 
-
-
     productivity_tracking_gh_payload($payload, 'issues');
-
 
     $data['repo'] = $payload['repository']['full_name'];
     $data['issue'] = $payload['issue'];

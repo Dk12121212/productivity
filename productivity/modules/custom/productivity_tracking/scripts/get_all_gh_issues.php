@@ -22,12 +22,12 @@ for($issue_num = $min_issue_id; $issue_num <= $max_issue_id; $issue_num++) {
   $issue_or_pr = productivity_tracking_get_issue_info($repo, $issue_num, $repo_user, TRUE, $no_cache);
   $gh_username = '';
   $pr = $issue = [];
-  drush_log("Processing $repo_user/$repo/$issue_num", 'success');
+  productivity_admin_log("Processing $repo_user/$repo/$issue_num", 'success');
   if(isset($issue_or_pr['issue']['pull_request'])) {
     $pr = $issue_or_pr;
     $gh_username = $issue_or_pr['issue']['user']['login'];
     // Don't update PR for now. no need.
-    drush_log("Bypass PR $repo_user/$repo/$issue_num", 'success');
+    productivity_admin_log("Bypass PR $repo_user/$repo/$issue_num", 'success');
     continue;
   }
   else {
@@ -37,8 +37,13 @@ for($issue_num = $min_issue_id; $issue_num <= $max_issue_id; $issue_num++) {
   }
   $repository_info = [];
   $repository_info['full_name'] = "$repo_user/$repo";
-  if (!productivity_tracking_save_tracking($issue, $pr, $gh_username, $repository_info, $just_update, FALSE)) {
-    drush_log("Failed to update $repo_user/$repo/$issue_num  this might because the issue did not exist before.", 'error');
+  if (!$uid = productivity_tracking_get_uid_by_github_username($gh_username)) {
+    //Default uid
+    $uid = 1;
   }
-  drush_log("Done $repo_user/$repo/$issue_num", 'success');
+
+  if (!productivity_tracking_save_tracking($issue, $pr, $uid, $repository_info, $just_update, FALSE)) {
+    productivity_admin_log("Failed to update $repo_user/$repo/$issue_num  this might because the issue did not exist before.", 'error');
+  }
+  productivity_admin_log("Done $repo_user/$repo/$issue_num", 'success');
 }

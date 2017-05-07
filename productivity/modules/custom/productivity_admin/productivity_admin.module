@@ -56,3 +56,22 @@ function productivity_admin_configuration($form_state) {
 
   return system_settings_form($form);
 }
+
+
+/**
+ * Write a drush log message.
+ *
+ * @param string $message
+ *   Message to log.
+ * @param string $severity
+ *   E.g. "success" or "error".
+ */
+function productivity_admin_log($message, $severity = 'success') {
+  $message = date('d/m H:i:s') . ' - ' . $message;
+  if (drupal_is_cli() && function_exists('drush_log')) {
+    drush_log($message, $severity);
+  }
+  elseif (module_exists('devel')) {
+    drupal_set_message($message);
+  }
+}

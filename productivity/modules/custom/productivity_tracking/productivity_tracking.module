@@ -408,10 +408,14 @@ function productivity_tracking_gh_payload($payload, $event) {
     }
   }
 
-  // Go ovre all related issue and get related tracking node.
+  // Go over all related issue and get related tracking node.
   foreach ($issues as $issue) {
     // Save stub or existing issue.
-    productivity_tracking_save_tracking(check_plain($issue, $pr, $payload['sender']['login']), $payload['repository']);
+    if (!$uid = productivity_tracking_get_uid_by_github_username($payload['sender']['login'])) {
+      // Bypass unknown user.
+      continue;
+    }
+    productivity_tracking_save_tracking($issue, $pr, $uid, $payload['repository']);
   }
 
 }
@@ -428,12 +432,11 @@ function productivity_tracking_gh_payload($payload, $event) {
  *   Repo array
  * @return bool
  */
-function productivity_tracking_save_tracking($issue, $pr, $gh_username, $repo, $just_update = FALSE, $check_race_condition = TRUE) {
-  $uid = productivity_tracking_get_uid_by_github_username($gh_username);
+function productivity_tracking_save_tracking($issue, $pr, $uid, $repo, $just_update = FALSE, $check_race_condition = TRUE) {
   $project_nid = productivity_tracking_get_project_by_repository($repo);
 
   // Bypass if project or user are not in the system.
-  if (!$project_nid || !$uid) {
+  if (!$project_nid) {
     return FALSE;
   }
 
@@ -532,15 +535,18 @@ function productivity_tracking_get_project_by_repository($repository_info) {
     // Just look for active or not started projects.
     ->fieldCondition('field_status', 'value', 'done', '!=')
     ->propertyOrderBy('created', 'DESC')
+    ->propertyOrderBy('type', 'project')
     ->range(0, 1)
     ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
 
   $result = $query->execute();
+
   if (isset($result['node'])) {
     $nid = reset($result['node']);
     return $nid;
   }
 
+  productivity_admin_log("No project with github repository: $repository_info", 'success');
   // Print error if no repo was found.
   watchdog('productivity', t('No project with github repository: @repository', array('@repository' => print_r($repository_info, TRUE))));
   return FALSE;
@@ -559,7 +565,7 @@ function productivity_tracking_get_uid_by_github_username($github_username) {
   if ($uid = productivity_tracking_get_entity_id_by_field_value('field_github_username', 'user', $github_username)) {
     return $uid;
   }
-
+  productivity_admin_log("No user with github username: $github_username", 'success');
   watchdog('productivity', t('No user with github username: @username', array('@username' => $github_username)));
 }
 

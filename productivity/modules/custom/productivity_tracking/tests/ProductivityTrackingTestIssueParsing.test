@@ -69,7 +69,7 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
     $wrapper = productivity_tracking_get_tracking_node($data, FALSE, TRUE, FALSE);
     $this->assertEqual($wrapper->field_time_estimate->value(), '3.5', 'Estimate saved correctly', 'Productivity');
     $this->assertEqual($wrapper->field_project->label(), 'Productivity', 'Project saved correctly', 'Productivity');
-    $this->assertEqual($wrapper->body->body->value(), '<p>Create a view of the team members [3.5h]</p>', 'Body saved correctly', 'Productivity');
+    $this->assertEqual($wrapper->body->value->value(), '<p>Create a view of the team members [3.5h]</p>', 'Body saved correctly', 'Productivity');
     $this->assertEqual($wrapper->field_github_project_id->value(), 'Gizra/productivity', 'Repo saved correctly', 'Productivity');
     $this->assertEqual($wrapper->field_issue_id->value(), '31', 'Issue number saved correctly', 'Productivity');
     $this->assertEqual($wrapper->field_issue_status->label(), 'open', 'Status saved correctly', 'Productivity');

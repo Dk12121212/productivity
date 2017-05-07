@@ -17,9 +17,9 @@ function productivity_tracking_taxonomy_default_vocabularies() {
       'module' => 'taxonomy',
       'weight' => 0,
     ),
-    'gh_milstones' => array(
+    'gh_milestones' => array(
       'name' => 'GH Milstones',
-      'machine_name' => 'gh_milstones',
+      'machine_name' => 'gh_milestones',
       'description' => '',
       'hierarchy' => 0,
       'module' => 'taxonomy',

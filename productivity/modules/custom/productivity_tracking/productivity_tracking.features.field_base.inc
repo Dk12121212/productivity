@@ -72,7 +72,7 @@ function productivity_tracking_field_default_field_bases() {
           'type' => 'none',
         ),
         'target_bundles' => array(
-          'gh_milstones' => 'gh_milstones',
+          'gh_milestones' => 'gh_milestones',
         ),
       ),
       'profile2_private' => FALSE,

@@ -1255,13 +1255,13 @@ function productivity_tracking_set_tracking_data($data, $wrapper, $only_gh_data 
   foreach ($data['issue']['milestone'] as $ms) {
     $term[] = productivity_tracking_get_term($ms['title'], 'gh_milestones');
   }
-  $wrapper->field_issue_status->set($term);
+  $wrapper->field_gh_milestone->set($term);
   // Save labels.
   $term = [];
   foreach ($data['issue']['labels'] as $label) {
     $term[] = productivity_tracking_get_term($label['name'], 'gh_labels');
   }
-  $wrapper->field_issue_status->set($term);
+  $wrapper->field_gh_label->set($term);
 }
 /**
  * Get or create status term.

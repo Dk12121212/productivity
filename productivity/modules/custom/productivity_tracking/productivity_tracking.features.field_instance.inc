@@ -463,8 +463,8 @@ function productivity_tracking_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'node-tracking-field_gh_milstone'.
-  $field_instances['node-tracking-field_gh_milstone'] = array(
+  // Exported field_instance: 'node-tracking-field_gh_milestone'.
+  $field_instances['node-tracking-field_gh_milestone'] = array(
     'bundle' => 'tracking',
     'default_value' => NULL,
     'deleted' => 0,
@@ -487,7 +487,7 @@ function productivity_tracking_field_default_field_instances() {
       ),
     ),
     'entity_type' => 'node',
-    'field_name' => 'field_gh_milstone',
+    'field_name' => 'field_gh_milestone',
     'label' => 'GH Milstone',
     'required' => 0,
     'settings' => array(

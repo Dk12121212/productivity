@@ -46,13 +46,13 @@ function productivity_tracking_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
-  // Exported field_base: 'field_gh_milstone'.
-  $field_bases['field_gh_milstone'] = array(
+  // Exported field_base: 'field_gh_milestone'.
+  $field_bases['field_gh_milestone'] = array(
     'active' => 1,
     'cardinality' => 1,
     'deleted' => 0,
     'entity_types' => array(),
-    'field_name' => 'field_gh_milstone',
+    'field_name' => 'field_gh_milestone',
     'indexes' => array(
       'target_id' => array(
         0 => 'target_id',

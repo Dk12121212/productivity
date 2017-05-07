@@ -63,6 +63,7 @@ dependencies[] = views_bulk_operations
 ; productivity modules ------------------------------------------------------------
 ; Add here productivity modules that should be enabled when installing the
 ; productivity profile.
+dependencies[] = productivity_user
 dependencies[] = productivity_account
 dependencies[] = productivity_admin
 dependencies[] = productivity_dashboard
@@ -77,5 +78,4 @@ dependencies[] = productivity_salary
 dependencies[] = productivity_time_tracking
 dependencies[] = productivity_tracking
 dependencies[] = productivity_timewatch
-dependencies[] = productivity_user
 

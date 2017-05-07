@@ -48,11 +48,15 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
 
   // Check the issue is created on payload push.
   public function testPayloadIssue() {
-//    $path = drupal_get_path('module', 'productivity_tracking') . '/tests/json/';
-//    $json = file_get_contents($path . 'issuePayload.json');
-//    $payload = json_decode($json, TRUE);
-//    productivity_tracking_gh_payload($payload, 'issues');
+    $path = drupal_get_path('module', 'productivity_tracking') . '/tests/json/';
+    $json = file_get_contents($path . 'issuePayload.json');
+    $payload = json_decode($json, TRUE);
+    productivity_tracking_gh_payload($payload, 'issues');
 
+    $data['repo'] = $payload['repository']['full_name'];
+    $data['issue'] = $payload['issue'];
+    $wrapper = productivity_tracking_get_tracking_node($data, FALSE, TRUE, FALSE);
 
+    $this->assertEqual($wrapper->field_estimate->value(), '3.5', 'Estimate saved corretly', 'Productivity');
   }
 }

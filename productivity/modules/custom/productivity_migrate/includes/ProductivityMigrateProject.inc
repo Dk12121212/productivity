@@ -29,6 +29,7 @@ class ProductivityMigrateProject extends ProductivityMigrate {
     array('scope', 'Scope'),
     array('scope_unit', 'Scope unit'),
     array('field_status', 'Status'),
+    array('field_github_repository_name', 'repo'),
   );
 
   /**
@@ -44,6 +45,7 @@ class ProductivityMigrateProject extends ProductivityMigrate {
     $field_names = array(
       'field_type',
       'field_status',
+      'field_github_repository_name'
     );
     $this->addSimpleMappings($field_names);
 

@@ -224,17 +224,23 @@ function productivity_tracking_save_callback() {
     // New tracking.
     else {
       $uid = $tracking['data']['uid'];
-      $data_issue = [
-        'project' => $track['project_nid'],
-        'repo' => $track['repo'],
-        'issue_id' => $track['issue'] ? $track['issue'] : 0,
+      // Same structure as GH API.
+      $issue = array(
+        'number' => $track['issue'] ? $track['issue'] : 0,
         'title' => $track['description'],
-        'type' => $track['type'],
-        'time' => $track['time_spent'],
-        'uid' => $uid,
-        // Case the issue does not exist set defaults.
-        'estimate' => 0,
         'status' => 'open',
+        'labels' => [],
+        'milestone' => [],
+      );
+      // TODO: Get more info from GH when possible.
+      $data_issue = [
+        'time' => $track['time_spent'],
+        'type' => $track['type'],
+        'repo' => $track['repo'],
+        'estimate' => 0,
+        'issue' => $issue,
+        'project' => $track['project_nid'],
+        'uid' => $uid,
       ];
 
       // Get or create tracking node.
@@ -366,6 +372,7 @@ function productivity_tracking_gh_payload($payload, $event) {
   // Get related issue from PR body.
   if ($event == 'pull_request') {
     $pr = $payload['pull_request'];
+    $pr['github_username'] = $payload['repository']['name'];
     // Look in body for issue.
     $issues = productivity_tracking_parse_related_issue($payload['pull_request']['body'], $payload['repository']['name'], $payload['repository']['owner']['login']);
     // Look in title for issue.
@@ -415,7 +422,7 @@ function productivity_tracking_gh_payload($payload, $event) {
       // Bypass unknown user.
       continue;
     }
-    productivity_tracking_save_tracking($issue, $pr, $uid, $payload['repository']);
+    productivity_tracking_save_tracking($issue, $pr, $uid, $payload['sender']['login'], $payload['repository']);
   }
 
 }
@@ -432,7 +439,7 @@ function productivity_tracking_gh_payload($payload, $event) {
  *   Repo array
  * @return bool
  */
-function productivity_tracking_save_tracking($issue, $pr, $uid, $repo, $just_update = FALSE, $check_race_condition = TRUE) {
+function productivity_tracking_save_tracking($issue, $pr, $uid, $github_username, $repo, $just_update = FALSE, $check_race_condition = TRUE) {
   $project_nid = productivity_tracking_get_project_by_repository($repo);
 
   // Bypass if project or user are not in the system.
@@ -441,15 +448,12 @@ function productivity_tracking_save_tracking($issue, $pr, $uid, $repo, $just_upd
   }
 
   $data_issue = [
-    'issue_id' => $issue['issue']['number'],
     'repo' => $repo['full_name'],
-    'title' => $issue['issue']['title'],
-    'project' => $project_nid,
     'estimate' => $issue['estimate'],
-    'status' => $issue['issue']['state'],
+    'issue' => $issue['issue'],
+    'project' => $project_nid,
     'uid' => $uid,
   ];
-
 
   if(!$wrapper = productivity_tracking_get_tracking_node($data_issue, TRUE, $just_update, $check_race_condition)) {
     // Case of race condition, or issue not found with just_update = true.
@@ -472,7 +476,7 @@ function productivity_tracking_save_tracking($issue, $pr, $uid, $repo, $just_upd
         $pr_payload_date = date('Ymd', strtotime($pr['updated_at']));
 
         // Check if we have a match for same PR, same day, Same user.
-        if ($existing_log['field_github_username']['und'][0]['value'] == $gh_username
+        if ($existing_log['field_github_username']['und'][0]['value'] == $github_username
           && $existing_log['field_issue_id']['und'][0]['value'] == $pr['number']
           && $existing_pr_day == $pr_payload_date) {
           $found_key = $key;
@@ -496,7 +500,7 @@ function productivity_tracking_save_tracking($issue, $pr, $uid, $repo, $just_upd
         'label' => $pr['title'],
         'issue_id' => $pr['number'],
         'status' => $pr['state'],
-        'github_username' => $payload['sender']['login'],
+        'github_username' => $github_username,
         'time_spent' => 0,
         'issue_type' => '',
         'uid' => $uid,
@@ -1190,9 +1194,7 @@ function productivity_tracking_get_tracking_node($data, $update_existing = FALSE
 
       // Update estimate and status.
       if ($update_existing) {
-        $wrapper->field_time_estimate->set($data['estimate']);
-        $term = productivity_tracking_get_term($data['status']);
-        $wrapper->field_issue_status->set($term);
+        productivity_tracking_set_tracking_data($data, $wrapper, TRUE);
       }
     }
   }
@@ -1204,13 +1206,13 @@ function productivity_tracking_get_tracking_node($data, $update_existing = FALSE
   // Not found, create a new one.
   if (!$node) {
     // If it's a GH related tracking.
-    if ($data['issue_id'] != '') {
-      $title = "Tracking for issue {$data['repo']}/{$data['issue_id']}";
+    if ($data['issue']['number'] != '') {
+      $title = "Tracking for issue {$data['repo']}/{$data['issue']['number']}";
     }
     else {
-      if (!$data['title']) {
+      if (!$data['issue']['title']) {
         $project_wrapper = entity_metadata_wrapper('node', $data['project']);
-        $data['title'] = $project_wrapper->label();
+        $data['issue']['title'] = $project_wrapper->label();
       }
       $title = "Tracking for project: {$data['title']}";
     }
@@ -1223,23 +1225,44 @@ function productivity_tracking_get_tracking_node($data, $update_existing = FALSE
       'uid' => $user->uid ? $data['uid'] : $user->uid,
       'status' => 1,
     );
-
     $node = entity_create('node', $values);
 
     $wrapper = entity_metadata_wrapper('node', $node);
-    $wrapper->field_project->set($data['project']);
-    $wrapper->field_issue_id->set($data['issue_id']);
-    $wrapper->field_github_project_id->set($data['repo']);
-    $wrapper->body->value->set($data['title']);
-
-    $wrapper->field_time_estimate->set($data['estimate']);
-    $term = productivity_tracking_get_term($data['status']);
-    $wrapper->field_issue_status->set($term);
+    productivity_tracking_set_tracking_data($data, $wrapper);
   }
 
   return $wrapper;
 }
 
+/**
+ * Set values to node tracking
+ */
+function productivity_tracking_set_tracking_data($data, $wrapper, $only_gh_data = FALSE) {
+  // Prevent override of project when in case of multiple project per repo.
+  if (!$only_gh_data) {
+    $wrapper->field_project->set($data['project']);
+  }
+  $wrapper->field_issue_id->set($data['issue']['number']);
+  $wrapper->field_github_project_id->set($data['repo']);
+  $wrapper->body->value->set($data['issue']['title']);
+
+  $wrapper->field_time_estimate->set($data['estimate']);
+  $term = productivity_tracking_get_term($data['issue']['state']);
+  $wrapper->field_issue_status->set($term);
+
+  // Save milestones.
+  $term = [];
+  foreach ($data['issue']['milestone'] as $ms) {
+    $term[] = productivity_tracking_get_term($ms['title'], 'gh_milestones');
+  }
+  $wrapper->field_issue_status->set($term);
+  // Save labels.
+  $term = [];
+  foreach ($data['issue']['labels'] as $label) {
+    $term[] = productivity_tracking_get_term($label['name'], 'gh_labels');
+  }
+  $wrapper->field_issue_status->set($term);
+}
 /**
  * Get or create status term.
  */

@@ -11,6 +11,7 @@ $max_issue_id = drush_get_option('max_issue_id', '151');
 // TODO: deal with multiple project, in this case we don't want to assign issue
 // to new projects, we probably want to set a range per project using a other
 // option, for now we have just update to prevent this to be a problem.
+// Example u6.5, 6.6, 6.7.
 
 // Add an option to not create new issues, just update.
 $just_update= drush_get_option('just_update', TRUE);

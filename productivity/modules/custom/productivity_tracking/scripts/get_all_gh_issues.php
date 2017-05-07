@@ -14,7 +14,7 @@ $max_issue_id = drush_get_option('max_issue_id', '151');
 // Example u6.5, 6.6, 6.7.
 
 // Add an option to not create new issues, just update.
-$just_update= drush_get_option('just_update', TRUE);
+$dont_create = drush_get_option('dont_create', TRUE);
 
 // Disable issue caching.
 $no_cache = drush_get_option('no_cache', FALSE);
@@ -43,7 +43,7 @@ for($issue_num = $min_issue_id; $issue_num <= $max_issue_id; $issue_num++) {
     $uid = 1;
   }
 
-  if (!productivity_tracking_save_tracking($issue, $pr, $uid, $gh_username,$repository_info, $just_update, FALSE)) {
+  if (!productivity_tracking_save_tracking($issue, $pr, $uid, $gh_username,$repository_info, $dont_create, FALSE)) {
     productivity_admin_log("Failed to update $repo_user/$repo/$issue_num  this might because the issue did not exist before.", 'error');
   }
   productivity_admin_log("Done $repo_user/$repo/$issue_num", 'success');

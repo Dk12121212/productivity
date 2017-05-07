@@ -254,7 +254,7 @@ function productivity_tracking_save_callback() {
         'date_start' => date("Y-m-d H:i:s", strtotime($tracking['data']['date_str'])),
         'date_end' => date("Y-m-d H:i:s", strtotime($tracking['data']['date_str'])),
         'label' => $track['description'],
-        'issue_id' => $track['pr'] ? $track['pr'] : 0,
+        'pr_id' => $track['pr'] ? $track['pr'] : 0,
         'status' => 'open',
         'github_username' => $account_wrapper->field_github_username->value(),
         'time_spent' => $track['time_spent'],
@@ -498,7 +498,7 @@ function productivity_tracking_save_tracking($issue, $pr, $uid, $github_username
         'date_start' => date("Y-m-d H:i:s",strtotime($pr['updated_at'])),
         'date_end' => date("Y-m-d H:i:s",strtotime($pr['updated_at'])),
         'label' => $pr['title'],
-        'issue_id' => $pr['number'],
+        'pr_id' => $pr['number'],
         'status' => $pr['state'],
         'github_username' => $github_username,
         'time_spent' => 0,
@@ -1069,7 +1069,7 @@ function productivity_tracking_get_issue($repo, $issue_id, $user = 'Gizra', $no_
  *   'date' => time(),
  *   'label' => '',
  *   'last_push' => time(),
- *   'issue_id' => 0,
+ *   'pr_id' => 0,
  *   'status' => 'closed',
  *   'github_username' => '',
  *   'time_spent' => 0,
@@ -1082,7 +1082,7 @@ function productivity_tracking_create_multifields_track($data) {
     'date_end' => time(),
     'label' => '',
     'last_push' => time(),
-    'issue_id' => 0,
+    'pr_id' => 0,
     'status' => 'closed',
     'github_username' => '',
     'time_spent' => 0,
@@ -1096,7 +1096,7 @@ function productivity_tracking_create_multifields_track($data) {
   $log['field_issue_label']['und'][0]['value'] =  $data['label'];
   // Last push use as last edited field.
   $log['field_last_push']['und'][0]['value'] = date("Y-m-d H:i:s");
-  $log['field_issue_id']['und'][0]['value'] =  $data['issue_id'];
+  $log['field_issue_id']['und'][0]['value'] =  $data['pr_id'];
   $term = productivity_tracking_get_term( $data['status']);
   $log['field_issue_status']['und'][0]['target_id'] = $term->tid;
   $log['field_github_username']['und'][0]['value'] =  $data['github_username'];
@@ -1115,7 +1115,7 @@ function productivity_tracking_check_race_condition($data) {
   // might come together, and we don't want duplicates to be created.
   // The technique is to use a variable that mark processing and to wait 5 sec.
   $uuid = ctools_uuid_generate();
-  $issue_id = $data['repo'] . '/' . $data['issue_id'];
+  $issue_id = $data['repo'] . '/' . $data['issue']['number'];
   db_insert('productivity_github_webhook_duplicates')
     ->fields(array(
       'issue_id' => $issue_id,
@@ -1156,18 +1156,16 @@ function productivity_tracking_check_race_condition($data) {
  * @param $data
  *   array();
  *
- *  'issue_id - not requires for new
+ *  'issue - Issue structure from GH.
  *  'repo' - not requires for new
- *  'title'- Required for new if no issue id.
  *  'project' - Required for new
  *  'estimate' -  Required for new
  *  'uid' -  Required for new
- *  'status' -  Required for ne
  */
 function productivity_tracking_get_tracking_node($data, $update_existing = FALSE, $just_update = FALSE, $check_race_condition = TRUE) {
 
   $node = FALSE;
-  if ($data['issue_id'] && $data['repo']) {
+  if ($data['issue']['number'] && $data['repo']) {
 
     if ($check_race_condition) {
       if (productivity_tracking_check_race_condition($data)) {
@@ -1180,7 +1178,7 @@ function productivity_tracking_get_tracking_node($data, $update_existing = FALSE
     $result = $query
       ->entityCondition('entity_type', 'node')
       ->entityCondition('bundle', 'tracking')
-      ->fieldCondition('field_issue_id', 'value', $data['issue_id'])
+      ->fieldCondition('field_issue_id', 'value', $data['issue']['number'])
       ->fieldCondition('field_github_project_id', 'value', $data['repo'])
       ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT')
       ->range(0, 1)
@@ -1251,17 +1249,18 @@ function productivity_tracking_set_tracking_data($data, $wrapper, $only_gh_data 
   $wrapper->field_issue_status->set($term);
 
   // Save milestones.
-  $term = [];
-  foreach ($data['issue']['milestone'] as $ms) {
-    $term[] = productivity_tracking_get_term($ms['title'], 'gh_milestones');
+  if ($data['issue']['milestone']) {
+    $term = productivity_tracking_get_term($data['issue']['milestone']['title'], 'gh_milestones');
+    $wrapper->field_gh_milestone->set($term);
   }
-  $wrapper->field_gh_milestone->set($term);
   // Save labels.
-  $term = [];
-  foreach ($data['issue']['labels'] as $label) {
-    $term[] = productivity_tracking_get_term($label['name'], 'gh_labels');
+  if ($data['issue']['labels']) {
+    $term = [];
+    foreach ($data['issue']['labels'] as $label) {
+      $term[] = productivity_tracking_get_term($label['name'], 'gh_labels');
+    }
+    $wrapper->field_gh_label->set($term);
   }
-  $wrapper->field_gh_label->set($term);
 }
 /**
  * Get or create status term.

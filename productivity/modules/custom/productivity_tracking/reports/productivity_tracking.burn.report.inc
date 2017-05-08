@@ -108,7 +108,7 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE) {
     $issue_id = $track_record['field_issue_id_value'];
     $issue_status = $track_record['name'];
     $nid = $track_record['nid'];
-    $issue_title = $track_record['body_value'];
+    $issue_title = "#$issue_id - {$track_record['body_value']}";
 
     $pr_url = "https://github.com/$repo_id/issues/$pr_gh_id";
     $pr_link = l("$repo_id/$pr_gh_id", $pr_url, array(

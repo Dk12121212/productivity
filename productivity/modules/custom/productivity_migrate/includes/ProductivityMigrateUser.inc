@@ -23,6 +23,7 @@ class ProductivityMigrateUser extends Migration {
     array('date_end', 'date_end'),
     array('pass', 'pass'),
     array('job_type', 'job_type'),
+    array('field_github_username', 'field_github_username'),
   );
 
   /**
@@ -58,7 +59,8 @@ class ProductivityMigrateUser extends Migration {
     $field_names = array(
       'name',
       'mail',
-      'pass'
+      'pass',
+      'field_github_username',
     );
 
     $this->addSimpleMappings($field_names);

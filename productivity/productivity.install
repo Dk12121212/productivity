@@ -158,7 +158,7 @@ function _productivity_install_get_full_html_format() {
  */
 function _productivity_install_save_default_permissions($filtered_html_format) {
   // Only admins can create new members.
-  variable_set('user_register', USER_REGISTER_ADMINISTRATOS_ONLY);
+  variable_set('user_register', USER_REGISTER_ADMINISTRATORS_ONLY);
 
   // Enable default permissions for system roles.
   $filtered_html_permission = filter_permission_name($filtered_html_format);

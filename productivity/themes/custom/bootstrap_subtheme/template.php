@@ -119,7 +119,7 @@ function _bootstrap_subtheme_rendered_field_array($wrapper, $fields) {
  */
 function _bootstrap_subtheme_create_rate_table($node, $wrapper, &$rows) {
   if (!empty($node->field_table_rate['und'])) {
-    // Insert all the Table Rate multifield to an array by field,
+    // Insert all the Table Rate multifield to an array by field.
     foreach ($wrapper->field_table_rate as $key => $rate) {
 
       $fields = array(

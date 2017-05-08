@@ -153,6 +153,7 @@ function productivity_user_views_default_views() {
   $handler->display->display_options['pager']['options']['items_per_page'] = '50';
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
+    'views_bulk_operations' => 'views_bulk_operations',
     'field_employee' => 'field_employee',
     'field_session_date_2' => 'field_session_date_2',
     'field_session_date' => 'field_session_date',
@@ -161,10 +162,17 @@ function productivity_user_views_default_views() {
     'field_session_date_4' => 'field_session_date_4',
     'expression' => 'expression',
     'field_project' => 'field_project',
+    'name' => 'name',
     'edit_node' => 'edit_node',
+    'field_session_type' => 'field_session_type',
   );
   $handler->display->display_options['style_options']['default'] = '-1';
   $handler->display->display_options['style_options']['info'] = array(
+    'views_bulk_operations' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
     'field_employee' => array(
       'sortable' => 1,
       'default_sort_order' => 'asc',
@@ -180,28 +188,28 @@ function productivity_user_views_default_views() {
       'empty_column' => 0,
     ),
     'field_session_date' => array(
-      'sortable' => 0,
+      'sortable' => 1,
       'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
     ),
     'field_session_date_1' => array(
-      'sortable' => 0,
+      'sortable' => 1,
       'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
     ),
     'field_session_date_3' => array(
-      'sortable' => 0,
+      'sortable' => 1,
       'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
     ),
     'field_session_date_4' => array(
-      'sortable' => 0,
+      'sortable' => 1,
       'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
@@ -213,13 +221,27 @@ function productivity_user_views_default_views() {
       'empty_column' => 0,
     ),
     'field_project' => array(
-      'sortable' => 0,
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'name' => array(
+      'sortable' => 1,
       'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
     ),
     'edit_node' => array(
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'field_session_type' => array(
+      'sortable' => 1,
+      'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
@@ -445,25 +467,6 @@ function productivity_user_views_default_views() {
     3 => 0,
     4 => 0,
   );
-  /* Filter criterion: Content: Session type (field_session_type) */
-  $handler->display->display_options['filters']['field_session_type_tid']['id'] = 'field_session_type_tid';
-  $handler->display->display_options['filters']['field_session_type_tid']['table'] = 'field_data_field_session_type';
-  $handler->display->display_options['filters']['field_session_type_tid']['field'] = 'field_session_type_tid';
-  $handler->display->display_options['filters']['field_session_type_tid']['operator'] = 'empty';
-  $handler->display->display_options['filters']['field_session_type_tid']['exposed'] = TRUE;
-  $handler->display->display_options['filters']['field_session_type_tid']['expose']['operator_id'] = 'field_session_type_tid_op';
-  $handler->display->display_options['filters']['field_session_type_tid']['expose']['label'] = 'Session type';
-  $handler->display->display_options['filters']['field_session_type_tid']['expose']['operator'] = 'field_session_type_tid_op';
-  $handler->display->display_options['filters']['field_session_type_tid']['expose']['identifier'] = 'field_session_type_tid';
-  $handler->display->display_options['filters']['field_session_type_tid']['expose']['multiple'] = TRUE;
-  $handler->display->display_options['filters']['field_session_type_tid']['expose']['remember_roles'] = array(
-    2 => '2',
-    1 => 0,
-    3 => 0,
-    4 => 0,
-  );
-  $handler->display->display_options['filters']['field_session_type_tid']['type'] = 'select';
-  $handler->display->display_options['filters']['field_session_type_tid']['vocabulary'] = 'session_types';
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');

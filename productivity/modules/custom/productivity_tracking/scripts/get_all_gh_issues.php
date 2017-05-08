@@ -4,9 +4,9 @@
  */
 
 $repo_user = drush_get_option('gh_id', 'Gizra');
-$repo = drush_get_option('gh_id', 'ic-infuse');
+$repo = drush_get_option('gh_id', 'productivity');
 $min_issue_id = drush_get_option('min_issue_id', '1');
-$max_issue_id = drush_get_option('max_issue_id', '151');
+$max_issue_id = drush_get_option('max_issue_id', '1');
 
 // TODO: deal with multiple project, in this case we don't want to assign issue
 // to new projects, we probably want to set a range per project using a other

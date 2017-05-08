@@ -46,7 +46,7 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
     }
   }
 
-  // Check the issue is created on payload push.
+  // Check the issue is can be parssed and saved to tracking node.
   public function testPayloadIssue() {
     $path = drupal_get_path('module', 'productivity_tracking') . '/tests/json/';
     $json = file_get_contents($path . 'issuePayload.json');
@@ -60,16 +60,17 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
       'title' => 'Productivity',
       'field_github_repository_name' => array(LANGUAGE_NONE => array(array('value' => 'Gizra/productivity'))),
     );
-    $project_node = $this->drupalCreateNode($settings);
+    $this->drupalCreateNode($settings);
 
     productivity_tracking_gh_payload($payload, 'issues');
 
     $data['repo'] = $payload['repository']['full_name'];
     $data['issue'] = $payload['issue'];
     $wrapper = productivity_tracking_get_tracking_node($data, FALSE, TRUE, FALSE);
+    debug($wrapper->body->value->value());
     $this->assertEqual($wrapper->field_time_estimate->value(), '3.5', 'Estimate saved correctly', 'Productivity');
     $this->assertEqual($wrapper->field_project->label(), 'Productivity', 'Project saved correctly', 'Productivity');
-    $this->assertEqual($wrapper->body->value->value(), 'Create a view of the team members [3.5h]', 'Body saved correctly', 'Productivity');
+    $this->assertEqual($wrapper->body->value->value(), "<p>Create a view of the team members [3.5h]</p>\n", 'Body saved correctly', 'Productivity');
     $this->assertEqual($wrapper->field_github_project_id->value(), 'Gizra/productivity', 'Repo saved correctly', 'Productivity');
     $this->assertEqual($wrapper->field_issue_id->value(), '31', 'Issue number saved correctly', 'Productivity');
     $this->assertEqual($wrapper->field_issue_status->label(), 'open', 'Status saved correctly', 'Productivity');

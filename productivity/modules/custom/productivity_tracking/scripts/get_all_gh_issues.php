@@ -3,8 +3,8 @@
  * Fetch issues from GH and create or update tracking nodes.
  */
 
-$repo_user = drush_get_option('gh_id', 'Gizra');
-$repo = drush_get_option('gh_id', 'productivity');
+$repo_user = drush_get_option('gh_user', 'Gizra');
+$repo = drush_get_option('gh_repo', 'productivity');
 $min_issue_id = drush_get_option('min_issue_id', '1');
 $max_issue_id = drush_get_option('max_issue_id', '1');
 

@@ -162,7 +162,7 @@ function productivity_user_default_page_manager_handlers() {
   $pane->uuid = '7a848676-0f7d-47a1-be90-c01244c3f13c';
   $display->content['new-7a848676-0f7d-47a1-be90-c01244c3f13c'] = $pane;
   $display->panels['tracking'][0] = 'new-7a848676-0f7d-47a1-be90-c01244c3f13c';
-  $display->hide_title = PANELS_TITLE_FIXED;
+  $display->hide_title = PANELS_TITLE_NONE;
   $display->title_pane = '0';
   $handler->conf['display'] = $display;
   $export['user_view__panel_context_6d375b45-fd41-47e5-9c61-1152c708b984'] = $handler;

@@ -1037,8 +1037,8 @@ function productivity_tracking_get_issue($repo, $issue_id, $user = 'Gizra', $no_
   $cid = "$user/$repo/$issue_id";
   $data = &drupal_static($cid);
 
-  if (!isset($data) && !$no_cache) {
-    if ($cache = cache_get($cid)) {
+  if (!isset($data)) {
+    if ($cache = cache_get($cid) && !$no_cache) {
       $data = $cache->data;
     }
     else {

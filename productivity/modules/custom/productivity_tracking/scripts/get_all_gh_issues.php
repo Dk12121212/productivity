@@ -21,6 +21,10 @@ $no_cache = drush_get_option('no_cache', FALSE);
 
 for($issue_num = $min_issue_id; $issue_num <= $max_issue_id; $issue_num++) {
   $issue_or_pr = productivity_tracking_get_issue_info($repo, $issue_num, $repo_user, TRUE, $no_cache);
+  // If no issue data from GH.
+  if (!$issue_or_pr['issue']) {
+    productivity_admin_log("Unable to get info for $repo_user/$repo/$issue_num", 'error');
+  }
   $gh_username = '';
   $pr = $issue = [];
   productivity_admin_log("Processing $repo_user/$repo/$issue_num", 'success');
@@ -39,7 +43,7 @@ for($issue_num = $min_issue_id; $issue_num <= $max_issue_id; $issue_num++) {
   $repository_info = [];
   $repository_info['full_name'] = "$repo_user/$repo";
   if (!$uid = productivity_tracking_get_uid_by_github_username($gh_username)) {
-    //Default uid
+    //Default uid.
     $uid = 1;
   }
 

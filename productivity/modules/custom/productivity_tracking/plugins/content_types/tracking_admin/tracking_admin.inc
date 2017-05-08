@@ -34,6 +34,7 @@ function productivity_tracking_tracking_admin_content_type_render($subtype, $con
   $users = user_load_multiple($all_active_users);
   $variables['urls'] = [];
   // Create links with relative query string.
+  $variables['active'] = FALSE;
   foreach ($users as $uid => $user) {
     $variables['urls'][$user->name] = l($user->name, 'user', [
       'query' => [

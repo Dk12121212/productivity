@@ -20,6 +20,7 @@ function productivity_tracking_menu() {
     'title' => t('Tracking Report'),
     'page callback' => 'productivity_tracking_burn_report_callback',
     'page arguments' => array(1),
+    // TODO: ADD access callback that checks node type == project.
     'access callback' => 'node_access',
     'access arguments' => array('update', 1),
     'weight' => -10,

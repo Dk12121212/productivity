@@ -4,7 +4,7 @@
   </header>
   <div class="main-box-body clearfix">
     <?php foreach($urls as $key => $url): ?>
-      <span class="label label-default label-large"><?php print $url; ?></span>
+      <span class="label label-large <?php print $active == $key ? 'label-danger' : 'label-default '; ?>"><?php print $url; ?></span>
     <?php endforeach; ?>
   </div>
 </div>

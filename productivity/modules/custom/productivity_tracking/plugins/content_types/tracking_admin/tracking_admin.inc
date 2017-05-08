@@ -43,6 +43,10 @@ function productivity_tracking_tracking_admin_content_type_render($subtype, $con
         'year' => date('Y', $timestamp)
       ]
     ]);
+    // Current user.
+    if ($variables['uid'] == $uid) {
+      $variables['active'] = $user->name;
+    }
   }
 
   ksort($variables['urls']);

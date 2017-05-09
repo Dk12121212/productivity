@@ -641,8 +641,10 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
     'gpi' => 'field_github_project_id',
     't' => 'field_track_log',
     'st' => 'field_issue_status',
+    'mi' => 'field_gh_milestone',
     'b' => 'body',
   ];
+
 
   foreach ($node_fields as $alias => $field) {
     $query
@@ -661,10 +663,18 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
     ->fields('i', array('field_issue_id_value'))
     ->fields('gpi', array('field_github_project_id_value'))
     ->fields('t')
+    ->fields('mi')
     ->fields('b')
     ->fields('issue_status', array('name'))
     ->fields('pr_status', array('name'))
     ->fields('p', array('field_project_target_id'));
+
+  // Add multiple labels in a single row, wigh comma separator.
+  $labels = '(SELECT GROUP_CONCAT(taxo.name SEPARATOR \', \') 
+  FROM `field_data_field_gh_label` AS label 
+  LEFT JOIN `taxonomy_term_data` taxo ON label.field_gh_label_target_id = taxo.tid 
+  WHERE label.entity_id = n.nid)';
+  $query->addExpression($labels, 'labels');
 
   if ($project_nid) {
     $query

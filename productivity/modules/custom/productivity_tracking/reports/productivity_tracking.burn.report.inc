@@ -14,7 +14,7 @@
  * @return string
  *  Rendered table.
  */
-function productivity_tracking_burn_report_callback($project_node, $year = 'all', $month = 'all', $no_pr = TRUE) {
+function productivity_tracking_burn_report_callback($project_node, $no_pr = TRUE, $year = 'all', $month = 'all') {
   drupal_add_js(drupal_get_path('module', 'productivity_tracking') . '/reports/tracking_burn.js');
 //  drupal_add_css("//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/css/select2.min.css", array('type' => 'external'));
 //  drupal_add_css('https://fonts.googleapis.com/css?family=Abril+Fatface', array('type' => 'external'));
@@ -54,6 +54,9 @@ function productivity_tracking_burn_report_callback($project_node, $year = 'all'
   $active =  'active';
   // Create one table per type.
   // TODO: Set type in same order always.
+  // Set Development first.
+  $variables['tables']['dev'] = [];
+
   if (isset($project_node->field_table_rate['und'])) {
     foreach ($wrapper->field_table_rate as $type) {
       $rate_code = $type->field_issue_type->value();

@@ -19,7 +19,7 @@ function productivity_tracking_menu() {
   $items['node/%node/issues-tracking'] = array(
     'title' => t('Tracking Report'),
     'page callback' => 'productivity_tracking_burn_report_callback',
-    'page arguments' => array(1),
+    'page arguments' => array(1, 3, 4, 5),
     // TODO: ADD access callback that checks node type == project.
     'access callback' => 'node_access',
     'access arguments' => array('update', 1),
@@ -1203,6 +1203,7 @@ function productivity_tracking_get_tracking_node($data, $update_existing = FALSE
 
       // Update estimate and status.
       if ($update_existing) {
+        // Pass true in 3rd param to not update project ref.
         productivity_tracking_set_tracking_data($data, $wrapper, TRUE);
       }
     }

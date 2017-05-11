@@ -27,27 +27,27 @@
    * @returns {string}
    *  New URL string.
    */
-  function create_new_url(base_url, all, year) {
-    var project_id = $('#project_filter').val();
+  function create_new_url(project_id, base_url, all, year) {
     var val = $(".monthPicker").val();
     var res = val.split(",");
-    var estimated = document.getElementById('estimation-based').checked;
+    var detailed = document.getElementById('detailed').checked;
+    detailed  = detailed ? 1 : 0;
 
     // Full year link
     if (year) {
       if (res[1].trim() == 'all') {
         return false;
       }
-      return base_url + "/node/" + project_id + "/monthly-report/" + res[1].trim() + "/all/" + estimated;
+      return base_url + "/node/" + project_id + "/issues-tracking/" + detailed + "/" + res[1].trim() + "/all";
     }
 
     // All time link.
     if (all) {
-      return base_url + "/node/" + project_id + "/monthly-report/all/all/" + estimated;
+      return base_url + "/node/" + project_id + "/issues-tracking/" + detailed + "/" + "all/all";
     }
 
     // Specific month link
-    return base_url + "/node/" + project_id + "/monthly-report/" + res[1].trim() + "/" + get_month_num(res[0].trim()) + "/" + estimated;
+    return base_url + "/node/" + project_id + "/issues-tracking/" + detailed + "/" + res[1].trim() + "/" + get_month_num(res[0].trim());
   }
 
   /**
@@ -78,29 +78,29 @@
    */
   function set_date_input(settings) {
     // get the current month and year.
-    var input_date = get_month_name(settings['monthly_report']['month']) + ', ' +  settings['monthly_report']['year'];
+    var input_date = get_month_name(settings['issues_tracking']['month']) + ', ' + settings['issues_tracking']['year'];
     $('.monthPicker').attr('value', input_date);
 
-    $('#estimation-based').attr('checked', settings['monthly_report']['estimate']);
+    $('#detailed').attr('checked', settings['issues_tracking']['detailed'] ? true : false);
   }
+
 
   Drupal.behaviors.monthlyReports = {
     attach: function (context, settings) {
       set_date_input(settings);
-
       $(".btn.year").popover({delay: { "show": 500, "hide": 100 }});
 
       // Apply filter button handler.
-      $('.apply').click(function() {
-        window.location.href = create_new_url(settings['monthly_report']['base_url'], false, false);
+      $('#refresh').click(function() {
+        window.location.href = create_new_url(settings['issues_tracking']['project_nid'], settings['issues_tracking']['base_url'], false, false);
       });
 
       $('.anytime').click(function() {
-        window.location.href = create_new_url(settings['monthly_report']['base_url'], true, false);
+        window.location.href = create_new_url(settings['issues_tracking']['project_nid'], settings['issues_tracking']['base_url'], true, false);
       });
 
       $('.year').click(function() {
-        var link = create_new_url(settings['monthly_report']['base_url'], true, true);
+        var link = create_new_url(settings['issues_tracking']['project_nid'], settings['issues_tracking']['base_url'], true, true);
         if (!link) {
           // Initializes popovers for an element collection.
           $(".btn.year").popover('show');

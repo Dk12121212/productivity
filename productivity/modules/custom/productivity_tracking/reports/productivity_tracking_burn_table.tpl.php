@@ -17,12 +17,14 @@
               </div>
             </div>
             <div class="checkbox checkbox-nice">
-              <input type="checkbox" id="remember-me" checked="checked" />
-              <label for="remember-me">
+              <input type="checkbox" id="detailed" />
+              <label for="detailed">
                 Detailed
               </label>
             </div>
-            <button type="button" class="btn btn-success">Refresh</button>
+            <button class="btn btn-primary anytime" type="button">Any time</button>
+            <button class="btn btn-primary year" type="button" data-toggle="popover" title="Can't be done" data-content="Please select a year first">All Year</button>
+            <button id="refresh" type="button" class="btn btn-success">Refresh</button>
           </form>
         </div>
       </div>

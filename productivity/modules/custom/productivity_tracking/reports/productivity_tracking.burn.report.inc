@@ -14,15 +14,14 @@
  * @return string
  *  Rendered table.
  */
-function productivity_tracking_burn_report_callback($project_node, $no_pr = TRUE, $year = 'all', $month = 'all') {
+function productivity_tracking_burn_report_callback($project_node, $detailed = TRUE, $year = 'all', $month = 'all') {
   drupal_add_js(drupal_get_path('module', 'productivity_tracking') . '/reports/tracking_burn.js');
-//  drupal_add_css("//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/css/select2.min.css", array('type' => 'external'));
-//  drupal_add_css('https://fonts.googleapis.com/css?family=Abril+Fatface', array('type' => 'external'));
-//  drupal_add_js("//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/js/select2.min.js", array('type' => 'external'));
 
   // Add datepicker lib.
   drupal_add_js("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.0/js/bootstrap-datepicker.min.js", array('type' => 'external'));
   drupal_add_css("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.0/css/bootstrap-datepicker.min.css", array('type' => 'external'));
+
+
 
   $variables = array();
   $variables['year'] = !empty($year) ? $year : date('Y');
@@ -38,13 +37,16 @@ function productivity_tracking_burn_report_callback($project_node, $no_pr = TRUE
     $variables['date'] = date("F Y", strtotime("$year-$month-01"));
   }
 
+  global $base_url;
 
-  drupal_add_js(array('monthly_report' => array(
+  drupal_add_js(array('issues_tracking' => array(
     'year' => $variables['year'],
     'month' => $variables['month'],
-  )
+    'base_url' => $base_url,
+    'detailed' => $detailed ? 1 : 0,
+    'project_nid' => $project_node->nid,
+    )
   ), 'setting');
-
 
 
   drupal_set_title(t('@project burn table', array('@project' => $project_node->title)));
@@ -60,7 +62,7 @@ function productivity_tracking_burn_report_callback($project_node, $no_pr = TRUE
   if (isset($project_node->field_table_rate['und'])) {
     foreach ($wrapper->field_table_rate as $type) {
       $rate_code = $type->field_issue_type->value();
-      $table = productivity_tracking_burn_report($project_node, $rate_code, $no_pr, TRUE);
+      $table = productivity_tracking_burn_report($project_node, $rate_code, !$detailed, TRUE, $year, $month);
       $variables['tables'][$rate_code] = [
         'title' => $type->field_issue_type->label(),
         'table' => $table['table'] ? theme('table', $table['table']) : t('No tracking for project yet.'),
@@ -77,8 +79,8 @@ function productivity_tracking_burn_report_callback($project_node, $no_pr = TRUE
 /**
  * Display tracking table for issues.
  */
-function productivity_tracking_burn_report($project_node, $work_type = FALSE, $no_pr = TRUE, $not_started = FALSE) {
-  $tracking = productivity_tracking_get_tracking($project_node->nid, $work_type);
+function productivity_tracking_burn_report($project_node, $work_type = FALSE, $no_pr = TRUE, $not_started = FALSE, $year, $month) {
+  $tracking = productivity_tracking_get_tracking($project_node->nid, $work_type, $year, $month);
 
   $total_row = array(
     'class' => 'success',

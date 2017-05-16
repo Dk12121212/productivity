@@ -128,7 +128,7 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE, $n
     // Pr data.
     $pr_time = $track_record['field_track_log_field_time_spent_value'];
 
-    if ($pr_time == '0' && !$not_started) {
+    if ($pr_time == '0.00' && !$not_started) {
       continue;
     }
     $pr_gh_id = $track_record['field_track_log_field_issue_id_value'];
@@ -226,8 +226,9 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE, $n
         'class' => 'warning',
         'data' => array(
           'issue_id' => "pr-$pr_link",
+          'labels' => '',
           'date' => date("d-m-Y", strtotime($pr_date)),
-          'estimate' => '',
+          'estimate' => "$pr_time out of $estimate",
           'actual' => $pr_time,
           'developer' => $pr_developer,
           'type' => $pr_work_type,
@@ -254,12 +255,13 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE, $n
 
   $sorted_rows = [];
   foreach ($table['rows'] as $key =>  $row) {
-    $i = 0;
-    $sorted_rows[$row['latest'] . "-$i-$key"] = $row['main'];
+    // Reverse order, so issue is on top of prs.
+    $i = 99;
+    $sorted_rows[$row['latest'] . "-$key-$i"] = $row['main'];
     if (!$no_pr) {
       foreach ($row['tracks'] as $row_pr) {
-        $i++;
-        $sorted_rows[$row['latest'] . "-$i-$key"] = $row_pr;
+        $i--;
+        $sorted_rows[$row['latest'] . "-$key-$i"] = $row_pr;
       }
     }
   }

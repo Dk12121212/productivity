@@ -253,13 +253,13 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE, $n
   }
 
   $sorted_rows = [];
-  foreach ($table['rows'] as $row) {
+  foreach ($table['rows'] as $key =>  $row) {
     $i = 0;
-    $sorted_rows[$row['latest'] . "-$i"] = $row['main'];
+    $sorted_rows[$row['latest'] . "-$i-$key"] = $row['main'];
     if (!$no_pr) {
       foreach ($row['tracks'] as $row_pr) {
         $i++;
-        $sorted_rows[$row['latest'] . "-$i"] = $row_pr;
+        $sorted_rows[$row['latest'] . "-$i-$key"] = $row_pr;
       }
     }
   }

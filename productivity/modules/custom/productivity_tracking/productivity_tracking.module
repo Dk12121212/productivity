@@ -670,9 +670,9 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
     ->fields('p', array('field_project_target_id'));
 
   // Add multiple labels in a single row, wigh comma separator.
-  $labels = '(SELECT GROUP_CONCAT(taxo.name SEPARATOR \', \') 
-  FROM `field_data_field_gh_label` AS label 
-  LEFT JOIN `taxonomy_term_data` taxo ON label.field_gh_label_target_id = taxo.tid 
+  $labels = '(SELECT GROUP_CONCAT(taxo.name SEPARATOR \', \')
+  FROM `field_data_field_gh_label` AS label
+  LEFT JOIN `taxonomy_term_data` taxo ON label.field_gh_label_target_id = taxo.tid
   WHERE label.entity_id = n.nid)';
   $query->addExpression($labels, 'labels');
 
@@ -1016,7 +1016,7 @@ function productivity_tracking_get_issue_info($repo, $issue_id, $user = 'Gizra',
 
   if (empty($issue)) {
     return [
-      'issue' => [],
+      'issue' => [] ,
       'estimate' => 0,
       'related_issues' => [],
     ];
@@ -1048,7 +1048,13 @@ function productivity_tracking_get_issue($repo, $issue_id, $user = 'Gizra', $no_
   $data = &drupal_static($cid);
 
   if (!isset($data)) {
-    if ($cache = cache_get($cid) && !$no_cache) {
+    $cache = cache_get($cid);
+    // TODO: Fixing a case the array is empty, but we get a boolean TRUE,
+    // need to figure out why.
+    if ($data === TRUE) {
+      $data = FALSE;
+    }
+    if ($cache && !$no_cache) {
       $data = $cache->data;
     }
     else {
@@ -1056,6 +1062,7 @@ function productivity_tracking_get_issue($repo, $issue_id, $user = 'Gizra', $no_
       try {
         // Get ifo from GH.
         $data =  $client->issue()->show($user, $repo, $issue_id);
+
         cache_set($cid, $data);
 
       } catch (Exception $exception) {

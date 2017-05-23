@@ -245,7 +245,7 @@ function productivity_tracking_save_callback() {
       ];
 
       // Get or create tracking node.
-      $wrapper = productivity_tracking_get_tracking_node($data_issue);
+      $wrapper = productivity_tracking_get_tracking_node($data_issue, FALSE, FALSE, FALSE);
       // Save PR.
       $node = $wrapper->value();
       $logs = array();

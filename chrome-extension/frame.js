@@ -4,7 +4,8 @@ var repoName = elRepoName.getAttribute('href');
 var elIssueId = document.querySelector('.gh-header-number');
 var issueId = elIssueId.innerHTML.replace('#', '');
 
+console.log(issueId);
+
 // var url = 'http://productivity.gizra.com/' + repoName + '/' + issueId;
-var url = "https://www.google.com";
-//  var iframe = document.createElement('iframe');
+var url = "https://google.com";
 document.querySelector('iframe').src = url;

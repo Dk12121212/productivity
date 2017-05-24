@@ -1,11 +1,8 @@
-var elRepoName = document.querySelector('#js-repo-pjax-container > div.pagehead.repohead.instapaper_ignore.readability-menu.experiment-repo-nav > div.container.repohead-details-container > h1 > strong > a');
-var repoName = elRepoName.getAttribute('href');
+var url = window.location.href
+  .replace('/issues', '')
+  .replace('https://github.com', '');
 
-var elIssueId = document.querySelector('.gh-header-number');
-var issueId = elIssueId.innerHTML.replace('#', '');
-
-console.log(issueId);
-
+// @todo: This will need to be HTTPS
 // var url = 'http://productivity.gizra.com/' + repoName + '/' + issueId;
-var url = "https://google.com";
+var url = "https://shoov.io/per-issue/" + url;
 document.querySelector('iframe').src = url;

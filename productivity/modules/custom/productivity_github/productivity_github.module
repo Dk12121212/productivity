@@ -31,13 +31,18 @@ function productivity_github_menu() {
  *   The GitHub account name, for example "foo" in "foo/bar".
  * @param string $project_name
  *   The GitHub project name, for example "bar" in "foo/bar".
- * @param int $issue_number
+ * @param int $issue_id
  *   The issue number.
  *
  * @return bool
  *   TRUE if user has access.
  */
-function productivity_github_per_issue_summary_access($account_name, $project_name, $issue_number) {
+function productivity_github_per_issue_summary_access($account_name, $project_name, $issue_id) {
+  if (!user_access('access content')) {
+    // User doesn't have access to the content.
+    return FALSE;
+  }
+
   if (!$nid = _productivity_github_get_entity_id_by_field_value('field_github_repository_name', 'project', $account_name . '/' . $project_name)) {
     // Project is not known.
     return FALSE;
@@ -55,13 +60,13 @@ function productivity_github_per_issue_summary_access($account_name, $project_na
  *   The GitHub account name, for example "foo" in "foo/bar".
  * @param string $project_name
  *   The GitHub project name, for example "bar" in "foo/bar".
- * @param int $issue_number
+ * @param int $issue_id
  *   The issue number.
  *
  * @return array
  *   The theme of the page
  */
-function productivity_github_per_issue_summary($account_name, $project_name, $issue_number) {
+function productivity_github_per_issue_summary($account_name, $project_name, $issue_id) {
   return ['#markup' => 'summary will be here'];
 }
 

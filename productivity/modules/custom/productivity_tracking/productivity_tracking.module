@@ -62,7 +62,6 @@ function productivity_tracking_menu() {
     'page callback' => 'productivity_tracking_per_issue_summary',
     'page arguments' => [1, 2 ,3],
     'access callback' => 'productivity_tracking_per_issue_summary_access',
-    'access arguments' => [1, 2 ,3],
   );
 
   return $items;
@@ -81,7 +80,7 @@ function productivity_tracking_menu() {
  * @return bool
  *   TRUE if user has access.
  */
-function productivity_tracking_per_issue_summary_access($gh_account_name, $gh_repo_name, $issue_id) {
+function productivity_tracking_per_issue_summary_access() {
   if (!user_access('access content')) {
     // User doesn't have access to the content.
     return FALSE;

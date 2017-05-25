@@ -3,5 +3,5 @@ var url = window.location.href
   .replace('https://github.com', '');
 
 // @todo: This will need to be HTTPS
- var url = 'http://productivity.gizra.com/' + repoName + '/' + issueId;
+ var url = 'https://productivity.gizra.com/' + repoName + '/' + issueId;
 document.querySelector('iframe').src = url;

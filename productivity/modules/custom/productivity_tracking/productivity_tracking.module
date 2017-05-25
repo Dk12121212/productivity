@@ -70,13 +70,6 @@ function productivity_tracking_menu() {
 /**
  * Access callback; Determine if Issue summary can be accessed.
  *
- * @param string $account_name
- *   The GitHub account name, for example "foo" in "foo/bar".
- * @param string $project_name
- *   The GitHub project name, for example "bar" in "foo/bar".
- * @param int $issue_id
- *   The issue number.
- *
  * @return bool
  *   TRUE if user has access.
  */

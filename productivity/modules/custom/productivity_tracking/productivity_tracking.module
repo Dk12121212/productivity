@@ -6,7 +6,6 @@
 
 include_once 'productivity_tracking.features.inc';
 
-
 /**
  * Implements hook_menu().
  */

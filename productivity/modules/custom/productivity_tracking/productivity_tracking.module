@@ -58,7 +58,170 @@ function productivity_tracking_menu() {
     'file' => 'monthly_report/productivity_time_tracking.table.inc'
   );
 
+  $items['per-issue/%/%/%'] = array(
+    'page callback' => 'productivity_tracking_per_issue_summary',
+    'page arguments' => [1, 2 ,3],
+    'access callback' => 'productivity_tracking_per_issue_summary_access',
+    'access arguments' => [1, 2 ,3],
+  );
+
   return $items;
+}
+
+/**
+ * Access callback; Determine if Issue summary can be accessed.
+ *
+ * @param string $account_name
+ *   The GitHub account name, for example "foo" in "foo/bar".
+ * @param string $project_name
+ *   The GitHub project name, for example "bar" in "foo/bar".
+ * @param int $issue_id
+ *   The issue number.
+ *
+ * @return bool
+ *   TRUE if user has access.
+ */
+function productivity_tracking_per_issue_summary_access($gh_account_name, $gh_repo_name, $issue_id) {
+  if (!user_access('access content')) {
+    // User doesn't have access to the content.
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/**
+ * Page callback; Issue summary that will be used as IFrame inside GitHub.
+ *
+ * @param string $gh_account_name
+ *   The GitHub account name, for example "foo" in "foo/bar".
+ * @param string $gh_repo_name
+ *   The GitHub project name, for example "bar" in "foo/bar".
+ * @param int $issue_id
+ *   The issue number.
+ *
+ * @return array
+ *   The theme of the page
+ */
+function productivity_tracking_per_issue_summary($gh_account_name, $gh_repo_name, $issue_id) {
+
+  if (productivity_tracking_get_tracking_nodes_per_issue("$gh_account_name/$gh_repo_name", $issue_id, TRUE) == 0) {
+    // Issue is not tracked.
+    return "no tracking for this issue.";
+  }
+
+  $tracking = productivity_tracking_get_tracking_nodes_per_issue("$gh_account_name/$gh_repo_name", $issue_id);
+
+  $total_row = array(
+    'class' => 'success',
+    'data' => array(
+      'date' => 'Summary',
+      'estimate' => 0,
+      'actual' => 0,
+      'developer' => '',
+      'type' => '',
+      'overtime' => 'TOTAL',
+    )
+  );
+
+  // Header.
+  $table = array(
+    'header' => array(
+      t('Date'),
+      t('Time estimate'),
+      t('Actual time'),
+      t('Developer'),
+      t('type'),
+      t('Overtime'),
+    ),
+    'attributes' => array('class' => array('per-issue-table')),
+  );
+
+  $totals = [];
+
+  // Prepare table for tracking data.
+  while($track_record = $tracking->fetchAssoc()) {
+    // Pr data.
+    $pr_time = $track_record['field_track_log_field_time_spent_value'];
+
+    if ($pr_time == '0') {
+      continue;
+    }
+    $pr_work_type = $track_record['field_track_log_field_issue_type_value'];
+    $pr_developer = $track_record['field_track_log_field_github_username_value'];
+    $pr_date = $track_record['field_track_log_field_date_value'];
+    $track_id = $track_record['field_track_log_id'];
+
+    // Issue data.
+    $estimate = $track_record['field_time_estimate_value'];
+    $nid = $track_record['nid'];
+
+    // First row of issue.
+    if (!isset($totals[$nid])) {
+      // Init first total value.
+      $totals[$nid] = (double)$pr_time;
+      // Sum estimate.
+      $total_row['data']['estimate'] += $estimate;
+    }
+    else {
+      // Add up total work time.
+      $totals[$nid] += (double) $pr_time;
+
+      // Update actual.
+      $table['rows']["nid_" . $nid]['main']['data']['actual'] = $totals[$nid];
+
+      // Update overtime.
+      $overtime = $totals[$nid] - $table['rows']["nid_" . $nid]['main']['data']['estimate'];
+
+      $table['rows']["nid_" . $nid]['main']['data']['overtime'] =  array(
+        'class' => ($overtime > 0 ? 'cell-bad-odd' : 'cell-ok-even'),
+        'data' => $overtime,
+      );
+
+    }
+    // Update sum row.
+    $total_row['data']['actual'] += $pr_time;
+    $total_overtime = $total_row['data']['actual'] - $total_row['data']['estimate'];
+    $total_row['data']['overtime'] = array(
+      'class' => ($total_overtime > 0 ? 'cell-bad-odd' : 'cell-ok-even'),
+      'data' => $total_overtime,
+    );
+
+    // Add sub rows for each PR.
+    $pr_row = array(
+      'class' => 'warning',
+      'data' => array(
+        'date' => date("d-m-Y", strtotime($pr_date)),
+        'estimate' => '',
+        'actual' => $pr_time,
+        'developer' => $pr_developer,
+        'type' => $pr_work_type,
+        'overtime' => '',
+      ),
+    );
+    // Add to the table
+    $table['rows']["nid_" . $nid]['tracks'][$track_id] = $pr_row;
+
+    // Set latest date for sorting.
+    if (!isset($table['rows']["nid_" . $nid]['latest']) || $table['rows']["nid_" . $nid]['latest'] < strtotime($pr_date)) {
+      $table['rows']["nid_" . $nid]['latest'] = strtotime($pr_date);
+    }
+  }
+  $sorted_rows = [];
+  foreach ($table['rows'] as $row) {
+    $i = 0;
+    foreach ($row['tracks'] as $row_pr) {
+      $i++;
+      $sorted_rows[$row['latest'] . "-$i"] = $row_pr;
+    }
+  }
+
+  krsort($sorted_rows);
+  $table['rows'] = $sorted_rows;
+
+  // Add total row to top of the table.
+  array_unshift($table['rows'], $total_row);
+  return theme('table', $table + array('sticky' => FALSE));
 }
 
 /**
@@ -688,6 +851,67 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
     $query->condition('t.field_track_log_field_issue_type_value', $work_type);
   }
 
+  $result = $query->execute();
+
+  return $result;
+}
+
+/**
+ * Get entity reference connections.
+ *
+ * @param $repo
+ *  Repo id ex. Gizra/productivity
+ *
+ * @param $issue_id
+ *  Issue number.
+ *
+ * @return
+ *   SelectQuery::execute();
+ */
+function productivity_tracking_get_tracking_nodes_per_issue($repo, $issue_id, $count = FALSE) {
+  // List of issues for a project nid.
+  $query = db_select('node', 'n');
+
+  $node_fields = [
+    'p' => 'field_project',
+    'e' => 'field_time_estimate',
+    'i' => 'field_issue_id',
+    'gpi' => 'field_github_project_id',
+    'st' => 'field_issue_status',
+    't' => 'field_track_log',
+  ];
+
+  foreach ($node_fields as $alias => $field) {
+    $query
+      ->leftjoin("field_data_$field", $alias, "n.nid = $alias.entity_id");
+  }
+
+  $query
+    ->leftjoin("taxonomy_term_data", 'issue_status', 'issue_status.tid = st.field_issue_status_target_id');
+
+
+  $query
+    ->fields('n', array('title', 'nid', 'uid'))
+    ->fields('e', array('field_time_estimate_value'))
+    ->fields('i', array('field_issue_id_value'))
+    ->fields('gpi', array('field_github_project_id_value'))
+    ->fields('t')
+    ->fields('issue_status', array('name'))
+    ->fields('p', array('field_project_target_id'));
+
+  $query
+    ->condition('gpi.field_github_project_id_value', $repo)
+    ->condition('i.field_issue_id_value', $issue_id);
+
+  $query
+    ->condition('type', 'tracking')
+    ->condition('status', NODE_PUBLISHED)
+    ->orderBy('gpi.field_github_project_id_value')
+    ->orderBy('i.field_issue_id_value');
+
+  if ($count) {
+    return $query->execute()->rowCount();
+  }
   $result = $query->execute();
 
   return $result;

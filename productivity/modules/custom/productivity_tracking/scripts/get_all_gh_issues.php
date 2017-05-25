@@ -1,6 +1,9 @@
 <?php
 /**
  * Fetch issues from GH and create or update tracking nodes.
+ *
+ * Run example:
+ * drush scr profiles/productivity/modules/custom/productivity_tracking/scripts/get_all_gh_issues.php --gh_repo=circuit-bid --dont_create=0 --max_issue_id=280 --no_cache=1
  */
 
 $repo_user = drush_get_option('gh_user', 'Gizra');

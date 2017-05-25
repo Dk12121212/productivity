@@ -19,7 +19,7 @@ function productivity_tracking_menu() {
   $items['node/%node/issues-tracking'] = array(
     'title' => t('Tracking Report'),
     'page callback' => 'productivity_tracking_burn_report_callback',
-    'page arguments' => array(1, 3, 4, 5),
+    'page arguments' => array(1, 3, 4, 5, 6),
     // TODO: ADD access callback that checks node type == project.
     'access callback' => 'node_access',
     'access arguments' => array('update', 1),
@@ -80,7 +80,6 @@ function productivity_tracking_get_query_strings($args) {
     $date = "$day.$month.$year";
   }
 
-  $uid = isset($_GET['uid']) ? $_GET['uid'] : (isset($args[0]) ? $args[0] : FALSE);
 
   return [
   'day' => $day,
@@ -263,7 +262,7 @@ function productivity_tracking_save_callback() {
         'uid' => $uid,
       ];
 
-      // Create a new tracking data.
+      // Create a new tracking data structure.
       $logs['und'][] = productivity_tracking_create_multifields_track($data, $wrapper);
 
       // Rebuild structure with previous logs.
@@ -286,6 +285,8 @@ function productivity_tracking_save_callback() {
       );
     }
   }
+
+  // Render updated navigation table.
   global $user;
   ctools_include('content');
   $nav = ctools_content_render('tracking_nav', 'tracking_nav', [], [], [$user->uid], [], '');
@@ -522,6 +523,7 @@ function productivity_tracking_save_tracking($issue, $pr, $uid, $github_username
   // Save node.
   return $wrapper->save();
 }
+
 /**
  *
  * Get the project ID from the repository name.
@@ -789,6 +791,7 @@ function productivity_tracking_get_tracking_total_estimate($project_nid, $work_t
 
   return db_query($query, $args)->fetchField();
 }
+
 /**
  *
  * Calculate the Total hours done.
@@ -872,6 +875,7 @@ function productivity_tracking_get_tracking_total($project_nid, $work_type = FAL
   }
   return $total;
 }
+
 /**
  * Get entity reference connections.
  *
@@ -1141,7 +1145,7 @@ function productivity_tracking_check_race_condition($data) {
     ))
     ->execute();
 
-  sleep(5);
+  sleep(2);
 
   $query_duplicates = db_select('productivity_github_webhook_duplicates', 'g')
     ->condition('g.issue_id', $issue_id, '=')
@@ -1281,6 +1285,7 @@ function productivity_tracking_set_tracking_data($data, $wrapper, $only_gh_data 
     $wrapper->field_gh_label->set($term);
   }
 }
+
 /**
  * Get or create status term.
  */

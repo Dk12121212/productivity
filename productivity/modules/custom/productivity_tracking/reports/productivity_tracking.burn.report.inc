@@ -14,7 +14,7 @@
  * @return string
  *  Rendered table.
  */
-function productivity_tracking_burn_report_callback($project_node, $detailed = TRUE, $year = 'all', $month = 'all') {
+function productivity_tracking_burn_report_callback($project_node, $detailed = TRUE, $year = 'all', $month = 'all', $checkmismatch = FALSE) {
   drupal_add_js(drupal_get_path('module', 'productivity_tracking') . '/reports/tracking_burn.js');
 
   // Add datepicker lib.
@@ -24,8 +24,8 @@ function productivity_tracking_burn_report_callback($project_node, $detailed = T
 
 
   $variables = array();
-  $variables['year'] = !empty($year) ? $year : date('Y');
-  $variables['month']= !empty($month) ? $month : date('m', strtotime("-1 month"));
+  $variables['year'] = !empty($year) ? $year : 'all';
+  $variables['month']= !empty($month) ? $month : 'all';
 
   if ($year == 'all'){
     $variables['date'] = t('All time');
@@ -38,6 +38,7 @@ function productivity_tracking_burn_report_callback($project_node, $detailed = T
   }
 
   global $base_url;
+  global $user;
 
   drupal_add_js(array('issues_tracking' => array(
     'year' => $variables['year'],
@@ -51,7 +52,12 @@ function productivity_tracking_burn_report_callback($project_node, $detailed = T
 
   drupal_set_title(t('@project burn table', array('@project' => $project_node->title)));
 
-  $variables = [];
+  $variables['admin_user'] = $user->uid == 1 ? TRUE : FALSE;
+  $detailed_bit =  $detailed ? 1 : 0;
+  $variables['url_mismatch'] = url("node/{$project_node->nid}/issues-tracking/$detailed_bit/{$variables['year']}/{$variables['month']}/check-mismatch");
+
+
+
   $wrapper = entity_metadata_wrapper('node', $project_node);
   $active =  'active';
   // Create one table per type.
@@ -62,7 +68,7 @@ function productivity_tracking_burn_report_callback($project_node, $detailed = T
   if (isset($project_node->field_table_rate['und'])) {
     foreach ($wrapper->field_table_rate as $type) {
       $rate_code = $type->field_issue_type->value();
-      $table = productivity_tracking_burn_report($project_node, $rate_code, !$detailed, TRUE, $year, $month);
+      $table = productivity_tracking_burn_report($project_node, $rate_code, !$detailed, TRUE, $year, $month, $checkmismatch);
       $variables['tables'][$rate_code] = [
         'title' => $type->field_issue_type->label(),
         'table' => $table['table'] ? theme('table', $table['table']) : t('No tracking for project yet.'),
@@ -79,7 +85,7 @@ function productivity_tracking_burn_report_callback($project_node, $detailed = T
 /**
  * Display tracking table for issues.
  */
-function productivity_tracking_burn_report($project_node, $work_type = FALSE, $no_pr = TRUE, $not_started = FALSE, $year, $month) {
+function productivity_tracking_burn_report($project_node, $work_type = FALSE, $no_pr = TRUE, $not_started = FALSE, $year, $month, $checkmismatch) {
   $tracking = productivity_tracking_get_tracking($project_node->nid, $work_type, $year, $month);
 
   $total_row = array(
@@ -122,9 +128,12 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE, $n
   );
 
   $totals = [];
+  $mismatch = [];
+  $mismatch_temp = [];
 
   // Prepare table for tracking data.
   while($track_record = $tracking->fetchAssoc()) {
+
     // Pr data.
     $pr_time = $track_record['field_track_log_field_time_spent_value'];
 
@@ -158,6 +167,18 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE, $n
 
     $issue_url = "https://github.com/$repo_id/issues/$issue_id";
     $issue_link = l("$issue_title", $issue_url, array('attributes' => array('target' => '_blank')));
+
+
+    // Create a table of miss reports
+    if ($checkmismatch) {
+      $mismatch_temp[$pr_gh_id][$issue_id][$nid] = $estimate;
+
+      if (count($mismatch_temp[$pr_gh_id][$issue_id]) > 1) {
+        $mismatch[$pr_gh_id] = $mismatch_temp[$pr_gh_id];
+      }
+    }
+
+
 
     // First row of issue.
     if (!isset($totals[$nid])) {
@@ -271,7 +292,7 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE, $n
 
   $total_row['data']['overtime']['data'] = number_format($total_row['data']['overtime']['data'], 2);
   $total_row['data']['actual'] = number_format($total_row['data']['actual'], 2);
-
+  dpm($mismatch);
   // Add total row to top of the table.
   array_unshift($table['rows'], $total_row);
   return [

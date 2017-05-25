@@ -1,5 +1,22 @@
 <div class="report-container">
 
+  <?php if ($admin_user): ?>
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="main-box">
+        <header class="main-box-header clearfix">
+          <h2>Admin functions</h2>
+        </header>
+
+        <div class="main-box-body clearfix">
+          <a href="<?php print $url_mismatch; ?>" class="btn btn-primary checkmismatchs" type="button">Check mismatches</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <?php endif; ?>
+
+
   <div class="row">
     <div class="col-lg-12">
       <div class="main-box">

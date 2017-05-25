@@ -73,6 +73,7 @@
  * @ingroup themeable
  */
 ?>
+<?php print $messages; ?>
 <div class="row">
   <div class="col-sm-12">
     <?php print render($page['content']); ?>

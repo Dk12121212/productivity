@@ -96,7 +96,7 @@ function productivity_tracking_per_issue_summary_access() {
  *   The theme of the page
  */
 function productivity_tracking_per_issue_summary($gh_account_name, $gh_repo_name, $issue_id) {
-
+  // If there are no tracking, display a message.
   if (productivity_tracking_get_tracking_nodes_per_issue("$gh_account_name/$gh_repo_name", $issue_id, TRUE) == 0) {
     // Issue is not tracked.
     return "no tracking for this issue.";
@@ -159,10 +159,8 @@ function productivity_tracking_per_issue_summary($gh_account_name, $gh_repo_name
     else {
       // Add up total work time.
       $totals[$nid] += (double) $pr_time;
-
       // Update actual.
       $table['rows']["nid_" . $nid]['main']['data']['actual'] = $totals[$nid];
-
     }
     // Update sum row.
     $total_row['data']['actual'] += $pr_time;

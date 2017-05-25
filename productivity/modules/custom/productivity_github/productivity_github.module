@@ -14,7 +14,55 @@ function productivity_github_menu() {
     'page callback' => 'productivity_github_payload',
     'access callback' => TRUE,
   );
+
+  $items['per-issue/%/%/%'] = array(
+    'page callback' => 'productivity_github_per_issue_summary',
+    'page arguments' => [1, 2 ,3],
+    'access callback' => 'productivity_github_per_issue_summary_access',
+    'access arguments' => [1, 2 ,3],
+  );
   return $items;
+}
+
+/**
+ * Access callback; Determine if Issue summary can be accessed.
+ *
+ * @param string $account_name
+ *   The GitHub account name, for example "foo" in "foo/bar".
+ * @param string $project_name
+ *   The GitHub project name, for example "bar" in "foo/bar".
+ * @param int $issue_number
+ *   The issue number.
+ *
+ * @return bool
+ *   TRUE if user has access.
+ */
+function productivity_github_per_issue_summary_access($account_name, $project_name, $issue_number) {
+  if (!$nid = _productivity_github_get_entity_id_by_field_value('field_github_repository_name', 'project', $account_name . '/' . $project_name)) {
+    // Project is not known.
+    return FALSE;
+  }
+
+  // @todo: Assert issue exists.
+
+  return TRUE;
+}
+
+/**
+ * Page callback; Issue summary that will be used as IFrame inside GitHub.
+ *
+ * @param string $account_name
+ *   The GitHub account name, for example "foo" in "foo/bar".
+ * @param string $project_name
+ *   The GitHub project name, for example "bar" in "foo/bar".
+ * @param int $issue_number
+ *   The issue number.
+ *
+ * @return array
+ *   The theme of the page
+ */
+function productivity_github_per_issue_summary($account_name, $project_name, $issue_number) {
+  return ['#markup' => 'summary will be here'];
 }
 
 /**

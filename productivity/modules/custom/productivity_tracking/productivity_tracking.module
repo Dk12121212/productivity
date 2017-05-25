@@ -19,7 +19,7 @@ function productivity_tracking_menu() {
   $items['node/%node/issues-tracking'] = array(
     'title' => t('Tracking Report'),
     'page callback' => 'productivity_tracking_burn_report_callback',
-    'page arguments' => array(1),
+    'page arguments' => array(1, 3, 4, 5),
     // TODO: ADD access callback that checks node type == project.
     'access callback' => 'node_access',
     'access arguments' => array('update', 1),
@@ -392,7 +392,7 @@ function productivity_tracking_save_callback() {
       ];
 
       // Get or create tracking node.
-      $wrapper = productivity_tracking_get_tracking_node($data_issue);
+      $wrapper = productivity_tracking_get_tracking_node($data_issue, FALSE, FALSE, FALSE);
       // Save PR.
       $node = $wrapper->value();
       $logs = array();
@@ -788,8 +788,10 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
     'gpi' => 'field_github_project_id',
     't' => 'field_track_log',
     'st' => 'field_issue_status',
+    'mi' => 'field_gh_milestone',
     'b' => 'body',
   ];
+
 
   foreach ($node_fields as $alias => $field) {
     $query
@@ -808,10 +810,18 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
     ->fields('i', array('field_issue_id_value'))
     ->fields('gpi', array('field_github_project_id_value'))
     ->fields('t')
+    ->fields('mi')
     ->fields('b')
     ->fields('issue_status', array('name'))
     ->fields('pr_status', array('name'))
     ->fields('p', array('field_project_target_id'));
+
+  // Add multiple labels in a single row, wigh comma separator.
+  $labels = '(SELECT GROUP_CONCAT(taxo.name SEPARATOR \', \')
+  FROM `field_data_field_gh_label` AS label
+  LEFT JOIN `taxonomy_term_data` taxo ON label.field_gh_label_target_id = taxo.tid
+  WHERE label.entity_id = n.nid)';
+  $query->addExpression($labels, 'labels');
 
   if ($project_nid) {
     $query
@@ -1214,7 +1224,7 @@ function productivity_tracking_get_issue_info($repo, $issue_id, $user = 'Gizra',
 
   if (empty($issue)) {
     return [
-      'issue' => [],
+      'issue' => [] ,
       'estimate' => 0,
       'related_issues' => [],
     ];
@@ -1246,7 +1256,13 @@ function productivity_tracking_get_issue($repo, $issue_id, $user = 'Gizra', $no_
   $data = &drupal_static($cid);
 
   if (!isset($data)) {
-    if ($cache = cache_get($cid) && !$no_cache) {
+    $cache = cache_get($cid);
+    // TODO: Fixing a case the array is empty, but we get a boolean TRUE,
+    // need to figure out why.
+    if ($data === TRUE) {
+      $data = FALSE;
+    }
+    if ($cache && !$no_cache) {
       $data = $cache->data;
     }
     else {
@@ -1254,6 +1270,7 @@ function productivity_tracking_get_issue($repo, $issue_id, $user = 'Gizra', $no_
       try {
         // Get ifo from GH.
         $data =  $client->issue()->show($user, $repo, $issue_id);
+
         cache_set($cid, $data);
 
       } catch (Exception $exception) {
@@ -1401,6 +1418,7 @@ function productivity_tracking_get_tracking_node($data, $update_existing = FALSE
 
       // Update estimate and status.
       if ($update_existing) {
+        // Pass true in 3rd param to not update project ref.
         productivity_tracking_set_tracking_data($data, $wrapper, TRUE);
       }
     }

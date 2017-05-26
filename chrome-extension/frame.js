@@ -1,8 +1,6 @@
 var url = window.location.href
-  .replace('/issues', '')
-  .replace('https://github.com', '');
+  .replace('https://github.com', '')
+  .replace('/issues', '');
 
-// @todo: This will need to be HTTPS
-// var url = 'http://productivity.gizra.com/' + repoName + '/' + issueId;
-var url = "https://shoov.io/per-issue/" + url;
+var url = "https://productivity.gizra.com/per-issue/" + url;
 document.querySelector('iframe').src = url;

@@ -60,25 +60,10 @@ function productivity_tracking_menu() {
   $items['per-issue/%/%/%'] = array(
     'page callback' => 'productivity_tracking_per_issue_summary',
     'page arguments' => [1, 2 ,3],
-    'access callback' => 'productivity_tracking_per_issue_summary_access',
+    'access arguments' => ['access content'],
   );
 
   return $items;
-}
-
-/**
- * Access callback; Determine if Issue summary can be accessed.
- *
- * @return bool
- *   TRUE if user has access.
- */
-function productivity_tracking_per_issue_summary_access() {
-  if (!user_access('access content')) {
-    // User doesn't have access to the content.
-    return FALSE;
-  }
-
-  return TRUE;
 }
 
 /**
@@ -95,17 +80,16 @@ function productivity_tracking_per_issue_summary_access() {
  *   The theme of the page
  */
 function productivity_tracking_per_issue_summary($gh_account_name, $gh_repo_name, $issue_id) {
+  $tracking = productivity_tracking_get_tracking_nodes_per_issue("$gh_account_name/$gh_repo_name", $issue_id);
   // If there are no tracking, display a message.
-  if (productivity_tracking_get_tracking_nodes_per_issue("$gh_account_name/$gh_repo_name", $issue_id, TRUE) == 0) {
+  if ($tracking->rowCount() == 0) {
     // Issue is not tracked.
     return "no tracking for this issue.";
   }
 
-  $tracking = productivity_tracking_get_tracking_nodes_per_issue("$gh_account_name/$gh_repo_name", $issue_id);
-
-  $total_row = array(
+  $total_row = [
     'class' => 'success',
-    'data' => array(
+    'data' => [
       'PR' => 'Summary',
       'date' => '',
       'estimate' => 0,
@@ -113,12 +97,12 @@ function productivity_tracking_per_issue_summary($gh_account_name, $gh_repo_name
       'developer' => '',
       'type' => '',
       'overtime' => 'TOTAL',
-    )
-  );
+    ]
+  ];
 
   // Header.
-  $table = array(
-    'header' => array(
+  $table = [
+    'header' => [
       t('PR'),
       t('Date'),
       t('Time estimate'),
@@ -126,9 +110,9 @@ function productivity_tracking_per_issue_summary($gh_account_name, $gh_repo_name
       t('Developer'),
       t('type'),
       t('Overtime'),
-    ),
-    'attributes' => array('class' => array('per-issue-table')),
-  );
+    ],
+    'attributes' => ['class' => ['per-issue-table']],
+  ];
 
   $totals = [];
 
@@ -164,15 +148,15 @@ function productivity_tracking_per_issue_summary($gh_account_name, $gh_repo_name
     // Update sum row.
     $total_row['data']['actual'] += $pr_time;
     $total_overtime = $total_row['data']['actual'] - $total_row['data']['estimate'];
-    $total_row['data']['overtime'] = array(
+    $total_row['data']['overtime'] = [
       'class' => ($total_overtime > 0 ? 'cell-bad-odd' : 'cell-ok-even'),
       'data' => $total_overtime,
-    );
+    ];
 
     // Add sub rows for each PR.
-    $pr_row = array(
+    $pr_row = [
       'class' => 'warning',
-      'data' => array(
+      'data' => [
         'pr' => $track_record['field_track_log_field_issue_id_value'],
         'date' => date("d-m-Y", strtotime($pr_date)),
         'estimate' => '',
@@ -180,8 +164,8 @@ function productivity_tracking_per_issue_summary($gh_account_name, $gh_repo_name
         'developer' => $pr_developer,
         'type' => $pr_work_type,
         'overtime' => '',
-      ),
-    );
+      ],
+    ];
     // Add to the table
     $table['rows']["nid_" . $nid]['tracks'][$track_id] = $pr_row;
 
@@ -204,7 +188,7 @@ function productivity_tracking_per_issue_summary($gh_account_name, $gh_repo_name
 
   // Add total row to top of the table.
   array_unshift($table['rows'], $total_row);
-  return theme('table', $table + array('sticky' => FALSE));
+  return theme('table', $table + ['sticky' => FALSE]);
 }
 
 /**
@@ -861,7 +845,7 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
  * @return
  *   SelectQuery::execute();
  */
-function productivity_tracking_get_tracking_nodes_per_issue($repo, $issue_id, $count = FALSE) {
+function productivity_tracking_get_tracking_nodes_per_issue($repo, $issue_id) {
   // List of issues for a project nid.
   $query = db_select('node', 'n');
 
@@ -882,7 +866,6 @@ function productivity_tracking_get_tracking_nodes_per_issue($repo, $issue_id, $c
   $query
     ->leftjoin("taxonomy_term_data", 'issue_status', 'issue_status.tid = st.field_issue_status_target_id');
 
-
   $query
     ->fields('n', array('title', 'nid', 'uid'))
     ->fields('e', array('field_time_estimate_value'))
@@ -902,11 +885,7 @@ function productivity_tracking_get_tracking_nodes_per_issue($repo, $issue_id, $c
     ->orderBy('gpi.field_github_project_id_value')
     ->orderBy('i.field_issue_id_value');
 
-  if ($count) {
-    return $query->execute()->rowCount();
-  }
   $result = $query->execute();
-
   return $result;
 }
 

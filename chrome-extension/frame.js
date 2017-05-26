@@ -1,7 +1,6 @@
 var url = window.location.href
-  .replace('/issues', '')
-  .replace('https://github.com', '');
+  .replace('https://github.com', '')
+  .replace('/issues', '');
 
- var url = 'https://productivity.gizra.com/per-issue/' + repoName + '/' + issueId;
-// var url = 'http://localhost/productivity/www/per-issue/' + repoName + '/' + issueId;
- document.querySelector('iframe').src = url;
+var url = 'https://productivity.gizra.com/per-issue/' + url;
+document.querySelector('iframe').src = url;

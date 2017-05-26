@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/Gizra/productivity.svg)](https://travis-ci.org/Gizra/productivity)
 
 
-# Gizra Productivity 
+# Gizra Productivity
 Productity is Gizra's ERP/Project management system, and is part of The Gizra Way
 methodology, the system manages the following areas:
 
@@ -38,10 +38,28 @@ There's two options for the login page:
 
  1. The normal username and password page.
  2. A GitHub connect button.
- 
+
 To toggle between the two options on the front-end you can edit the `config.json` file in the `client` directory,
 Setting `githubClientId` to the `Client ID` provided by the application in GitHub will enable the GitHub connection button,
 Setting `githubClientId` to `FALSE` will enable the normal login page.
 
 When choosing the GitHub connect login, You have to provide the application's `Client ID` and `Client secret` to the backend as well which should be done through the `config.sh` (`default.config.sh` on first install) file in the `ROOT` directory in the `post_install` function
 or in the admin interface under `admin/config/system/productivity_settings`.
+
+### GitHub extension
+
+The GitHub extension allow viewing the actual time that was done by different developers per issue. It will appear as in `IFrame` inside GitHub's issues.
+
+#### Installation
+
+1. Download `chrome-extension.crx` from the [Releases](https://github.com/Gizra/productivity/releases) page
+1. Open `chrome://extensions` in your Chrome browser
+1. Drag & drop the `crx` file
+
+#### Re-Creating extension
+
+If you have improved the chrome extension:
+1. Bump the version in `manifest.json`
+1. Open `chrome://extensions` in your Chrome browser
+1. Use `Pack extension` button to re-create the `crx` file
+1. Create a new [Release](https://github.com/Gizra/productivity/releases) and upload the new binary

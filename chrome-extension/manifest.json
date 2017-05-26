@@ -1,0 +1,17 @@
+{
+  "manifest_version": 2,
+
+  "name": "Productivity and GitHub integration",
+  "version": "0.1.0",
+  "description": "Show timeboxing per issue(s)",
+
+  "content_scripts": [{
+    "js": ["content.js"],
+    "matches": ["https://github.com/Gizra/*/issues/*"],
+    "all_frames": true
+  }],
+  "web_accessible_resources": [
+    "frame.html"
+  ]
+
+}

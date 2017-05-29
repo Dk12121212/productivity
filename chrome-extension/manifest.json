@@ -7,7 +7,12 @@
 
   "content_scripts": [{
     "js": ["content.js"],
-    "matches": ["https://github.com/Gizra/*/issues/*"],
+    "matches": ["https://github.com/Gizra/*/issues/*",
+      "https://github.com/gizra-Presentations/*/issues/*",
+      "https://github.com/openscholar/*/issues/*",
+      "https://github.com/shoov/*/issues/*",
+      "https://github.com/UNFPAHQ/*/issues/*"
+    ],
     "all_frames": true
   }],
   "web_accessible_resources": [

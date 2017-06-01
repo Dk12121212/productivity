@@ -1,7 +1,6 @@
-// Avoid recursive frame insertion...
-var extensionOrigin = 'chrome-extension://' + chrome.runtime.id;
-if (!location.ancestorOrigins.contains(extensionOrigin)) {
+var appendFrame = function () {
   var iframe = document.createElement('iframe');
+  iframe.setAttribute("id", "productivity-summary");
 
   // Pass the issue URL as query string to the parent IFrame.
   var issueUrl = window.location.href
@@ -16,4 +15,18 @@ if (!location.ancestorOrigins.contains(extensionOrigin)) {
 
   var el = document.querySelector('.gh-header-title');
   el.appendChild(iframe);
+}
+
+if (typeof(location.ancestorOrigins) !== 'undefined') {
+  // Avoid recursive frame insertion, Google Chrome style.
+  var extensionOrigin = 'chrome-extension://' + chrome.runtime.id;
+  if (!location.ancestorOrigins.contains(extensionOrigin)) {
+    appendFrame();
+  }
+}
+else {
+  // Workaround for Firefox.
+  if (!document.getElementById("productivity-summary")) {
+    appendFrame();
+  }
 }

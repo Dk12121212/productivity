@@ -270,7 +270,7 @@ function productivity_tracking_theme($existing, $type, $theme, $path) {
 /**
  *  Update tracking multifiled.
  */
-function productivity_tracking_update($track) {
+function productivity_tracking_update($track, $uid) {
   // Save in regular data.
   $res = db_update('field_data_field_track_log')
     ->fields(array(
@@ -281,6 +281,7 @@ function productivity_tracking_update($track) {
       )
     )
     ->condition('field_track_log_id', $track['mlid'])
+    ->condition('field_track_log_field_employee_target_id', $uid)
     ->execute();
 
   // Save in revision.
@@ -293,6 +294,7 @@ function productivity_tracking_update($track) {
       )
     )
     ->condition('field_track_log_id', $track['mlid'])
+    ->condition('field_track_log_field_employee_target_id', $uid)
     ->execute();
 
   return $res && $res_rev;
@@ -322,13 +324,13 @@ function productivity_tracking_save_callback() {
   $results = [];
   $json = file_get_contents('php://input');
   $tracking = json_decode($json, TRUE);
+  $uid = $tracking['data']['uid'];
   foreach ($tracking['tracking'] as $track) {
     // Existing Tracking, just update.
     $ids = explode('|', $track['mlid']);
     $attr = $ids[1];
     $delete = $ids[2];
     $track['mlid'] = $ids[0];
-    $uid = $tracking['data']['uid'];
 
     // Delete.
     if ($delete) {
@@ -351,7 +353,7 @@ function productivity_tracking_save_callback() {
         'new' => 0,
         'delete' => $delete,
         'attr' => $attr,
-        'result' => productivity_tracking_update($track),
+        'result' => productivity_tracking_update($track, $uid),
       );
     }
     // New tracking.

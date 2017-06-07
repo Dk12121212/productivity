@@ -301,13 +301,15 @@ function productivity_tracking_update($track) {
 /**
  *  Delete tracking multifiled.
  */
-function productivity_tracking_delete($mlid) {
+function productivity_tracking_delete($mlid, $uid) {
   $res = db_delete('field_data_field_track_log')
     ->condition('field_track_log_id', $mlid)
+    ->condition('field_track_log_field_employee_target_id', $uid)
     ->execute();
 
   $res_rev = db_delete('field_revision_field_track_log')
     ->condition('field_track_log_id', $mlid)
+    ->condition('field_track_log_field_employee_target_id', $uid)
     ->execute();
 
   return $res && $res_rev;
@@ -326,7 +328,7 @@ function productivity_tracking_save_callback() {
     $attr = $ids[1];
     $delete = $ids[2];
     $track['mlid'] = $ids[0];
-
+    $uid = $tracking['data']['uid'];
 
     // Delete.
     if ($delete) {
@@ -337,7 +339,7 @@ function productivity_tracking_save_callback() {
           'new' => 0,
           'delete' => $delete,
           'attr' => $attr,
-          'result' => productivity_tracking_delete($track['mlid']),
+          'result' => productivity_tracking_delete($track['mlid'], $uid),
         );
       }
     }
@@ -354,7 +356,7 @@ function productivity_tracking_save_callback() {
     }
     // New tracking.
     else {
-      $uid = $tracking['data']['uid'];
+
       // Same structure as GH API.
       $issue = array(
         'number' => $track['issue'] ? $track['issue'] : 0,

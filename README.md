@@ -52,15 +52,21 @@ The GitHub extension allow viewing the actual time that was done by different de
 
 #### Installation
 
+#### Google Chrome
+
 1. Git clone this repo
 1. Open `chrome://extensions` in your Chrome browser
 1. Drag & drop the `chrome-extension` folder
 
 When there will be any updates to the extension, you will only have to `git pull`, re-open `chrome://extensions` and refresh.
 
-#### Re-Creating extension
+#### Firefox
 
-If you have improved the chrome extension:
+1. Install the signed version from the repository: https://raw.githubusercontent.com/Gizra/productivity/master/productivity.xpi
+
+#### Re-Creating Chrome extension
+
+If you have improved the Chrome extension:
 1. Bump the version in `manifest.json`
 1. Open `chrome://extensions` in your Chrome browser
 1. Use `Pack extension` button to re-create the `crx` file

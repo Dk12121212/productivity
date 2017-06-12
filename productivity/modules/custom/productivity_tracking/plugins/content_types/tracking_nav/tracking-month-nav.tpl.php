@@ -4,7 +4,6 @@
     <span><?php print $month; ?> - <?php print $year; ?></span>
     <a href="<?php print $urls['next_month']; ?>" class=""><i class="fa fa-caret-right"></i></a>
   </div>
-
   <div class="row clearfix">
 
     <div class="col-md-12 column">
@@ -58,6 +57,7 @@
           <?php endforeach; ?>
         </tbody>
       </table>
+      <div class="story-author">Note: tracking is displayed according to the <a href="<?php print url("/user/$uid/edit", ['query' => ['destination' => drupal_get_destination()['destination']]]); ?>">user's timezone</a> settings.</div>
     </div>
   </div>
 </div>

@@ -577,7 +577,7 @@ function productivity_tracking_gh_payload($payload, $event) {
 function productivity_tracking_save_tracking($issue, $pr, $uid, $github_username, $repo, $dont_create = FALSE, $check_race_condition = TRUE) {
   $project_nid = productivity_tracking_get_project_by_repository($repo);
 
-  // Bypass if project or user are not in the system.
+  // Bypass if project is not in the system.
   if (!$project_nid) {
     return FALSE;
   }
@@ -630,8 +630,8 @@ function productivity_tracking_save_tracking($issue, $pr, $uid, $github_username
     }
     else {
       $data = [
-        'date_start' => date("Y-m-d H:i:s",strtotime($pr['updated_at'])),
-        'date_end' => date("Y-m-d H:i:s",strtotime($pr['updated_at'])),
+        'date_start' => date("Y-m-d H:i:s", strtotime($pr['updated_at'])),
+        'date_end' => date("Y-m-d H:i:s", strtotime($pr['updated_at'])),
         'label' => $pr['title'],
         'pr_id' => $pr['number'],
         'status' => $pr['state'],
@@ -1463,7 +1463,7 @@ function productivity_tracking_set_tracking_data($data, $wrapper, $only_gh_data 
     $wrapper->field_gh_milestone->set($term);
   }
   // Save labels.
-  if ($data['issue']['labels']) {
+  if (isset($data['issue']['labels'])) {
     $term = [];
     foreach ($data['issue']['labels'] as $label) {
       $term[] = productivity_tracking_get_term($label['name'], 'gh_labels');
@@ -1492,6 +1492,22 @@ function productivity_tracking_get_term($name, $vocab_machine_name = 'issue_stat
 }
 
 /**
+ * @param $account
+ *  The User to get timezone for.
+ * @return timezone
+ */
+function  productivity_tracking_get_user_timezone($account) {
+  if (variable_get('configurable_timezones', 1) && $account->uid && $account->timezone) {
+    return $account->timezone;
+  }
+  else {
+    // Ignore PHP strict notice if time zone has not yet been set in the php.ini
+    // configuration.
+    return variable_get('date_default_timezone', @date_default_timezone_get());
+  }
+}
+
+/**
  * Build an associative array by day.
  *
  * @param $month
@@ -1506,11 +1522,17 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
     return $cached_data;
   }
 
+  $account = user_load($uid);
+
+  // Display related to user timezone.
+  $timezone = productivity_tracking_get_user_timezone($account);
+  // Set the default timezone to use.
+  date_default_timezone_set($timezone);
+
   // Global days
   $last_day_this_month  = date('t', strtotime('1.' . $month . '.' . $year));
   $assoc_globals = productivity_timewatch_get_fundays($year, $month);
 
-  $account = user_load($uid);
   // Build skeleton of array, one item per day.
   $new_data = array();
   $new_data['days']  = [];
@@ -1659,7 +1681,8 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
 
     $day['projectName'] = $repo_id;
     $day['length'] = $pr_time;
-    $day['day'] = date('d', strtotime($pr_date));
+    // Set day using user timezone.
+    $day['day'] = date('d', strtotime($pr_date) + date('Z'));
     $day['pr_href'] = $pr_url;
     $day['issue_href'] = $issue_url;
     // Work type.

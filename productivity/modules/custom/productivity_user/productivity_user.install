@@ -132,3 +132,9 @@ function productivity_user_update_7005() {
 function productivity_user_update_7006() {
   module_enable(array('productivity_holiday', 'country_field'));
 }
+/**
+ * Enable inline_entity_form.
+ */
+function productivity_user_update_7007() {
+  module_enable(array('inline_entity_form'));
+}

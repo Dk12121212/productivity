@@ -501,7 +501,7 @@ function productivity_tracking_payload() {
 }
 
 /**
- * Handle PR event.
+ * Handle income Payload form GH webhook.
  */
 function productivity_tracking_gh_payload($payload, $event) {
   // Get related issue from PR body.

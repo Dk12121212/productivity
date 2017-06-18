@@ -93,9 +93,9 @@ function productivity_time_tracking_issue_table($node = FALSE, $dates, $estimate
   if (!$node) {
     return theme('productivity_time_tracking_monthly_report', $variables);
   }
-
+  $nid = $node->nid;
   drupal_add_js(array('monthly_report' => array(
-    'project_id' => $node->nid,
+    'project_id' => $nid,
     )
   ), 'setting');
 
@@ -143,6 +143,21 @@ function productivity_time_tracking_issue_table($node = FALSE, $dates, $estimate
       ));
 
       $rows[$index]['gitHub_issue_num'] = l($issue['label'], 'node/' . $issue['nid'] . '/edit', array('attributes' => array('target' => '_blank')));
+
+      // Fix date according to variable.
+      // This is to normalize report to a single year.
+      if ($year = variable_get("productivity_fix_date_project_$nid")) {
+        $date = strtotime($issue['date']);
+        if (date('Y', $date) != $year) {
+          // Add one year.
+          $new_date = $date + (24*60*60*365);
+          while ($new_date > time()) {
+            $new_date -= 60*60*24*10;
+          }
+          $issue['date'] = date("Y/m/d", $new_date);
+        }
+      }
+
       $rows[$index]['date'] = $issue['date'];
       $rows[$index]['time'] = $issue['time'];
       $rows[$index]['amount'] = $issue['issue_amount'] . ' ' . $issue['issue_currency'];

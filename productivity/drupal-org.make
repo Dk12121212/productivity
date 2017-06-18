@@ -64,6 +64,9 @@ projects[flag][version] = "3.7"
 projects[field_group][subdir] = "contrib"
 projects[field_group][version] = "1.5"
 
+projects[field_referenced_delete][subdir] = "contrib"
+projects[field_referenced_delete][version] = "1.0"
+
 projects[features][subdir] = "contrib"
 projects[features][version] = "2.9"
 

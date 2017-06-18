@@ -78,7 +78,6 @@ function productivity_time_tracking_issue_table($node = FALSE, $year = FALSE, $m
   $variables['project_title'] = $wrapper->label();
   $variables['account'] = $wrapper->field_account->label();
 
-//  $nodes_old = productivity_github_get_project_github_issues_query($node->nid, $variables['year'], $variables['month']);
   $tracking = productivity_tracking_get_tracking($node->nid, FALSE, $variables['year'], $variables['month']);
 
   $issues_table = array();

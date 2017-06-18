@@ -1154,7 +1154,7 @@ function productivity_tracking_field_default_field_instances() {
       'module' => 'multifield',
       'settings' => array(),
       'type' => 'multifield_default',
-      'weight' => 11,
+      'weight' => 6,
     ),
   );
 

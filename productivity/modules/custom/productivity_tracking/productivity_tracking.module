@@ -383,8 +383,8 @@ function productivity_tracking_save_callback() {
       // Get or create tracking node.
       $wrapper = productivity_tracking_get_tracking_node($data_issue, FALSE, FALSE, FALSE);
       // Save PR.
-      $node = $wrapper->value();
-      $logs = array();
+//      $node = $wrapper->value();
+//      $logs = array();
       $account_wrapper = entity_metadata_wrapper('user', $uid);
 
       // date('d', strtotime($pr_date) + date('Z'));
@@ -404,21 +404,24 @@ function productivity_tracking_save_callback() {
       ];
 
       // Create a new tracking data.
-      $logs['und'][] = productivity_tracking_create_multifields_track($data, $wrapper);
+      $node_log_item = productivity_tracking_create_multifields_track($data, $wrapper);
 
       // Rebuild structure with previous logs.
-      $index = 0;
-      if (isset($node->field_track_log['und'])) {
-        foreach ($node->field_track_log['und'] as $existing_log) {
-          $logs['und'][] = $existing_log;
-          $index++;
-        }
-      }
-      $node->field_track_log = $logs;
+//      $index = 0;
+//      if (isset($node->field_track_log['und'])) {
+//        foreach ($node->field_track_log['und'] as $existing_log) {
+//          $logs['und'][] = $existing_log;
+//          $index++;
+//        }
+//      }
+//      $node->field_track_log = $logs;
+      $wrapper->field_track_log_items[] = $node_log_item;
       // Save node.
       $wrapper->save();
+
       $results[] = array(
-        'mlid' => $node->field_track_log['und'][$index]['id'],
+//        'mlid' => $node->field_track_log['und'][$index]['id'],
+        'mlid' => $node_log_item->nid,
         'result' => 1,
         'delete' => $delete,
         'attr' => $attr,
@@ -427,6 +430,8 @@ function productivity_tracking_save_callback() {
     }
   }
   global $user;
+
+  // Render ctools plugin.
   ctools_include('content');
   $nav = ctools_content_render('tracking_nav', 'tracking_nav', [], [], [$user->uid], [], '');
   $nav = $nav->content;
@@ -1291,6 +1296,8 @@ function productivity_tracking_get_issue($repo, $issue_id, $user = 'Gizra', $no_
  *   'uid' => 0,
  */
 function productivity_tracking_create_multifields_track($data) {
+  global $user;
+
   $data += [
     'date_start' => time(),
     'date_end' => time(),
@@ -1324,6 +1331,7 @@ function productivity_tracking_create_multifields_track($data) {
     // If author is anonymous (pushed form GH) use employee as default.
     'status' => 1,
     'revision' => 1,
+    'author' => $user->uid,
   );
   $node = entity_create('node', $values);
   $wrapper = entity_metadata_wrapper('node', $node);

@@ -754,8 +754,6 @@ function productivity_tracking_get_tracking_range($project_nid = FALSE, $work_ty
       '@day' => $dates['end']['day'],
     ));
   }
-  dpm($project_start_month, $project_end_month);
-  dpm($dates);
 
   // List of issues for a project nid.
   $query = db_select('node', 'n');

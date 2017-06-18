@@ -9,15 +9,40 @@ define('PRODUCTIVITY_GITHUB_ISSUE_CLOSED_STATUS', 'Done');
 /**
  * Menu callback; display tracking table for issues.
  */
-function productivity_time_tracking_issue_table_callback($node = FALSE, $year = FALSE, $month = FALSE, $estimated_based = FALSE) {
+function productivity_time_tracking_issue_table_callback($node = FALSE, $year = FALSE, $month = FALSE, $day = FALSE, $year_end = FALSE, $month_end = FALSE, $day_end = FALSE, $estimated_based = FALSE) {
   $estimated_based = $estimated_based == 'false' ? FALSE : TRUE;
-  return productivity_time_tracking_issue_table($node, $year, $month, $estimated_based);
+  $dates = [
+    'start' => [
+      'year' =>  !empty($year) ? $year : date('Y'),
+      'month' => !empty($month) ? $month : date('m', strtotime("-1 month")),
+      'day' => !empty($day) ? $day : 1,
+    ],
+  ];
+  if($dates['start']['month'] != 'all') {
+    $dates += [
+      'end' => [
+        'year' => !empty($year_end) ? $year_end : date('Y'),
+        'month' => !empty($month_end) ? $month_end : date('m', strtotime("-1 month")),
+        'day' => !empty($day_end) ? $day_end : date('t'),
+      ],
+    ];
+  }
+  else {
+    $dates += [
+      'end' => [
+        'year' => !empty($year_end) ? $year_end : date('Y'),
+        'month' => 12,
+        'day' => 31,
+      ],
+    ];
+  }
+  return productivity_time_tracking_issue_table($node, $dates, $estimated_based);
 }
 
 /**
  * Render callback;  Bidder page.
  */
-function productivity_time_tracking_issue_table($node = FALSE, $year = FALSE, $month = FALSE, $estimated_based = FALSE) {
+function productivity_time_tracking_issue_table($node = FALSE, $dates, $estimated_based = FALSE) {
   global $base_url;
   // Add JavaScript file with the base url of the page.
   drupal_add_js(drupal_get_path('module', 'productivity_tracking') . '/monthly_report/monthly_report.js');
@@ -31,19 +56,16 @@ function productivity_time_tracking_issue_table($node = FALSE, $year = FALSE, $m
   drupal_add_css("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.0/css/bootstrap-datepicker.min.css", array('type' => 'external'));
 
   $variables = array();
-  $variables['year'] = !empty($year) ? $year : date('Y');
-  $variables['month']= !empty($month) ? $month : date('m', strtotime("-1 month"));
 
 
-
-  if ($year == 'all'){
+  if ($dates['start']['year'] == 'all'){
     $variables['date'] = t('All time');
   }
-  elseif ($month == 'all'){
-    $variables['date'] = t('Year @year', array('@year' => $year));
+  elseif ($dates['start']['month'] == 'all'){
+    $variables['date'] = t('Year @year', array('@year' => $dates['start']['year']));
   }
   else {
-    $variables['date'] = date("F Y", strtotime("$year-$month-01"));
+    $variables['date'] = date("F Y", strtotime("{$dates['start']['year']}-{$dates['start']['month']}-{$dates['start']['day']}"));
   }
 
 
@@ -56,8 +78,12 @@ function productivity_time_tracking_issue_table($node = FALSE, $year = FALSE, $m
 
   drupal_add_js(array('monthly_report' => array(
     'base_url' => $base_url,
-    'year' => $variables['year'],
-    'month' => $variables['month'],
+    'day' => $dates['start']['day'],
+    'year' => $dates['start']['year'],
+    'month' => $dates['start']['month'],
+    'day_end' => $dates['end']['day'],
+    'year_end' => $dates['end']['year'],
+    'month_end' => $dates['end']['month'],
     'estimate' => $estimated_based,
     )
   ), 'setting');
@@ -78,8 +104,7 @@ function productivity_time_tracking_issue_table($node = FALSE, $year = FALSE, $m
   $variables['project_title'] = $wrapper->label();
   $variables['account'] = $wrapper->field_account->label();
 
-//  $nodes_old = productivity_github_get_project_github_issues_query($node->nid, $variables['year'], $variables['month']);
-  $tracking = productivity_tracking_get_tracking($node->nid, FALSE, $variables['year'], $variables['month']);
+  $tracking = productivity_tracking_get_tracking_range($node->nid, FALSE, $dates);
 
   $issues_table = array();
 

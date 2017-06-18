@@ -3,7 +3,7 @@
   <?php $first = TRUE;?>
   <?php foreach ($tables as $index => $table): ?>
       <?php if (!$first): ?>
-      <div style="page-break-before: always;"></div>
+<!--      <div style="page-break-before: always;"></div>-->
     <?php endif; ?>
     <?php print $first = FALSE;?>
     <h2

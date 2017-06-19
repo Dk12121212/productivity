@@ -353,6 +353,24 @@ function productivity_tracking_update($track, $node) {
 }
 
 /**
+ * Check if a tracking is connectwed.
+ *
+ * @param $node_track_item
+ *   The track item node.
+ * @param $wrapper_tracking
+ *   The tracking node wrapper.
+ */
+function productivity_tracking_item_is_connected($node_track_item, $wrapper_tracking) {
+  // Check if the item is already connected.
+  $num_of_results = db_select('field_data_field_track_log_items', 't')
+    ->condition('field_track_log_items_target_id', $node_track_item->nid)
+    ->condition('entity_id', $wrapper_tracking->getIdentifier())
+    ->execute()
+    ->rowCount();
+
+ return $num_of_results != 0;
+}
+  /**
  * Save tracking from tacking table.
  */
 function productivity_tracking_save_callback() {
@@ -438,10 +456,13 @@ function productivity_tracking_save_callback() {
       ];
 
       // Create a new tracking data.
-      $node_log_item = productivity_tracking_create_multifields_track($data, $wrapper);
+      $node_log_item = productivity_tracking_create_multifields_track($data);
 
-      // TODO: check that duplicates are removed.
-      $wrapper->field_track_log_items[] = $node_log_item;
+      // Check that the item is not connected.
+      if(!productivity_tracking_item_is_connected($node_log_item, $wrapper)) {
+        $wrapper->field_track_log_items[] = $node_log_item->nid;
+      }
+
       // Save node.
       $wrapper->save();
 
@@ -635,11 +656,11 @@ function productivity_tracking_save_tracking($issue, $pr, $uid, $github_username
   // This will be later used to prepopulate the tracking for developers.
   if ($pr) {
     $node = $wrapper->value();
-    $logs = array();
 
     // We should create one stub log per day per user per issue number.
     // issue_id.
     $found_key = -1;
+    // TODO: Remove this part.
     if (isset($node->field_track_log['und'])) {
       foreach ($node->field_track_log['und'] as $key => $existing_log) {
         // Convert date.
@@ -660,7 +681,6 @@ function productivity_tracking_save_tracking($issue, $pr, $uid, $github_username
       // Update info that might change.
       $node->field_track_log['und'][$found_key]['field_issue_label']['und'][0]['value'] = $pr['title'];
       $node->field_track_log['und'][$found_key]['field_date']['und'][0]['value2'] = date("Y-m-d H:i:s",strtotime($pr['updated_at']));
-
       $term = productivity_tracking_get_term($pr['state']);
       $node->field_track_log['und'][$found_key]['field_issue_status']['und'][0]['target_id'] = $term->tid;
     }
@@ -676,19 +696,16 @@ function productivity_tracking_save_tracking($issue, $pr, $uid, $github_username
         'issue_type' => '',
         'uid' => $uid,
       ];
-      // Create a new tracking data.
-      $logs['und'][] = productivity_tracking_create_multifields_track($data, $wrapper);
 
-      // Rebuild structure with previous logs.
-      if (isset($node->field_track_log['und'])) {
-        foreach ($node->field_track_log['und'] as $existing_log) {
-          $logs['und'][] = $existing_log;
-        }
+      // Create a new tracking data.
+      $node_log_item = productivity_tracking_create_multifields_track($data);
+
+      // Only add ref if it's not there yet.
+      if (!productivity_tracking_item_is_connected($node_log_item, $wrapper)) {
+        $wrapper->field_track_log_items[] = $node_log_item->nid;
       }
-      $node->field_track_log = $logs;
     }
   }
-
   // Save node.
   return $wrapper->save();
 }

@@ -7,7 +7,7 @@ class ProductivityMigrateOldTrackingsToNew extends Migration {
    */
   public function __construct($arguments) {
     parent::__construct($arguments);
-    $this->description = t('Copy multifiled field_track_log to node track_log_item.');
+    $this->description = t('Copy multifield field_track_log to node track_log_item.');
 
     $this->addFieldMapping('field_track_date', 'field_track_log_field_date_value');
     $this->addFieldMapping('field_track_date:timezone')
@@ -39,7 +39,6 @@ class ProductivityMigrateOldTrackingsToNew extends Migration {
     $query = db_select('field_data_field_track_log', 't');
     $query
       ->fields('t');
-//      ->condition('field_track_log_id', 69901);
 
     $this->source = new MigrateSourceSQL($query);
     $this->destination = new MigrateDestinationNode('track_log_item');
@@ -48,9 +47,11 @@ class ProductivityMigrateOldTrackingsToNew extends Migration {
   public function complete($entity, stdClass $row) {
     // Connect to tracking node.
     $track_nid = $row->entity_id;
-    $wrapper = entity_metadata_wrapper('node',$track_nid);
-    $wrapper->field_track_log_items[] = $entity;
-    $wrapper->save();
-  }
+    $wrapper = entity_metadata_wrapper('node', $track_nid);
 
+    if (!productivity_tracking_item_is_connected($entity, $wrapper)) {
+      $wrapper->field_track_log_items[] = $entity;
+      $wrapper->save();
+    }
+  }
 }

@@ -1149,7 +1149,7 @@ function productivity_tracking_get_tracking_by_user($uid, $year = FALSE, $month 
     'ghu' => 'field_github_username',
     'employee' => 'field_employee',
     'type' => 'field_issue_type',
-    'stent' => 'field_time_spent',
+    'spent' => 'field_time_spent',
     'pr_status_tid' => 'field_issue_status',
     'date' => 'field_track_date',
   ];
@@ -1179,7 +1179,7 @@ function productivity_tracking_get_tracking_by_user($uid, $year = FALSE, $month 
 
   // Get issue milsetone info.
   $query
-    ->leftjoin("taxonomy_term_data", 'milestone', 'milestone.tid = milestone_tid.field_issue_status_target_id');
+    ->leftjoin("taxonomy_term_data", 'milestone', 'milestone.tid = milestone_tid.field_gh_milestone_target_id');
 
 
   // Track item node values.
@@ -1187,26 +1187,32 @@ function productivity_tracking_get_tracking_by_user($uid, $year = FALSE, $month 
     'pr_id' => 'field_issue_id',
     'ghu' => 'field_github_username',
     'type' => 'field_issue_type',
-    'stent' => 'field_time_spent',
-    'date' => 'field_track_date',
+    'spent' => 'field_time_spent',
   ];
   foreach ($track_item_node_fields_values as $alias => $field) {
+    // Keep same aliases we had with multifield.
     $query
-      ->fields($alias, array("{$field}_value"));
+      ->addField($alias, "{$field}_value", "field_track_log_{$field}_value");
   }
 
   $query
-    ->fields('n', array('title', 'nid', 'uid'))
+    ->fields('n', array('title', 'nid', 'uid')) // leave
     ->fields('node_project', array('nid', 'title'))
-    ->fields('node_track_item', array('nid', 'title'))
     ->fields('e', array('field_time_estimate_value'))
-    ->fields('i', array('field_issue_id_value'))
+    ->fields('i', array('field_issue_id_value')) // leave
     ->fields('gpi', array('field_github_project_id_value'))
-    ->fields('b', array('body_value'))
-    ->fields('employee', array('field_employee_target_id'))
-    ->fields('issue_status', array('name'))
-    ->fields('pr_status', array('name'))
-    ->fields('milestone', array('name'));
+    ->fields('b', array('body_value')); // leave
+
+
+  $query->addField('node_project', 'nid', 'field_project_target_id');
+  $query->addField('node_track_item', 'nid', 'field_track_log_id');
+  $query->addField('node_track_item', 'title', 'field_track_log_field_issue_label_value');
+  $query->addField('employee', 'field_employee_target_id', 'field_track_log_field_employee_target_id');
+  $query->addField('issue_status', 'name', 'issue_status');
+  $query->addField('issue_status', 'name', 'name');
+  $query->addField('pr_status', 'name', 'pr_status_name');
+  $query->addField('milestone', 'name', 'milestone');
+  $query->addField('date', 'field_track_date_value', 'field_track_log_field_date_value');
 
   $query
     ->condition('node_track_item.status', NODE_PUBLISHED)
@@ -1692,23 +1698,17 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
     $pr_gh_id = $track_record['field_track_log_field_issue_id_value'];
     $pr_title = $track_record['field_track_log_field_issue_label_value'];
     $pr_work_type = $track_record['field_track_log_field_issue_type_value'];
-    $pr_developer = $track_record['field_track_log_field_github_username_value'];
-    $pr_developer_uid = $track_record['field_track_log_field_employee_target_id'];
 
     $pr_date = $track_record['field_track_log_field_date_value'];
-    $pr_date_end = $track_record['field_track_log_field_date_value2'];
+//    $pr_date_end = $track_record['field_track_log_field_date_value2'];
 
     $track_id = $track_record['field_track_log_id'];
-    $pr_status = $track_record['pr_status_name'];
 
     // Issue data.
     $repo_id = $track_record['field_github_project_id_value'];
-    $estimate = $track_record['field_time_estimate_value'];
     $issue_id = $track_record['field_issue_id_value'];
-    $issue_status = $track_record['name'];
     $nid = $track_record['nid'];
     $node_link = l('#', 'node/' . $nid . '/edit', array('attributes' => array('target' => '_blank')));
-    $issue_title = $track_record['body_value'];
     $project_nid = $track_record['field_project_target_id'];
 
     $pr_url = "https://github.com/{$repo_id}/issues/$pr_gh_id";
@@ -1736,7 +1736,9 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
     $day['nodelink'] = $node_link;
     $day['expandable'] = TRUE;
 
-    $time_diff_h_dec = number_format((strtotime($pr_date_end) - strtotime($pr_date)) / 3600, 1);
+    // TODO: replace logic with new push date field.
+//    $time_diff_h_dec = number_format((strtotime($pr_date_end) - strtotime($pr_date)) / 3600, 1);
+    $time_diff_h_dec = 0;
 
     if ($time_diff_h_dec) {
       $day['time-tip'] = t('Estimated time spent is @h Hours', array(

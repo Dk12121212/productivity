@@ -1196,12 +1196,12 @@ function productivity_tracking_get_tracking_by_user($uid, $year = FALSE, $month 
   }
 
   $query
-    ->fields('n', array('title', 'nid', 'uid')) // leave
+    ->fields('n', array('title', 'nid', 'uid'))
     ->fields('node_project', array('nid', 'title'))
     ->fields('e', array('field_time_estimate_value'))
-    ->fields('i', array('field_issue_id_value')) // leave
+    ->fields('i', array('field_issue_id_value'))
     ->fields('gpi', array('field_github_project_id_value'))
-    ->fields('b', array('body_value')); // leave
+    ->fields('b', array('body_value'));
 
 
   $query->addField('node_project', 'nid', 'field_project_target_id');

@@ -10,6 +10,9 @@ class ProductivityMigrateOldTrackingsToNew extends Migration {
     $this->description = t('Copy multifiled field_track_log to node track_log_item.');
 
     $this->addFieldMapping('field_track_date', 'field_track_log_field_date_value');
+    $this->addFieldMapping('field_track_date:timezone')
+      ->defaultValue('Asia/Jerusalem');
+
     $this->addFieldMapping('field_employee', 'field_track_log_field_employee_target_id');
     $this->addFieldMapping('field_github_username', 'field_track_log_field_github_username_value');
     $this->addFieldMapping('field_issue_id', 'field_track_log_field_issue_id_value');
@@ -36,6 +39,7 @@ class ProductivityMigrateOldTrackingsToNew extends Migration {
     $query = db_select('field_data_field_track_log', 't');
     $query
       ->fields('t');
+//      ->condition('field_track_log_id', 69901);
 
     $this->source = new MigrateSourceSQL($query);
     $this->destination = new MigrateDestinationNode('track_log_item');

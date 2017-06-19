@@ -372,15 +372,13 @@ function productivity_tracking_save_callback() {
     // Delete.
     if ($delete) {
       // Make sure delete is not on a new item that was never saved.
-      $node_log_item = node_load($track['mlid']);
-      node_unpublish_action($node_log_item);
       if ($track['mlid'] != 'new') {
         $results[] = array(
           'mlid' => $track['mlid'],
           'new' => 0,
           'delete' => $delete,
           'attr' => $attr,
-          'result' => node_save_action($node_log_item),
+          'result' => node_delete($track['mlid']),
         );
       }
     }

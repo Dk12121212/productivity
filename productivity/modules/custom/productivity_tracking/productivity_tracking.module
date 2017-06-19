@@ -1131,47 +1131,87 @@ function productivity_tracking_get_tracking_by_user($uid, $year = FALSE, $month 
     'e' => 'field_time_estimate',
     'i' => 'field_issue_id',
     'gpi' => 'field_github_project_id',
-    't' => 'field_track_log',
-    'st' => 'field_issue_status',
+    't' => 'field_track_log_items',
+    'milestone_tid' => 'field_gh_milestone',
+    'issue_status_tid' => 'field_issue_status',
     'b' => 'body',
   ];
 
+  // Get node tracking main fields.
   foreach ($node_fields as $alias => $field) {
     $query
       ->leftjoin("field_data_$field", $alias, "n.nid = $alias.entity_id");
   }
 
+  // Track item node.
+  $track_item_node_fields = [
+    'pr_id' => 'field_issue_id',
+    'ghu' => 'field_github_username',
+    'employee' => 'field_employee',
+    'type' => 'field_issue_type',
+    'stent' => 'field_time_spent',
+    'pr_status_tid' => 'field_issue_status',
+    'date' => 'field_track_date',
+  ];
+
+  // Get data of track_log_item node type, though entity reference field.
+  foreach ($track_item_node_fields as $alias => $field) {
+    $query
+      ->leftjoin("field_data_$field", $alias, "t.field_track_log_items_target_id = $alias.entity_id");
+  }
+
+  // Get project node info.
   $query
     ->leftjoin("node", 'node_project', 'p.field_project_target_id = node_project.nid');
 
+  // Get issue status info.
   $query
-    ->leftjoin("taxonomy_term_data", 'issue_status', 'issue_status.tid = st.field_issue_status_target_id');
+    ->leftjoin("taxonomy_term_data", 'issue_status', 'issue_status.tid = issue_status_tid.field_issue_status_target_id');
 
+  // Get pr status info.
   $query
-    ->leftjoin("taxonomy_term_data", 'pr_status', 'pr_status.tid = t.field_track_log_field_issue_status_target_id');
+    ->leftjoin("taxonomy_term_data", 'pr_status', 'pr_status.tid = pr_status_tid.field_issue_status_target_id');
+
+  // Get issue milsetone info.
+  $query
+    ->leftjoin("taxonomy_term_data", 'milestone', 'milestone.tid = milestone_tid.field_issue_status_target_id');
+
+
+  // Track item node values.
+  $track_item_node_fields_values = [
+    'pr_id' => 'field_issue_id',
+    'ghu' => 'field_github_username',
+    'type' => 'field_issue_type',
+    'stent' => 'field_time_spent',
+    'date' => 'field_track_date',
+  ];
+  foreach ($track_item_node_fields_values as $alias => $field) {
+    $query
+      ->fields($alias, array("{$field}_value"));
+  }
 
   $query
     ->fields('n', array('title', 'nid', 'uid'))
-    ->fields('node_project', array('title'))
+    ->fields('node_project', array('nid', 'title'))
     ->fields('e', array('field_time_estimate_value'))
     ->fields('i', array('field_issue_id_value'))
     ->fields('gpi', array('field_github_project_id_value'))
-    ->fields('t')
-    ->fields('b')
+    ->fields('b', array('body_value'))
+    ->fields('employee', array('field_employee_target_id'))
     ->fields('issue_status', array('name'))
     ->fields('pr_status', array('name'))
-    ->fields('p', array('field_project_target_id'));
+    ->fields('milestone', array('name'));
 
   $query
     ->condition('n.type', 'tracking')
     ->condition('n.status', NODE_PUBLISHED)
-    ->orderBy('t.field_track_log_id')
+    ->orderBy('t.field_track_log_items_target_id')
     ->orderBy('gpi.field_github_project_id_value')
     ->orderBy('i.field_issue_id_value');
 
 
   if ($uid) {
-    $query->condition('t.field_track_log_field_employee_target_id', $uid);
+    $query->condition('employee.field_employee_target_id', $uid);
   }
 
   if ($project_nid) {
@@ -1179,14 +1219,14 @@ function productivity_tracking_get_tracking_by_user($uid, $year = FALSE, $month 
   }
 
   if ($work_type) {
-    $query->condition('t.field_track_log_field_issue_type_value', $work_type);
+    $query->condition('type.field_issue_type_value', $work_type);
   }
 
   // Return all time.
   if ($year) {
     $query
-      ->condition('t.field_track_log_field_date_value', $start_date, '>=')
-      ->condition('t.field_track_log_field_date_value', $end_date, '<');
+      ->condition('date.field_track_date_value', $start_date, '>=')
+      ->condition('date.field_track_date_value', $end_date, '<');
   }
 
   $result = $query->execute();

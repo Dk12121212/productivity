@@ -1162,6 +1162,11 @@ function productivity_tracking_get_tracking_by_user($uid, $year = FALSE, $month 
 
   // Get project node info.
   $query
+    ->leftjoin("node", 'node_track_item', 't.field_track_log_items_target_id = node_track_item.nid');
+
+
+  // Get project node info.
+  $query
     ->leftjoin("node", 'node_project', 'p.field_project_target_id = node_project.nid');
 
   // Get issue status info.
@@ -1193,6 +1198,7 @@ function productivity_tracking_get_tracking_by_user($uid, $year = FALSE, $month 
   $query
     ->fields('n', array('title', 'nid', 'uid'))
     ->fields('node_project', array('nid', 'title'))
+    ->fields('node_track_item', array('nid', 'title'))
     ->fields('e', array('field_time_estimate_value'))
     ->fields('i', array('field_issue_id_value'))
     ->fields('gpi', array('field_github_project_id_value'))
@@ -1203,6 +1209,7 @@ function productivity_tracking_get_tracking_by_user($uid, $year = FALSE, $month 
     ->fields('milestone', array('name'));
 
   $query
+    ->condition('node_track_item.status', NODE_PUBLISHED)
     ->condition('n.type', 'tracking')
     ->condition('n.status', NODE_PUBLISHED)
     ->orderBy('t.field_track_log_items_target_id')

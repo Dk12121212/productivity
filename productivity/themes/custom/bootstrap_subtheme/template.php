@@ -31,7 +31,7 @@ function bootstrap_subtheme_preprocess_node__project__full(&$variables) {
 
   $totals = productivity_tracking_get_tracking_total($node->nid);
   $variables['project_total'] = $totals[0]->total_done ;
-  $variables['project_estimated'] = $totals[0]->total_estimate ;
+  $variables['project_estimated'] = number_format($totals[0]->total_estimate);
 
 
   // Add charts.

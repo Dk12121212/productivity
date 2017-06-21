@@ -136,7 +136,7 @@ function _bootstrap_subtheme_create_rate_table($node, $wrapper, &$rows) {
       $rows[$key]['recalculate'] = l(t('Recalculate'), 'recalculate-project-time/' . $node->nid . '/' . $rate->field_issue_type->value());
 
       // Total with new tracking datas
-      $totals = productivity_tracking_get_tracking_total($node->nid, $rate->field_issue_type->value());
+      $totals = productivity_tracking_get_tracking_total($node->nid);
       $rows[$key]['hours_new'] = $totals[0]->total_done ;
       $rows[$key]['estimated'] = $totals[0]->total_estimate ;
 

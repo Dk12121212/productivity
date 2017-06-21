@@ -313,7 +313,7 @@ function productivity_tracking_create_multifields_track($data, $node = FALSE) {
     );
     $node = entity_create('node', $values);
     $wrapper = entity_metadata_wrapper('node', $node);
-    $wrapper->field_track_date->set(strtotime($data['date_start']));
+    $wrapper->field_track_date->set($data['date_start']);
     $wrapper->field_github_username->set($data['github_username']);
     $wrapper->field_employee->set($data['uid']);
     $term = productivity_tracking_get_term($data['status']);
@@ -443,8 +443,7 @@ function productivity_tracking_save_callback() {
       $account_wrapper = entity_metadata_wrapper('user', $uid);
 
       $data = [
-        'date_start' => date("Y-m-d 12:00:00", strtotime($tracking['data']['date_str'])),
-        'date_end' => date("Y-m-d 12:00:00", strtotime($tracking['data']['date_str'])),
+        'date_start' => strtotime($tracking['data']['date_str']),
         'label' => $track['description'],
         'pr_id' => $track['pr'] ? $track['pr'] : 0,
         'status' => 'open',
@@ -704,6 +703,7 @@ function productivity_tracking_save_tracking($issue, $pr, $uid, $github_username
   // Save node.
   return $wrapper->save();
 }
+
 /**
  *
  * Get the project ID from the repository name.
@@ -784,25 +784,11 @@ function productivity_tracking_get_entity_id_by_field_value($field, $bundle, $va
   }
 }
 
-function productivity_tracking_get_tracking_range($project_nid = FALSE, $work_type = FALSE, $dates = FALSE) {
-  if ($dates['start']['month'] == 'all') {
-    $project_start_month = format_string("@year-01-01", array('@year' => $dates['start']['year']));
-    $project_end_month = format_string("@year-12-31", array('@year' => $dates['start']['year']));
-  }
-  //
-  else {
-    $project_start_month = format_string("@year-@month-@day", array(
-      '@year' => $dates['start']['year'],
-      '@month' => $dates['start']['month'],
-      '@day' => $dates['start']['day'],
-    ));
-    $project_end_month = format_string("@year-@month-@day", array(
-      '@year' => $dates['end']['year'],
-      '@month' => $dates['end']['month'],
-      '@day' => $dates['end']['day'],
-    ));
-  }
 
+
+
+// todo: replace
+function productivity_tracking_get_tracking_range($project_nid = FALSE, $work_type = FALSE, $dates = FALSE) {
   // List of issues for a project nid.
   $query = db_select('node', 'n');
 
@@ -853,11 +839,33 @@ function productivity_tracking_get_tracking_range($project_nid = FALSE, $work_ty
       ->condition('p.field_project_target_id', $project_nid);
   }
 
-  // Return all time.
-  if ($dates['start']['year'] && $dates['start']['year'] != 'all') {
-    $query
-      ->condition('t.field_track_log_field_date_value', $project_start_month, '>=')
-      ->condition('t.field_track_log_field_date_value', $project_end_month, '<=');
+  $dates['end']['operator'] = '<=';
+
+  if ($dates) {
+    if ($dates['start']['month'] == 'all') {
+      $project_start_month = format_string("@year-01-01", array('@year' => $dates['start']['year']));
+      $project_end_month = format_string("@year-12-31", array('@year' => $dates['start']['year']));
+    }
+    //
+    else {
+      $project_start_month = format_string("@year-@month-@day", array(
+        '@year' => $dates['start']['year'],
+        '@month' => $dates['start']['month'],
+        '@day' => $dates['start']['day'],
+      ));
+      $project_end_month = format_string("@year-@month-@day", array(
+        '@year' => $dates['end']['year'],
+        '@month' => $dates['end']['month'],
+        '@day' => $dates['end']['day'],
+      ));
+    }
+
+    // Return all time.
+    if ($dates['start']['year'] && $dates['start']['year'] != 'all') {
+      $query
+        ->condition('t.field_track_log_field_date_value', $project_start_month, '>=')
+        ->condition('t.field_track_log_field_date_value', $project_end_month, '<=');
+    }
   }
 
   $query
@@ -888,6 +896,7 @@ function productivity_tracking_get_tracking_range($project_nid = FALSE, $work_ty
  * @return
  *   SelectQuery::execute();
  */
+// todo: replace
 function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = FALSE, $year = FALSE, $month = FALSE) {
   if ($month == 'all') {
     $project_start_month = format_string("@year-01-01", array('@year' => $year));
@@ -989,6 +998,7 @@ function productivity_tracking_get_tracking($project_nid = FALSE, $work_type = F
  * @return
  *   SelectQuery::execute();
  */
+// todo: replace
 function productivity_tracking_get_tracking_nodes_per_issue($repo, $issue_id) {
   // List of issues for a project nid.
   $query = db_select('node', 'n');
@@ -1045,6 +1055,7 @@ function productivity_tracking_get_tracking_nodes_per_issue($repo, $issue_id) {
  * @return
  *   SelectQuery::execute();
  */
+// todo: replace
 function productivity_tracking_get_tracking_nodes($project_nid = FALSE) {
   // List of issues for a project nid.
   $query = db_select('node', 'n');
@@ -1093,33 +1104,6 @@ function productivity_tracking_get_tracking_nodes($project_nid = FALSE) {
 }
 
 /**
- * @param $project_nid
- * @param $work_type
- * @param bool $year
- * @param string $month
- * @return \DatabaseStatementInterface
- */
-function productivity_tracking_get_tracking_total_estimate($project_nid, $work_type = FALSE, $year = FALSE, $month = 'all') {
-  $query =  "
-  SELECT SUM(e.field_time_estimate_value) AS total_estimate
-  FROM {node} n
-  LEFT OUTER JOIN field_data_field_project p ON n.nid = p.entity_id
-  LEFT OUTER JOIN field_data_field_time_estimate e ON n.nid = e.entity_id
-  WHERE (type = 'tracking') AND (status = '1') AND (p.field_project_target_id = :pid)";
-
-  $args[':pid'] = $project_nid;
-  if ($work_type) {
-    $query .= "
-    AND EXISTS(
-    SELECT t.field_track_log_field_issue_type_value
-      FROM {field_data_field_track_log} t
-      WHERE t.field_track_log_field_issue_type_value = :type AND n.nid = t.entity_id)";
-    $args[':type'] = $work_type;
-  }
-
-  return db_query($query, $args)->fetchField();
-}
-/**
  *
  * Calculate the Total hours done.
  *
@@ -1130,39 +1114,12 @@ function productivity_tracking_get_tracking_total_estimate($project_nid, $work_t
  * @param string $month
  * @return mixed
  */
+// todo: replace
 function productivity_tracking_get_tracking_total($project_nid, $work_type = FALSE, $uid = FALSE, $year = FALSE, $month = 'all') {
-  if ($month == 'all') {
-    $start_date = format_string("@year-01-01 00:00:00", array('@year' => $year));
-    $end_date = format_string("@year-01-01 00:00:00", array('@year' => $year + 1));
-  }
-  else {
-    $start_date = format_string("@year-@month-01 00:00:00", array(
-      '@year' => $year,
-      '@month' => str_pad($month, 2, '0', STR_PAD_LEFT),
-    ));
-    $end_date = format_string("@year-@month-01 00:00:00", array(
-      '@year' => ($month == 12) ? $year + 1 : $year,
-      '@month' => str_pad(($month == 12) ? 1 : ($month + 1), 2, '0', STR_PAD_LEFT),
-    ));
-  }
-
-  // List of issues for a project nid.
-  $query = db_select('node', 'n');
-
-  $node_fields = [
-    'p' => 'field_project',
-    'e' => 'field_time_estimate',
-    't' => 'field_track_log',
-  ];
-
-  foreach ($node_fields as $alias => $field) {
-    $query
-      ->leftjoin("field_data_$field", $alias, "n.nid = $alias.entity_id");
-  }
-
-  $query
-    ->condition('type', 'tracking')
-    ->condition('status', NODE_PUBLISHED);
+  $dates = [];
+  $dates['start']['month'] = $month;
+  $dates['start']['year'] = $year;
+  $query = productivity_tracking_get_tracking_base_query($project_nid, $work_type, $dates, TRUE);
 
   if ($uid) {
     $query->fields('n', array('uid'));
@@ -1171,26 +1128,11 @@ function productivity_tracking_get_tracking_total($project_nid, $work_type = FAL
       $query->groupBy('n.uid');
     }
     else {
-      $query->condition('t.field_track_log_field_employee_target_id', $uid);
+      $query->condition('employee.field_employee_target_id', $uid);
     }
   }
 
-  if ($project_nid) {
-    $query->condition('p.field_project_target_id', $project_nid);
-  }
-
-  if ($work_type) {
-    $query->condition('t.field_track_log_field_issue_type_value', $work_type);
-  }
-
-  // Return all time.
-  if ($year) {
-    $query
-      ->condition('t.field_track_log_field_date_value', $start_date, '>=')
-      ->condition('t.field_track_log_field_date_value', $end_date, '<');
-  }
-
-  $query->addExpression('SUM(t.field_track_log_field_time_spent_value)', 'total_done');
+  $query->addExpression('SUM(spent.field_time_spent_value)', 'total_done');
 
   if ($uid == 'all') {
     $total = $query->execute()->fetchAllKeyed();
@@ -1198,10 +1140,44 @@ function productivity_tracking_get_tracking_total($project_nid, $work_type = FAL
   else {
     $total = $query->execute()->fetchAll();
     // Calculate estimate, for the given work type.
-    $total['0']->total_estimate = productivity_tracking_get_tracking_total_estimate($project_nid, $work_type, $year, $month );
+    $total['0']->total_estimate = productivity_tracking_get_tracking_total_estimate($project_nid);
   }
   return $total;
 }
+
+/**
+ * Get the total estimated hour for a project.
+ *
+ * @param $project_nid
+ * @param $work_type
+ * @param bool $year
+ * @param string $month
+ * @return \DatabaseStatementInterface
+ */
+function productivity_tracking_get_tracking_total_estimate($project_nid) {
+  $query =  "
+  SELECT SUM(e.field_time_estimate_value) AS total_estimate
+  FROM {node} n
+  LEFT OUTER JOIN field_data_field_project p ON n.nid = p.entity_id
+  LEFT OUTER JOIN field_data_field_time_estimate e ON n.nid = e.entity_id
+  WHERE (type = 'tracking') AND (status = '1') AND (p.field_project_target_id = :pid)";
+
+  $args[':pid'] = $project_nid;
+
+  // For a give work type.
+  // Removing this part since it's not relevant and wrong.
+//  if ($work_type) {
+//    $query .= "
+//    AND EXISTS(
+//    SELECT t.field_track_log_field_issue_type_value
+//      FROM {field_data_field_track_log} t
+//      WHERE t.field_track_log_field_issue_type_value = :type AND n.nid = t.entity_id)";
+//    $args[':type'] = $work_type;
+//  }
+
+  return db_query($query, $args)->fetchField();
+}
+
 /**
  * Get entity reference connections.
  *
@@ -1212,21 +1188,35 @@ function productivity_tracking_get_tracking_total($project_nid, $work_type = FAL
  *   SelectQuery::execute();
  */
 function productivity_tracking_get_tracking_by_user($uid, $year = FALSE, $month = 'all', $work_type = FALSE, $project_nid = FALSE) {
-  if ($month == 'all') {
-    $start_date = format_string("@year-01-01 00:00:00", array('@year' => $year));
-    $end_date = format_string("@year-01-01 00:00:00", array('@year' => $year + 1));
-  }
-  else {
-    $start_date = format_string("@year-@month-01 00:00:00", array(
-      '@year' => $year,
-      '@month' => str_pad($month, 2, '0', STR_PAD_LEFT),
-    ));
-    $end_date = format_string("@year-@month-01 00:00:00", array(
-      '@year' => ($month == 12) ? $year + 1 : $year,
-      '@month' => str_pad(($month == 12) ? 1 : ($month + 1), 2, '0', STR_PAD_LEFT),
-    ));
+  // List of issues for a project nid.
+
+  $dates = [];
+  $dates['start']['month'] = $month;
+  $dates['start']['year'] = $year;
+  $query = productivity_tracking_get_tracking_base_query($project_nid, $work_type, $dates);
+
+  $query
+    ->orderBy('t.field_track_log_items_target_id')
+    ->orderBy('gpi.field_github_project_id_value')
+    ->orderBy('i.field_issue_id_value');
+
+
+  if ($uid) {
+    $query->condition('employee.field_employee_target_id', $uid);
   }
 
+  $result = $query->execute();
+
+  return $result;
+}
+
+/**
+ * Get base query for tracking
+ *
+ * @return
+ *   SelectQuery;
+ */
+function productivity_tracking_get_tracking_base_query($project_nid, $work_type = FALSE, $dates = FALSE, $no_field = FALSE) {
   // List of issues for a project nid.
   $query = db_select('node', 'n');
 
@@ -1286,50 +1276,46 @@ function productivity_tracking_get_tracking_by_user($uid, $year = FALSE, $month 
     ->leftjoin("taxonomy_term_data", 'milestone', 'milestone.tid = milestone_tid.field_gh_milestone_target_id');
 
 
-  // Track item node values.
-  $track_item_node_fields_values = [
-    'pr_id' => 'field_issue_id',
-    'ghu' => 'field_github_username',
-    'type' => 'field_issue_type',
-    'spent' => 'field_time_spent',
-  ];
-  foreach ($track_item_node_fields_values as $alias => $field) {
-    // Keep same aliases we had with multifield.
+  // Add fields.
+  if (!$no_field) {
+    // Track item node values.
+    $track_item_node_fields_values = [
+      'pr_id' => 'field_issue_id',
+      'ghu' => 'field_github_username',
+      'type' => 'field_issue_type',
+      'spent' => 'field_time_spent',
+    ];
+    foreach ($track_item_node_fields_values as $alias => $field) {
+      // Keep same aliases we had with multifield.
+      $query
+        ->addField($alias, "{$field}_value", "field_track_log_{$field}_value");
+    }
+
     $query
-      ->addField($alias, "{$field}_value", "field_track_log_{$field}_value");
+      ->fields('n', array('title', 'nid', 'uid'))
+      ->fields('node_project', array('nid', 'title'))
+      ->fields('e', array('field_time_estimate_value'))
+      ->fields('i', array('field_issue_id_value'))
+      ->fields('gpi', array('field_github_project_id_value'))
+      ->fields('b', array('body_value'));
+
+
+    $query->addField('node_project', 'nid', 'field_project_target_id');
+    $query->addField('node_track_item', 'nid', 'field_track_log_id');
+    $query->addField('node_track_item', 'title', 'field_track_log_field_issue_label_value');
+    $query->addField('employee', 'field_employee_target_id', 'field_track_log_field_employee_target_id');
+    $query->addField('issue_status', 'name', 'issue_status');
+    $query->addField('issue_status', 'name', 'name');
+    $query->addField('pr_status', 'name', 'pr_status_name');
+    $query->addField('milestone', 'name', 'milestone');
+    $query->addField('date', 'field_track_date_value', 'field_track_log_field_date_value');
   }
 
   $query
-    ->fields('n', array('title', 'nid', 'uid'))
-    ->fields('node_project', array('nid', 'title'))
-    ->fields('e', array('field_time_estimate_value'))
-    ->fields('i', array('field_issue_id_value'))
-    ->fields('gpi', array('field_github_project_id_value'))
-    ->fields('b', array('body_value'));
-
-
-  $query->addField('node_project', 'nid', 'field_project_target_id');
-  $query->addField('node_track_item', 'nid', 'field_track_log_id');
-  $query->addField('node_track_item', 'title', 'field_track_log_field_issue_label_value');
-  $query->addField('employee', 'field_employee_target_id', 'field_track_log_field_employee_target_id');
-  $query->addField('issue_status', 'name', 'issue_status');
-  $query->addField('issue_status', 'name', 'name');
-  $query->addField('pr_status', 'name', 'pr_status_name');
-  $query->addField('milestone', 'name', 'milestone');
-  $query->addField('date', 'field_track_date_value', 'field_track_log_field_date_value');
-
-  $query
-    ->condition('node_track_item.status', NODE_PUBLISHED)
     ->condition('n.type', 'tracking')
     ->condition('n.status', NODE_PUBLISHED)
-    ->orderBy('t.field_track_log_items_target_id')
-    ->orderBy('gpi.field_github_project_id_value')
-    ->orderBy('i.field_issue_id_value');
+    ->condition('node_track_item.status', NODE_PUBLISHED);
 
-
-  if ($uid) {
-    $query->condition('employee.field_employee_target_id', $uid);
-  }
 
   if ($project_nid) {
     $query->condition('p.field_project_target_id', $project_nid);
@@ -1339,16 +1325,43 @@ function productivity_tracking_get_tracking_by_user($uid, $year = FALSE, $month 
     $query->condition('type.field_issue_type_value', $work_type);
   }
 
-  // Return all time.
-  if ($year) {
-    $query
-      ->condition('date.field_track_date_value', $start_date, '>=')
-      ->condition('date.field_track_date_value', $end_date, '<');
+  if ($dates && $dates['start']['year']) {
+    // Show all year.
+    if ($dates['start']['month'] == 'all') {
+      $project_start_month = format_string("@year-01-01", array('@year' => $dates['start']['year']));
+      $project_end_month = format_string("@year-12-31", array('@year' => $dates['start']['year']));
+    }
+    // Show specifc dates.
+    else {
+      $project_start_month = format_string("@year-@month-@day", array(
+        '@year' => $dates['start']['year'],
+        '@month' => $dates['start']['month'],
+        '@day' => isset($dates['start']['day']) ? $dates['start']['day'] : 1,
+      ));
+
+      // If no end month default to next month.
+      if (!isset($dates['end']['month'])) {
+        $project_end_month = date("Y-m-d", strtotime($project_start_month . "+1 month"));
+      }
+      else {
+        $project_end_month = format_string("@year-@month-@day", array(
+          '@year' => $dates['end']['year'],
+          '@month' => $dates['end']['month'],
+          '@day' => isset($dates['end']['day']) ? $dates['end']['day'] : 1,
+        ));
+      }
+    }
+
+    // Return all time.
+    if ($dates['start']['year'] && $dates['start']['year'] != 'all') {
+      $end_operator = isset($dates['end']['operator']) ? $dates['end']['operator'] : '<';
+      $query
+        ->condition('date.field_track_date_value', $project_start_month, '>=')
+        ->condition('date.field_track_date_value', $project_end_month, $end_operator);
+    }
   }
 
-  $result = $query->execute();
-
-  return $result;
+  return $query;
 }
 
 /**

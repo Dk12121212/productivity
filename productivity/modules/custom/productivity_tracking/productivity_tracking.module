@@ -305,7 +305,7 @@ function productivity_tracking_create_multifields_track($data, $node = FALSE) {
   if (!$node) {
     $values = array(
       'title' => $data['label'],
-      'type' => 'tracking',
+      'type' => 'track_log_item',
       // If author is anonymous (pushed form GH) use employee as default.
       'status' => 1,
       'revision' => 1,
@@ -313,12 +313,11 @@ function productivity_tracking_create_multifields_track($data, $node = FALSE) {
     );
     $node = entity_create('node', $values);
     $wrapper = entity_metadata_wrapper('node', $node);
-    $wrapper->field_track_date->set($data['date_start']);
+    $wrapper->field_track_date->set(strtotime($data['date_start']));
     $wrapper->field_github_username->set($data['github_username']);
     $wrapper->field_employee->set($data['uid']);
     $term = productivity_tracking_get_term($data['status']);
     $wrapper->field_issue_status->set($term->tid);
-    $wrapper->field_push_date[] = date("Y-m-d H:i:s");
   }
   // Update existing.
   else {
@@ -329,7 +328,7 @@ function productivity_tracking_create_multifields_track($data, $node = FALSE) {
   $wrapper->field_issue_id->set($data['pr_id']);
   $wrapper->field_time_spent->set($data['time_spent']);
   $wrapper->field_issue_type->set($data['issue_type']);
-  $wrapper->field_push_date[] = date("Y-m-d H:i:s");
+  $wrapper->field_push_date[] = time();
 
   // Save with log node.
   node_save_action($node);
@@ -372,7 +371,8 @@ function productivity_tracking_item_is_connected($node_track_item, $wrapper_trac
   $num_of_results = $result->rowCount();
   return ($num_of_results != 0);
 }
-  /**
+
+/**
  * Save tracking from tacking table.
  */
 function productivity_tracking_save_callback() {
@@ -398,7 +398,10 @@ function productivity_tracking_save_callback() {
           'new' => 0,
           'delete' => $delete,
           'attr' => $attr,
-          'result' => node_delete($track['mlid']),
+//          'result' => node_delete($track['mlid']),
+          // Replacing with unpublish for now, need to validate that unpiblished
+          // item are not counted.
+          'result' => node_unpublish_action($track['mlid']),
         );
       }
     }
@@ -656,11 +659,12 @@ function productivity_tracking_save_tracking($issue, $pr, $uid, $github_username
     $found_node_wrapper = FALSE;
     foreach ($wrapper->field_track_log_items as $wrapper_item) {
       // Convert date.
-      $existing_pr_day = date('Ymd', strtotime($wrapper_item->field_track_date->value->value()));
+      $existing_pr_day = date('Ymd', $wrapper_item->field_track_date->value());
       $pr_payload_date = date('Ymd', strtotime($pr['updated_at']));
       // TODO: Test this with new node format.
       // Check if we have a match for same PR, same day, Same user.
-      if ($wrapper_item->field_github_username->value() == $github_username
+      if (
+        ($wrapper_item->field_github_username && $wrapper_item->field_github_username->value() == $github_username)
         && $wrapper_item->field_issue_id->value() == $pr['number']
         && $existing_pr_day == $pr_payload_date) {
         $found_node_wrapper = $wrapper_item;
@@ -671,13 +675,14 @@ function productivity_tracking_save_tracking($issue, $pr, $uid, $github_username
     if ($found_node_wrapper) {
       // Update info that might change.
       $found_node_wrapper->title->set($pr['title']);
-      $found_node_wrapper->field_push_date->set($pr['title']);
-      $term = productivity_tracking_get_term(date("Y-m-d H:i:s",strtotime($pr['updated_at'])));
+      $found_node_wrapper->field_push_date[] = strtotime($pr['updated_at']);
+      $term = productivity_tracking_get_term($pr['state']);
       $found_node_wrapper->field_issue_status->set($term->tid);
     }
     else {
       $data = [
-        'date_start' => date("Y-m-d H:i:s", strtotime($pr['updated_at'])),
+        'date_start' => strtotime($pr['updated_at']),
+        'last_push' => strtotime($pr['updated_at']) ,
         'label' => $pr['title'],
         'pr_id' => $pr['number'],
         'status' => $pr['state'],

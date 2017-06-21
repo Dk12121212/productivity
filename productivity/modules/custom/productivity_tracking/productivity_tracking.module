@@ -440,11 +440,6 @@ function productivity_tracking_save_callback() {
       $wrapper = productivity_tracking_get_tracking_node($data_issue, FALSE, FALSE, FALSE);
       $account_wrapper = entity_metadata_wrapper('user', $uid);
 
-      // TODO: Deal with timezone on self service report.
-      // date('d', strtotime($pr_date) + date('Z'));
-      // When creating manual tracks, we need to take into consideration the
-      // users current timezone.
-
       $data = [
         'date_start' => date("Y-m-d H:i:s", strtotime($tracking['data']['date_str'])),
         'date_end' => date("Y-m-d H:i:s", strtotime($tracking['data']['date_str'])),

@@ -291,7 +291,6 @@ function productivity_tracking_create_multifields_track($data, $node = FALSE) {
 
   $data += [
     'date_start' => time(),
-    'date_end' => time(),
     'label' => '',
     'last_push' => time(),
     'pr_id' => 0,
@@ -353,7 +352,7 @@ function productivity_tracking_update($track, $node) {
 }
 
 /**
- * Check if a tracking is connectwed.
+ * Check if a tracking is connected.
  *
  * @param $node_track_item
  *   The track item node.
@@ -362,13 +361,16 @@ function productivity_tracking_update($track, $node) {
  */
 function productivity_tracking_item_is_connected($node_track_item, $wrapper_tracking) {
   // Check if the item is already connected.
-  $num_of_results = db_select('field_data_field_track_log_items', 't')
-    ->condition('field_track_log_items_target_id', $node_track_item->nid)
-    ->condition('entity_id', $wrapper_tracking->getIdentifier())
-    ->execute()
-    ->rowCount();
+  $tracking_nid = $wrapper_tracking->getIdentifier();
+  $result = db_select('field_data_field_track_log_items', 't')
+    ->fields('t')
+    ->condition('t.entity_id', $tracking_nid)
+    ->condition('t.field_track_log_items_target_id', $node_track_item->nid)
+    ->range(0, 1)
+    ->execute();
 
- return $num_of_results != 0;
+  $num_of_results = $result->rowCount();
+  return ($num_of_results != 0);
 }
   /**
  * Save tracking from tacking table.
@@ -655,39 +657,33 @@ function productivity_tracking_save_tracking($issue, $pr, $uid, $github_username
   // Only create tracking stub if a new PR was pushed.
   // This will be later used to prepopulate the tracking for developers.
   if ($pr) {
-    $node = $wrapper->value();
-
     // We should create one stub log per day per user per issue number.
     // issue_id.
-    $found_key = -1;
-    // TODO: Remove this part.
-    if (isset($node->field_track_log['und'])) {
-      foreach ($node->field_track_log['und'] as $key => $existing_log) {
-        // Convert date.
-        $existing_pr_day = date('Ymd', strtotime($existing_log['field_date']['und'][0]['value']));
-        $pr_payload_date = date('Ymd', strtotime($pr['updated_at']));
-
-        // Check if we have a match for same PR, same day, Same user.
-        if ($existing_log['field_github_username']['und'][0]['value'] == $github_username
-          && $existing_log['field_issue_id']['und'][0]['value'] == $pr['number']
-          && $existing_pr_day == $pr_payload_date) {
-          $found_key = $key;
-          break;
-        }
+    $found_node_wrapper = FALSE;
+    foreach ($wrapper->field_track_log_items as $wrapper_item) {
+      // Convert date.
+      $existing_pr_day = date('Ymd', strtotime($wrapper_item->field_track_date->value->value()));
+      $pr_payload_date = date('Ymd', strtotime($pr['updated_at']));
+      // TODO: Test this with new node format.
+      // Check if we have a match for same PR, same day, Same user.
+      if ($wrapper_item->field_github_username->value() == $github_username
+        && $wrapper_item->field_issue_id->value() == $pr['number']
+        && $existing_pr_day == $pr_payload_date) {
+        $found_node_wrapper = $wrapper_item;
+        break;
       }
     }
     // Update existing log, with new info.
-    if ($found_key != -1) {
+    if ($found_node_wrapper) {
       // Update info that might change.
-      $node->field_track_log['und'][$found_key]['field_issue_label']['und'][0]['value'] = $pr['title'];
-      $node->field_track_log['und'][$found_key]['field_date']['und'][0]['value2'] = date("Y-m-d H:i:s",strtotime($pr['updated_at']));
-      $term = productivity_tracking_get_term($pr['state']);
-      $node->field_track_log['und'][$found_key]['field_issue_status']['und'][0]['target_id'] = $term->tid;
+      $found_node_wrapper->title->set($pr['title']);
+      $found_node_wrapper->field_push_date->set($pr['title']);
+      $term = productivity_tracking_get_term(date("Y-m-d H:i:s",strtotime($pr['updated_at'])));
+      $found_node_wrapper->field_issue_status->set($term->tid);
     }
     else {
       $data = [
         'date_start' => date("Y-m-d H:i:s", strtotime($pr['updated_at'])),
-        'date_end' => date("Y-m-d H:i:s", strtotime($pr['updated_at'])),
         'label' => $pr['title'],
         'pr_id' => $pr['number'],
         'status' => $pr['state'],

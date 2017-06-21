@@ -809,7 +809,7 @@ function productivity_tracking_get_tracking_range($project_nid = FALSE, $work_ty
   if ($dates['start']['year'] && $dates['start']['year'] != 'all') {
     $query
       ->condition('t.field_track_log_field_date_value', $project_start_month, '>=')
-      ->condition('t.field_track_log_field_date_value', $project_end_month, '<');
+      ->condition('t.field_track_log_field_date_value', $project_end_month, '<=');
   }
 
   $query

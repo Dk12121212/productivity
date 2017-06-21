@@ -48,7 +48,7 @@ function productivity_tracking_menu() {
   $items['node/%node/monthly-report'] = array(
     'title' => t('Billing report'),
     'page callback' => 'productivity_time_tracking_issue_table_callback',
-    'page arguments' => array(1, 3, 4, 5),
+    'page arguments' => array(1, 3, 4, 5, 6, 7, 8),
     'access callback' => 'node_access',
     'access arguments' => array('update', 1),
     'weight' => -10,
@@ -734,6 +734,98 @@ function productivity_tracking_get_entity_id_by_field_value($field, $bundle, $va
     return $result['entity_id'];
   }
 }
+
+function productivity_tracking_get_tracking_range($project_nid = FALSE, $work_type = FALSE, $dates = FALSE) {
+  if ($dates['start']['month'] == 'all') {
+    $project_start_month = format_string("@year-01-01", array('@year' => $dates['start']['year']));
+    $project_end_month = format_string("@year-12-31", array('@year' => $dates['start']['year']));
+  }
+  //
+  else {
+    $project_start_month = format_string("@year-@month-@day", array(
+      '@year' => $dates['start']['year'],
+      '@month' => $dates['start']['month'],
+      '@day' => $dates['start']['day'],
+    ));
+    $project_end_month = format_string("@year-@month-@day", array(
+      '@year' => $dates['end']['year'],
+      '@month' => $dates['end']['month'],
+      '@day' => $dates['end']['day'],
+    ));
+  }
+
+  // List of issues for a project nid.
+  $query = db_select('node', 'n');
+
+  $node_fields = [
+    'p' => 'field_project',
+    'e' => 'field_time_estimate',
+    'i' => 'field_issue_id',
+    'gpi' => 'field_github_project_id',
+    't' => 'field_track_log',
+    'st' => 'field_issue_status',
+    'mi' => 'field_gh_milestone',
+    'b' => 'body',
+  ];
+
+
+  foreach ($node_fields as $alias => $field) {
+    $query
+      ->leftjoin("field_data_$field", $alias, "n.nid = $alias.entity_id");
+  }
+
+  $query
+    ->leftjoin("taxonomy_term_data", 'issue_status', 'issue_status.tid = st.field_issue_status_target_id');
+
+  $query
+    ->leftjoin("taxonomy_term_data", 'pr_status', 'pr_status.tid = t.field_track_log_field_issue_status_target_id');
+
+  $query
+    ->fields('n', array('title', 'nid', 'uid'))
+    ->fields('e', array('field_time_estimate_value'))
+    ->fields('i', array('field_issue_id_value'))
+    ->fields('gpi', array('field_github_project_id_value'))
+    ->fields('t')
+    ->fields('mi')
+    ->fields('b')
+    ->fields('issue_status', array('name'))
+    ->fields('pr_status', array('name'))
+    ->fields('p', array('field_project_target_id'));
+
+  // Add multiple labels in a single row, wigh comma separator.
+  $labels = '(SELECT GROUP_CONCAT(taxo.name SEPARATOR \', \')
+  FROM `field_data_field_gh_label` AS label
+  LEFT JOIN `taxonomy_term_data` taxo ON label.field_gh_label_target_id = taxo.tid
+  WHERE label.entity_id = n.nid)';
+  $query->addExpression($labels, 'labels');
+
+  if ($project_nid) {
+    $query
+      ->condition('p.field_project_target_id', $project_nid);
+  }
+
+  // Return all time.
+  if ($dates['start']['year'] && $dates['start']['year'] != 'all') {
+    $query
+      ->condition('t.field_track_log_field_date_value', $project_start_month, '>=')
+      ->condition('t.field_track_log_field_date_value', $project_end_month, '<=');
+  }
+
+  $query
+    ->condition('type', 'tracking')
+    ->condition('status', NODE_PUBLISHED)
+    ->orderBy('gpi.field_github_project_id_value')
+    ->orderBy('i.field_issue_id_value');
+
+  if ($work_type) {
+    $query->condition('t.field_track_log_field_issue_type_value', $work_type);
+  }
+
+  $result = $query->execute();
+
+  return $result;
+}
+
 
 /**
  * Get entity reference connections.

@@ -358,7 +358,6 @@ function productivity_tracking_save_callback() {
     }
     // New tracking.
     else {
-
       // Same structure as GH API.
       $issue = array(
         'number' => $track['issue'] ? $track['issue'] : 0,
@@ -386,8 +385,8 @@ function productivity_tracking_save_callback() {
       $account_wrapper = entity_metadata_wrapper('user', $uid);
 
       $data = [
-        'date_start' => date("Y-m-d H:i:s", strtotime($tracking['data']['date_str'])),
-        'date_end' => date("Y-m-d H:i:s", strtotime($tracking['data']['date_str'])),
+        'date_start' => date("Y-m-d 12:00:00", strtotime($tracking['data']['date_str'])),
+        'date_end' => date("Y-m-d 12:00:00", strtotime($tracking['data']['date_str'])),
         'label' => $track['description'],
         'pr_id' => $track['pr'] ? $track['pr'] : 0,
         'status' => 'open',

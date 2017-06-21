@@ -137,7 +137,9 @@ function _bootstrap_subtheme_create_rate_table($node, $wrapper, &$rows) {
 
       // Total with new tracking datas
       $totals = productivity_tracking_get_tracking_total($node->nid);
-      $rows[$key]['hours_new'] = $totals[0]->total_done ;
+      $rows[$key]['hours_new'] = $totals[0]->total_done;
+
+      // TODO: find a way to get estimate per type.
       $rows[$key]['estimated'] = $totals[0]->total_estimate ;
 
       // Override work type titles.

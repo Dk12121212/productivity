@@ -52,7 +52,7 @@ function productivity_project_dashboard_content_type_render($subtype, $conf, $ar
     foreach($project_teams as $team_user) {
       $node_variables['teams'][$team_user->uid] = array();
       $node_variables['teams'][$team_user->uid]['name'] = $team_user->name;
-      $node_variables['teams'][$team_user->uid]['pic'] = 'http://www.gravatar.com/avatar/' . md5(strtolower(trim($team_user->mail))) . '.jpg';
+      $node_variables['teams'][$team_user->uid]['pic'] = '//www.gravatar.com/avatar/' . md5(strtolower(trim($team_user->mail))) . '.jpg';
     }
 
     $variables['rendered_nodes'][] = theme('productivity_project_teaser', $node_variables);

@@ -9,7 +9,8 @@
       <div id="search-filter" class="row">
         <div class="col-sm-12 ">
           <div class="col-sm-4"><p><?php print t('Project:'); ?> </p></div>
-          <div class="col-sm-4"><p><?php print t('Date:'); ?> </p></div>
+          <div class="col-sm-4"><p><?php print t('Date start:'); ?> </p></div>
+          <div class="col-sm-4"><p><?php print t('Date end:'); ?> </p></div>
         </div>
         <div class="col-sm-12">
           <div class="col-sm-4">
@@ -24,14 +25,18 @@
             <span class="add-on"><i class="icon-th"></i></span>
           </div>
           <div class="col-sm-4">
-            <form>
-            <div class="checkbox-nice">
-              <input type="checkbox" id="estimation-based">
-              <label for="estimation-based">
-                Based on estimation of issue
-              </label>
-            </form>
-            </div>
+            <input type="text" id="month-end" name="month-end" class="monthPicker form-control" />
+            <span class="add-on"><i class="icon-th"></i></span>
+          </div>
+          <div class="col-sm-4">
+<!--            <form>-->
+<!--              <div class="checkbox-nice">-->
+<!--                <input type="checkbox" id="estimation-based">-->
+<!--                <label for="estimation-based">-->
+<!--                  Based on estimation of issue-->
+<!--                </label>-->
+<!--              </div>-->
+<!--            </form>-->
             <button class="btn btn-primary apply" type="button">Apply</button>
             <button class="btn btn-primary anytime" type="button">Any time</button>
             <button class="btn btn-primary year" type="button" data-toggle="popover" title="Can't be done" data-content="Please select a year first">All Year</button>

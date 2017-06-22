@@ -31,6 +31,14 @@ function productivity_tracking_views_api($module = NULL, $api = NULL) {
  */
 function productivity_tracking_node_info() {
   $items = array(
+    'track_log_item' => array(
+      'name' => t('Track log item'),
+      'base' => 'node_content',
+      'description' => '',
+      'has_title' => '1',
+      'title_label' => t('Title'),
+      'help' => '',
+    ),
     'tracking' => array(
       'name' => t('Tracking'),
       'base' => 'node_content',

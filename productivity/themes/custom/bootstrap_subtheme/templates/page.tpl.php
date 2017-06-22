@@ -108,7 +108,7 @@
             </li>
             <li class="dropdown profile-dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                <img src="<?php print 'http://www.gravatar.com/avatar/' . md5(strtolower(trim($user->mail))) . '.jpg';?>" alt="User gravater"/>
+                <img src="<?php print '//www.gravatar.com/avatar/' . md5(strtolower(trim($user->mail))) . '.jpg';?>" alt="User gravater"/>
                 <span class="hidden-xs"><?php print $user->name;?></span> <b class="caret"></b>
               </a>
               <ul class="dropdown-menu">

@@ -14,6 +14,7 @@ function productivity_github_menu() {
     'page callback' => 'productivity_github_payload',
     'access callback' => TRUE,
   );
+
   return $items;
 }
 

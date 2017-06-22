@@ -29,16 +29,21 @@
    */
   function create_new_url(base_url, all, year) {
     var project_id = $('#project_filter').val();
-    var val = $(".monthPicker").val();
+    var val = $("#month").val();
+    var valEnd = $("#month-end").val();
     var res = val.split(",");
-    var estimated = document.getElementById('estimation-based').checked;
+    var resEnd = valEnd.split(",");
+
+//  Temporary removed until implementation.
+//    var estimated = document.getElementById('estimation-based').checked;
+    var estimated = 0;
 
     // Full year link
     if (year) {
-      if (res[1].trim() == 'all') {
+      if (res[2].trim() == 'all') {
         return false;
       }
-      return base_url + "/node/" + project_id + "/monthly-report/" + res[1].trim() + "/all/" + estimated;
+      return base_url + "/node/" + project_id + "/monthly-report/" + res[2].trim() + "/all/" + estimated;
     }
 
     // All time link.
@@ -47,7 +52,9 @@
     }
 
     // Specific month link
-    return base_url + "/node/" + project_id + "/monthly-report/" + res[1].trim() + "/" + get_month_num(res[0].trim()) + "/" + estimated;
+    var dateParams = res[2].trim() + "/" + get_month_num(res[1].trim()) + "/" + res[0].trim() + "/" ;
+    var dateParamsEnd = resEnd[2].trim() + "/" + get_month_num(resEnd[1].trim()) + "/" + resEnd[0].trim() + "/" ;
+    return base_url + "/node/" + project_id + "/monthly-report/" + dateParams + dateParamsEnd + estimated;
   }
 
   /**
@@ -78,10 +85,13 @@
    */
   function set_date_input(settings) {
     // get the current month and year.
-    var input_date = get_month_name(settings['monthly_report']['month']) + ', ' +  settings['monthly_report']['year'];
-    $('.monthPicker').attr('value', input_date);
+    var input_date = settings['monthly_report']['day'] + ', ' + get_month_name(settings['monthly_report']['month']) + ', ' +  settings['monthly_report']['year'];
+    $('#month').attr('value', input_date);
 
-    $('#estimation-based').attr('checked', settings['monthly_report']['estimate']);
+    var input_date_end = settings['monthly_report']['day_end'] + ', ' + get_month_name(settings['monthly_report']['month_end']) + ', ' +  settings['monthly_report']['year_end'];
+    $('#month-end').attr('value', input_date_end);
+
+//    $('#estimation-based').attr('checked', settings['monthly_report']['estimate']);
   }
 
   Drupal.behaviors.monthlyReports = {
@@ -111,12 +121,12 @@
         }
       });
 
-      $('input[name=month]').datepicker( {
-        format: "MM, yyyy",
-        minViewMode: 1,
+      $('.monthPicker').datepicker( {
+        format: "dd, MM, yyyy",
+        minViewMode: 0,
         autoclose: true,
-        startDate: "1/2014",
-        startView: 1,
+        startDate: "1/1/2014",
+        startView: 0,
         todayBtn: "linked",
         keyboardNavigation: false,
         forceParse: false

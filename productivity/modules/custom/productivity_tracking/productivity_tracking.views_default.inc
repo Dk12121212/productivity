@@ -578,6 +578,10 @@ function productivity_tracking_views_default_views() {
       'postpone_processing' => 0,
     ),
   );
+  /* Field: Content: Body */
+  $handler->display->display_options['fields']['body']['id'] = 'body';
+  $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
+  $handler->display->display_options['fields']['body']['field'] = 'body';
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -650,6 +654,23 @@ function productivity_tracking_views_default_views() {
   $handler->display->display_options['filters']['title']['expose']['operator'] = 'title_op';
   $handler->display->display_options['filters']['title']['expose']['identifier'] = 'title';
   $handler->display->display_options['filters']['title']['expose']['remember'] = TRUE;
+  /* Filter criterion: Content: Body (body) */
+  $handler->display->display_options['filters']['body_value']['id'] = 'body_value';
+  $handler->display->display_options['filters']['body_value']['table'] = 'field_data_body';
+  $handler->display->display_options['filters']['body_value']['field'] = 'body_value';
+  $handler->display->display_options['filters']['body_value']['operator'] = 'contains';
+  $handler->display->display_options['filters']['body_value']['group'] = 1;
+  $handler->display->display_options['filters']['body_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['body_value']['expose']['operator_id'] = 'body_value_op';
+  $handler->display->display_options['filters']['body_value']['expose']['label'] = 'Body';
+  $handler->display->display_options['filters']['body_value']['expose']['operator'] = 'body_value_op';
+  $handler->display->display_options['filters']['body_value']['expose']['identifier'] = 'body_value';
+  $handler->display->display_options['filters']['body_value']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
   /* Filter criterion: Content: Type */
   $handler->display->display_options['filters']['type']['id'] = 'type';
   $handler->display->display_options['filters']['type']['table'] = 'node';
@@ -712,12 +733,46 @@ function productivity_tracking_views_default_views() {
   $handler->display->display_options['filters']['field_github_project_id_value']['id'] = 'field_github_project_id_value';
   $handler->display->display_options['filters']['field_github_project_id_value']['table'] = 'field_data_field_github_project_id';
   $handler->display->display_options['filters']['field_github_project_id_value']['field'] = 'field_github_project_id_value';
+  $handler->display->display_options['filters']['field_github_project_id_value']['group'] = 1;
   $handler->display->display_options['filters']['field_github_project_id_value']['exposed'] = TRUE;
   $handler->display->display_options['filters']['field_github_project_id_value']['expose']['operator_id'] = 'field_github_project_id_value_op';
   $handler->display->display_options['filters']['field_github_project_id_value']['expose']['label'] = 'Github Repo';
   $handler->display->display_options['filters']['field_github_project_id_value']['expose']['operator'] = 'field_github_project_id_value_op';
   $handler->display->display_options['filters']['field_github_project_id_value']['expose']['identifier'] = 'field_github_project_id_value';
   $handler->display->display_options['filters']['field_github_project_id_value']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
+  /* Filter criterion: Field: Issue ID (field_issue_id) */
+  $handler->display->display_options['filters']['field_issue_id_value']['id'] = 'field_issue_id_value';
+  $handler->display->display_options['filters']['field_issue_id_value']['table'] = 'field_data_field_issue_id';
+  $handler->display->display_options['filters']['field_issue_id_value']['field'] = 'field_issue_id_value';
+  $handler->display->display_options['filters']['field_issue_id_value']['group'] = 1;
+  $handler->display->display_options['filters']['field_issue_id_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_issue_id_value']['expose']['operator_id'] = 'field_issue_id_value_op';
+  $handler->display->display_options['filters']['field_issue_id_value']['expose']['label'] = 'Issue ID';
+  $handler->display->display_options['filters']['field_issue_id_value']['expose']['operator'] = 'field_issue_id_value_op';
+  $handler->display->display_options['filters']['field_issue_id_value']['expose']['identifier'] = 'field_issue_id_value';
+  $handler->display->display_options['filters']['field_issue_id_value']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
+  /* Filter criterion: Content: Author uid */
+  $handler->display->display_options['filters']['uid']['id'] = 'uid';
+  $handler->display->display_options['filters']['uid']['table'] = 'node';
+  $handler->display->display_options['filters']['uid']['field'] = 'uid';
+  $handler->display->display_options['filters']['uid']['value'] = '';
+  $handler->display->display_options['filters']['uid']['group'] = 1;
+  $handler->display->display_options['filters']['uid']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['uid']['expose']['operator_id'] = 'uid_op';
+  $handler->display->display_options['filters']['uid']['expose']['label'] = 'Author';
+  $handler->display->display_options['filters']['uid']['expose']['operator'] = 'uid_op';
+  $handler->display->display_options['filters']['uid']['expose']['identifier'] = 'uid';
+  $handler->display->display_options['filters']['uid']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
     3 => 0,

@@ -10,7 +10,8 @@ $project_nid = drush_get_option('project', 2587);
 
 // Get all tracks for project.
 
-$tracking = productivity_tracking_get_tracking_nodes($project_nid);
+$query = productivity_tracking_get_tracking_base_query($project_nid);
+$tracking = $query->execute();
 
 
 if (empty($count = $tracking->rowCount())) {

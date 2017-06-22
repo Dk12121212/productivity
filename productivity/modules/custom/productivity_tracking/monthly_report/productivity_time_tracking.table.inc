@@ -103,7 +103,6 @@ function productivity_time_tracking_issue_table($node = FALSE, $dates, $estimate
 
   $variables['project_title'] = $wrapper->label();
   $variables['account'] = $wrapper->field_account->label();
-
   $tracking = productivity_tracking_get_tracking_range($node->nid, FALSE, $dates);
 
   $issues_table = array();

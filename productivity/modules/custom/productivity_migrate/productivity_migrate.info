@@ -13,6 +13,7 @@ files[] = includes/ProductivityMigrateSessionTypes.inc
 files[] = includes/ProductivityMigrateTimewatchUser.inc
 files[] = includes/ProductivityMigrateTracker.inc
 files[] = includes/ProductivityMigrateTrackingsToWorkSessions.inc
+files[] = includes/ProductivityMigrateOldTrackingsToNew.inc
 files[] = includes/ProductivityMigrateUser.inc
 files[] = includes/ProductivityMigratePayment.inc
 files[] = includes/ProductivityMigrateGithubIssue.inc

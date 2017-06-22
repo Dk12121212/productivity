@@ -391,6 +391,7 @@ function productivity_tracking_save_callback() {
 
     // Delete.
     if ($delete) {
+      $node_log_item = node_load($track['mlid']);
       // Make sure delete is not on a new item that was never saved.
       if ($track['mlid'] != 'new') {
         $results[] = array(
@@ -398,11 +399,12 @@ function productivity_tracking_save_callback() {
           'new' => 0,
           'delete' => $delete,
           'attr' => $attr,
-//          'result' => node_delete($track['mlid']),
-          // Replacing with unpublish for now, need to validate that unpiblished
+          // Replacing with unpublish for now, need to validate that unpiblished.
           // item are not counted.
-          'result' => node_unpublish_action($track['mlid']),
+          'result' => node_unpublish_action($node_log_item),
         );
+        
+        node_save($node_log_item);
       }
     }
     // Update.

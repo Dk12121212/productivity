@@ -136,7 +136,7 @@ function productivity_time_tracking_issue_table($node = FALSE, $dates, $estimate
     $variables['total_per_hours_types'][$table_name] = 0;
 
     foreach ($table['issues'] as $index => $issue) {
-      $rows[$index]['label'] = $issue['issue_num'] == '#' ? 'N/A' : l($issue['issue_num'], $issue['gh_url'], array(
+      $rows[$index]['label'] = !$issue['gh_url'] ? 'N/A' : l('#' . $issue['issue_num'], $issue['gh_url'], array(
         'absolute' => TRUE,
         'attributes' => array('target' => '_blank'),
       ));
@@ -211,7 +211,7 @@ function productivity_time_tracking_create_issues_table($tracking, $project_nid)
       $rate[$type] = productivity_project_get_rate($project_nid, $type);
     }
     /// The table length of every type.
-    $issue_id = '#' . $track_record['field_issue_id_value'];
+    $issue_id = $track_record['field_issue_id_value'];
     $gh_id = $track_record['field_github_project_id_value'];
 
     // Replace this with human readable type.
@@ -219,7 +219,7 @@ function productivity_time_tracking_create_issues_table($tracking, $project_nid)
     $issues_table[$type]['issues'][] = array(
       'nid' => $track_record['nid'],
       'issue_num' => $issue_id,
-      'gh_url' => 'https://github.com/' . $gh_id . '/issues/' . $issue_id,
+      'gh_url' => $gh_id ? 'https://github.com/' . $gh_id . '/issues/' . $issue_id : FALSE,
       'label' => $track_record['field_track_log_field_issue_label_value'],
       'date' => $date,
       'time' => $track_record['field_track_log_field_time_spent_value'],

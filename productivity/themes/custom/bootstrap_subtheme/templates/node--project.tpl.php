@@ -155,12 +155,6 @@
       <?php print $table; ?>
     </div>
   </div>
-  <div class="col-xs-12">
-    <div class="main-box infographic-box">
-      <h2>Milestones</h2>
-      <?php print $milestones; ?>
-    </div>
-  </div>
   <div class="col-xs-6">
     <div class="main-box infographic-box">
       <h2>Team members</h2>

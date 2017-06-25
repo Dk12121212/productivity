@@ -50,13 +50,6 @@ function bootstrap_subtheme_preprocess_node__project__full(&$variables) {
   $variables['project_date_start'] = render($field);
 
   $fields = array(
-    'field_milestone',
-    'field_date',
-    'field_scope'
-  );
-  $variables['milestones'] = _bootstrap_subtheme_rendered_field_array($wrapper, $fields);
-
-  $fields = array(
     'field_employee',
     'field_job_type'
   );

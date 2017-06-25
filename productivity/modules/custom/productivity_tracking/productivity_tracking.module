@@ -175,11 +175,13 @@ function productivity_tracking_per_issue_summary($gh_account_name, $gh_repo_name
     }
   }
   $sorted_rows = [];
-  foreach ($table['rows'] as $row) {
-    $i = 0;
-    foreach ($row['tracks'] as $row_pr) {
-      $i++;
-      $sorted_rows[$row['latest'] . "-$i"] = $row_pr;
+  if (!empty($table['rows'])) {
+    foreach ($table['rows'] as $row) {
+      $i = 0;
+      foreach ($row['tracks'] as $row_pr) {
+        $i++;
+        $sorted_rows[$row['latest'] . "-$i"] = $row_pr;
+      }
     }
   }
 

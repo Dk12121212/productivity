@@ -135,7 +135,6 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE, $n
     $pr_title = $track_record['field_track_log_field_issue_label_value'];
     $pr_work_type = $track_record['field_track_log_field_issue_type_value'];
     $pr_developer = $track_record['field_track_log_field_github_username_value'];
-    $pr_developer_uid = $track_record['field_track_log_field_employee_target_id'];
     $pr_date = $track_record['field_track_log_field_date_value'];
     $track_id = $track_record['field_track_log_id'];
     $pr_status = $track_record['pr_status_name'];
@@ -156,8 +155,13 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE, $n
       ),
     ));
 
-    $issue_url = "https://github.com/$repo_id/issues/$issue_id";
-    $issue_link = l("$issue_title", $issue_url, array('attributes' => array('target' => '_blank')));
+    if ($repo_id && $issue_id) {
+      $issue_url = "https://github.com/$repo_id/issues/$issue_id";
+      $issue_link = l("$issue_title", $issue_url, array('attributes' => array('target' => '_blank')));
+    }
+    else {
+      $issue_link = $issue_title;
+    }
 
     // First row of issue.
     if (!isset($totals[$nid])) {

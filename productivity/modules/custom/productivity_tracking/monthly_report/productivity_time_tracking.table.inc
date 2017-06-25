@@ -90,7 +90,7 @@ function productivity_time_tracking_issue_table($node = FALSE, $dates, $estimate
 
 
   // No project given.
-  if (!$node) {
+  if (!$node || $node->type != 'project') {
     return theme('productivity_time_tracking_monthly_report', $variables);
   }
   $nid = $node->nid;

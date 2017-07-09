@@ -150,13 +150,17 @@ function productivity_timewatch_build_report($account, $year, $month){
     $date_sign = time();
   }
   else {
-    // Print random date, for testing and demos.
-    $month_sign = $month + 1;
-    $day_sign = rand(1, 20);
-    $date_sign = strtotime("$year-$month_sign-$day_sign");
+    $uid = $account->uid;
+    if (!$date_sign = variable_get("productivity_bypass_retro_date_{$year}_{$month}_{$uid}")) {
+      // Print random date, for testing and demos.
+      $month_sign = $month + 1;
+      $day_sign = rand(1, 20);
+      $date_sign = strtotime("$year-$month_sign-$day_sign");
+      variable_set("productivity_bypass_retro_date_{$year}_{$month}_{$uid}", $date_sign);
+    }
   }
-  $variables_report['date_sign'] = date("F, d Y", $date_sign) . date(", H:m", time());
 
+  $variables_report['date_sign'] = date("F, d Y", $date_sign) . date(", H:m", time());
   // Main table headers.
   $header = array(
     t('Date'),

@@ -191,30 +191,50 @@ function productivity_timewatch_create_summary_maddan_table($summaries_madaan, $
   if (!$summaries_madaan) {
     return FALSE;
   }
-  // Headers.
-  $header = array(
-    t('Project/ Type'),
-    t('Total'),
-    t('%'),
-  );
+  $tables = '';
+  // Create a table per Madaan project.
+  foreach ($summaries_madaan as $summary) {
+    // Headers.
+    $header = array(
+      t('Project/ Type'),
+      t('Total'),
+      t('%'),
+    );
 
-  // The totoal on madaan project is the larger number btw total and potential.
-  $total = $summaries['6.potential']['total_minutes'] > $summaries['4.total']['total_minutes'] ? $summaries['6.potential']['total_minutes'] : $summaries['4.total']['total_minutes'];
+    // The total on madaan project is the larger number btw total and potential.
+    $total_all = $summaries['6.potential']['total_minutes'] > $summaries['4.total']['total_minutes'] ? $summaries['6.potential']['total_minutes'] : $summaries['4.total']['total_minutes'];
 
-  $summaries_madaan['6.potential_maddan'] = array(
-    'name' => t('Potential (maddan)'),
-    'total_minutes' => $total,
-    'actual' => '100%',
-  );
-  // Calc actual %
-  foreach($summaries_madaan as &$summary) {
-    $summary['actual'] = number_format(100 / $total * $summary['total_minutes'], 2) . '%';
-    $summary['total_minutes'] = productivity_timewatch_format_total($summary['total_minutes'], TRUE);
+    // Add Vacation, Sick and Miluim to total.
+    $total = $summary['1.Attendance']['total_minutes'];
+    $total += isset($summaries['1.Vacation']['total_minutes']) ? $summaries['1.Vacation']['total_minutes'] : 0;
+    $total += isset($summaries['1.Miluim']['total_minutes']) ? $summaries['1.Miluim']['total_minutes'] : 0;
+    $total += isset($summaries['1.Sick']['total_minutes']) ? $summaries['1.Sick']['total_minutes'] : 0;
+    $summary['1.Attendance']['total_minutes'] += isset($summaries['1.Convention']['total_minutes']) ? $summaries['1.Convention']['total_minutes'] : 0;
+
+    $summary['6.potential_maddan'] = array(
+      'name' => t('Potential (maddan)'),
+      'total_minutes' => productivity_timewatch_format_total($summaries['6.potential']['total_minutes'], TRUE),
+      'actual' => '100%',
+    );
+
+
+    $summary['7.Total'] = array(
+      'name' => t('Total (inc. Sick, Miluim and Vacation)'),
+      'total_minutes' => productivity_timewatch_format_total($total, TRUE),
+      'actual' => number_format(100 / $total_all * $total, 2) . '%',
+    );
+
+    // Convert calc actual to %
+    $summary['1.Attendance']['actual'] = number_format(100 / $total_all * $summary['1.Attendance']['total_minutes'], 2) . '%';
+    $summary['1.Attendance']['total_minutes'] = productivity_timewatch_format_total($summary['1.Attendance']['total_minutes'], TRUE);
+
+    ksort($summary);
+
+    $tables .= theme('table', array(
+      'header' => $header,
+      'rows' => $summary,
+    ));
   }
 
-  ksort($summaries_madaan);
-  return theme('table', array(
-    'header' => $header,
-    'rows' => $summaries_madaan,
-  ));
+  return $tables;
 }

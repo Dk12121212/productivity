@@ -20,7 +20,7 @@ function productivity_timewatch_menu() {
     'title' => 'Monthly employee report',
     'access arguments' => array('access content'),
     'page callback' => 'productivity_timewatch_monthly_employee_report_callback',
-    'page arguments' => array(1, 2, 3),
+    'page arguments' => array(1, 2, 3, 4),
     'type' => MENU_CALLBACK,
     'file' => 'monthly_employee_report/monthly_employee_report.inc'
   );

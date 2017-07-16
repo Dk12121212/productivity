@@ -21,10 +21,13 @@
   <h3>Signatures</h3>
   <div class="row">
     <div class="col-sm-6 mop-manager">
-      <?php print variable_get('productivity_mop_manager', 'Brice Lenfant'); ?>(MOP manager):_________________
-    </div>
-    <div class="col-sm-6 mop-manager">
-      Date: <?php print $date_sign; ?>
+      <?php print variable_get('productivity_mop_manager', 'Brice Lenfant'); ?>(MOP manager):</br>
+      <?php if ($date_sign_manager): ?>
+      Digitaly signed on:  <?php print $date_sign_manager; ?>
+      <?php endif; ?>
+      <?php if (!$date_sign_manager): ?>
+       <a href="<?php print $href_sign_manager; ?>" class="btn btn-primary">Click to Sign</a>
+      <?php endif; ?>
     </div>
   </div>
   <div class="row">
@@ -32,10 +35,18 @@
   </div>
   <div class="row">
     <div class="col-sm-6 employee-signature">
-      <?php print $fullname; ?>:_________________
+      <?php print $fullname; ?>
+      </br>
+      <?php if ($date_sign): ?>
+      Digitaly signed on:  <?php print $date_sign; ?>
+      <?php endif; ?>
+      <?php if (!$date_sign): ?>
+        <a href="<?php print $href_sign; ?>" class="btn btn-primary">Click to Sign</a>
+      <?php endif; ?>
     </div>
-    <div class="col-sm-6 employee-signature">
-      Date: <?php print $date_sign; ?>
+
+    <div class="col-sm-6 employee-signature" style="text-align: right">
+      הריני מצהיר כי דו"ח שעות זה משקף את חלוקת שעות עבודתי במשימות השונות, וכי ידוע לי כי דוח זה ישמש לתביעת תמיכה כספית שתוגש ע"י החברה, ללשכת המדען הראשי, במשרד התעשייה המסחר והתעסוקה.
     </div>
   </div>
 </div>

@@ -7,17 +7,17 @@
 /**
  * Menu callback; Display monthly employee report.
  */
-function productivity_timewatch_monthly_employee_report_callback($account = FALSE, $year = FALSE, $month = FALSE) {
-  return productivity_timewatch_monthly_employee_report($account, $year, $month);
+function productivity_timewatch_monthly_employee_report_callback($account = FALSE, $year = FALSE, $month = FALSE, $uid_sign = FALSE) {
+  return productivity_timewatch_monthly_employee_report($account, $year, $month, $uid_sign);
 }
 
 /**
  * Menu callback; Display monthly employee report PDF.
  */
 use TijsVerkoyen\CssToInlineStyles\CssToInlineStyles;
-function productivity_timewatch_monthly_employee_report_pdf_callback($account, $year, $month) {
+function productivity_timewatch_monthly_employee_report_pdf_callback($account, $year, $month, $uid_sign = FALSE) {
 
-  $html = productivity_timewatch_build_report($account, $year, $month);
+  $html = productivity_timewatch_build_report($account, $year, $month, $uid_sign);
   if (!$html) {
     return "No Data for this user.";
   }
@@ -80,7 +80,7 @@ function productivity_timewatch_monthly_employee_load_resources($local = FALSE) 
 /**
  * Create the employee monthly report, with printable version.
  */
-function productivity_timewatch_monthly_employee_report($account = FALSE, $year = FALSE, $month = FALSE) {
+function productivity_timewatch_monthly_employee_report($account = FALSE, $year = FALSE, $month = FALSE, $uid_sign) {
   global $base_url;
   // Load External resources.
   productivity_timewatch_monthly_employee_load_resources();
@@ -118,7 +118,7 @@ function productivity_timewatch_monthly_employee_report($account = FALSE, $year 
   }
 
   // No working day return early.
-  if (!$variables['report'] = productivity_timewatch_build_report($account, $year, $month)) {
+  if (!$variables['report'] = productivity_timewatch_build_report($account, $year, $month, $uid_sign)) {
     $variables['no_result'] = TRUE;
     $variables['message'] = t('No work done this month.');
   }
@@ -133,7 +133,7 @@ function productivity_timewatch_monthly_employee_report($account = FALSE, $year 
 /**
  * Build table report with summary.
  */
-function productivity_timewatch_build_report($account, $year, $month){
+function productivity_timewatch_build_report($account, $year, $month, $uid_sign = FALSE){
   // No working day return early.
   if (!$result = productivity_timewatch_get_employee_sessions($account, $month, $year)) {
     return FALSE;
@@ -145,22 +145,53 @@ function productivity_timewatch_build_report($account, $year, $month){
   $wrapper = entity_metadata_wrapper('user', $account);
   $variables_report['fullname'] = $wrapper->field_full_name->value() ? $wrapper->field_full_name->value() : $account->name;
   $variables_report['date'] = date("F Y", strtotime("$year-$month-01"));
+
+  // Bypass tof test and demos.
   if (!variable_get('productivity_bypass_retro', TRUE)) {
     // Print today's date,
     $date_sign = time();
   }
-  else {
-    $uid = $account->uid;
-    if (!$date_sign = variable_get("productivity_bypass_retro_date_{$year}_{$month}_{$uid}")) {
+
+
+  $uid = $account->uid;
+  $mop_manager = variable_get('productivity_mop_manager_uid', '15');
+  $date_sign = variable_get("productivity_bypass_retro_date_{$year}_{$month}_{$uid}", FALSE);
+  $date_sign_manager = variable_get("productivity_bypass_retro_date_{$year}_{$month}_{$uid}_{$mop_manager}", FALSE);
+
+  // Sign button was clicked.
+  if ($uid_sign) {
+    if ($uid_sign == $uid && !$date_sign) {
       // Print random date, for testing and demos.
       $month_sign = $month + 1;
+      if ($month_sign == 13) {
+        $month_sign = 1;
+        $year++;
+      }
       $day_sign = rand(1, 20);
       $date_sign = strtotime("$year-$month_sign-$day_sign");
       variable_set("productivity_bypass_retro_date_{$year}_{$month}_{$uid}", $date_sign);
-    }
+      }
+      // Mop manager sign.
+      elseif ($uid_sign == variable_get('productivity_mop_manager_uid', '15') && !$date_sign_manager) {
+        $month_sign = $month + 1;
+        if ($month_sign == 13) {
+          $month_sign = 1;
+          $year++;
+        }
+        $day_sign = rand(1, 20);
+        $date_sign_manager = strtotime("$year-$month_sign-$day_sign");
+        variable_set("productivity_bypass_retro_date_{$year}_{$month}_{$uid}_{$mop_manager}", $date_sign_manager);
+      }
   }
 
-  $variables_report['date_sign'] = date("F, d Y", $date_sign) . date(", H:m", time());
+
+  $variables_report['date_sign'] = $date_sign ? date("F, d Y", $date_sign) : FALSE;
+  $variables_report['date_sign_manager'] = $date_sign_manager ? date("F, d Y", $date_sign_manager): FALSE;
+
+  // Create sign urls.
+  $variables_report['href_sign_manager'] = url("monthly-employee-report/$uid/$year/$month/$mop_manager");
+  $variables_report['href_sign'] = url("monthly-employee-report/$uid/$year/$month/$uid");
+
   // Main table headers.
   $header = array(
     t('Date'),

@@ -167,8 +167,14 @@ function productivity_timewatch_build_report($account, $year, $month, $uid_sign 
         $month_sign = 1;
         $year++;
       }
-      $day_sign = rand(1, 20);
-      $date_sign = strtotime("$year-$month_sign-$day_sign");
+      // Use for test.
+      if ($month_sign != date('m')) {
+        $day_sign = rand(1, 20);
+        $date_sign = strtotime("$year-$month_sign-$day_sign");
+      }
+      else {
+        $date_sign = time();
+      }
       variable_set("productivity_bypass_retro_date_{$year}_{$month}_{$uid}", $date_sign);
       }
       // Mop manager sign.
@@ -178,8 +184,14 @@ function productivity_timewatch_build_report($account, $year, $month, $uid_sign 
           $month_sign = 1;
           $year++;
         }
-        $day_sign = rand(1, 20);
-        $date_sign_manager = strtotime("$year-$month_sign-$day_sign");
+        // Use for test.
+        if ($month_sign != date('m')) {
+          $day_sign = rand(1, 20);
+          $date_sign_manager = strtotime("$year-$month_sign-$day_sign");
+        }
+        else {
+          $date_sign_manager = time();
+        }
         variable_set("productivity_bypass_retro_date_{$year}_{$month}_{$uid}_{$mop_manager}", $date_sign_manager);
       }
   }

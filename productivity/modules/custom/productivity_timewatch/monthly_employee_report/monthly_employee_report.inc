@@ -146,54 +146,51 @@ function productivity_timewatch_build_report($account, $year, $month, $uid_sign 
   $variables_report['fullname'] = $wrapper->field_full_name->value() ? $wrapper->field_full_name->value() : $account->name;
   $variables_report['date'] = date("F Y", strtotime("$year-$month-01"));
 
-  // Bypass tof test and demos.
-  if (!variable_get('productivity_bypass_retro', TRUE)) {
-    // Print today's date,
-    $date_sign = time();
-  }
-
 
   $uid = $account->uid;
   $mop_manager = variable_get('productivity_mop_manager_uid', '15');
   $date_sign = variable_get("productivity_bypass_retro_date_{$year}_{$month}_{$uid}", FALSE);
   $date_sign_manager = variable_get("productivity_bypass_retro_date_{$year}_{$month}_{$uid}_{$mop_manager}", FALSE);
 
+
   // Sign button was clicked.
   if ($uid_sign) {
     if ($uid_sign == $uid && !$date_sign) {
       // Print random date, for testing and demos.
       $month_sign = $month + 1;
+      $year_sign = $year;
       if ($month_sign == 13) {
         $month_sign = 1;
-        $year++;
+        $year_sign = $year + 1;
       }
       // Use for test.
-      if ($month_sign != date('m')) {
+      if ("$year_sign.$month_sign" != date('Y.n')) {
         $day_sign = rand(1, 20);
-        $date_sign = strtotime("$year-$month_sign-$day_sign");
+        $date_sign = strtotime("$year_sign-$month_sign-$day_sign");
       }
       else {
         $date_sign = time();
       }
       variable_set("productivity_bypass_retro_date_{$year}_{$month}_{$uid}", $date_sign);
+    }
+    // Mop manager sign.
+    elseif ($uid_sign == variable_get('productivity_mop_manager_uid', '15') && !$date_sign_manager) {
+      $month_sign = $month + 1;
+      $year_sign = $year;
+      if ($month_sign == 13) {
+        $month_sign = 1;
+        $year_sign = $year + 1;
       }
-      // Mop manager sign.
-      elseif ($uid_sign == variable_get('productivity_mop_manager_uid', '15') && !$date_sign_manager) {
-        $month_sign = $month + 1;
-        if ($month_sign == 13) {
-          $month_sign = 1;
-          $year++;
-        }
-        // Use for test.
-        if ($month_sign != date('m')) {
-          $day_sign = rand(1, 20);
-          $date_sign_manager = strtotime("$year-$month_sign-$day_sign");
-        }
-        else {
-          $date_sign_manager = time();
-        }
-        variable_set("productivity_bypass_retro_date_{$year}_{$month}_{$uid}_{$mop_manager}", $date_sign_manager);
+      // Use for test.
+      if ("$year_sign.$month_sign" != date('Y.n')) {
+        $day_sign = rand(1, 20);
+        $date_sign_manager = strtotime("$year_sign-$month_sign-$day_sign");
       }
+      else {
+        $date_sign_manager = time();
+      }
+      variable_set("productivity_bypass_retro_date_{$year}_{$month}_{$uid}_{$mop_manager}", $date_sign_manager);
+    }
   }
 
 

@@ -268,6 +268,12 @@ function productivity_timewatch_create_summary_maddan_table($summaries_madaan, $
     $summary['1.Attendance']['actual'] = number_format(100 / $total_all * $summary['1.Attendance']['total_minutes'], 2) . '%';
     $summary['1.Attendance']['total_minutes'] = productivity_timewatch_format_total($summary['1.Attendance']['total_minutes'], TRUE);
 
+    // Convert calc actual to %
+    if (isset($summary['2.retro'])) {
+      $summary['2.retro']['actual'] = number_format(100 / $total_all * $summary['1.Attendance']['total_minutes'], 2) . '%';
+      $summary['2.retro']['total_minutes'] = productivity_timewatch_format_total($summary['1.Attendance']['total_minutes'], TRUE);
+    }
+
     ksort($summary);
 
     $tables .= theme('table', array(

@@ -447,7 +447,8 @@ function productivity_tracking_save_callback() {
       $account_wrapper = entity_metadata_wrapper('user', $uid);
 
       $data = [
-        'date_start' => strtotime($tracking['data']['date_str']),
+        // Set to 12:00 to avoid timezone to shift to other day.
+        'date_start' => strtotime("{$tracking['data']['date_str']} 12:00"),
         'label' => $track['description'],
         'pr_id' => $track['pr'] ? $track['pr'] : 0,
         'status' => 'open',

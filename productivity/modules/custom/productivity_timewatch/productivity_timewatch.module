@@ -225,7 +225,7 @@ function productivity_timewatch_get_user_sessions($uid, $year, $month, $non_regu
 
   if ($month == 'all') {
     $project_start_month = format_string("01-01-@year", array('@year' => $year));
-    $project_end_month = format_string("31-12-@year", array('@year' => $year));
+    $project_end_month = format_string("01-01-@year", array('@year' => ($year + 1)));
   }
   else {
     $project_start_month = format_string("01-@month-@year", array(

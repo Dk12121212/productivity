@@ -175,7 +175,7 @@ function productivity_tracking_field_default_field_bases() {
       'profile2_private' => FALSE,
       'timezone_db' => 'UTC',
       'todate' => '',
-      'tz_handling' => 'site',
+      'tz_handling' => 'user',
     ),
     'translatable' => 0,
     'type' => 'datetime',
@@ -236,6 +236,7 @@ function productivity_tracking_field_default_field_bases() {
     'locked' => 0,
     'module' => 'entityreference',
     'settings' => array(
+      'delete_on_parent_delete' => '',
       'handler' => 'base',
       'handler_settings' => array(
         'behaviors' => array(

@@ -467,6 +467,42 @@ function productivity_user_views_default_views() {
     3 => 0,
     4 => 0,
   );
+  /* Filter criterion: Field: Project (field_project) (reference filter) */
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['id'] = 'field_project_target_id_entityreference_filter';
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['table'] = 'field_data_field_project';
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['field'] = 'field_project_target_id_entityreference_filter';
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['expose']['operator_id'] = 'field_project_target_id_entityreference_filter_op';
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['expose']['label'] = 'Project Madaan';
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['expose']['use_operator'] = TRUE;
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['expose']['operator'] = 'field_project_target_id_entityreference_filter_op';
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['expose']['identifier'] = 'field_project_target_id_entityreference_filter';
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['reference_display'] = 'entity_ref_list:entityreference_1';
+  $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['reference_arguments'] = 'project';
+  /* Filter criterion: Content: Session type (field_session_type) (reference filter) */
+  $handler->display->display_options['filters']['field_session_type_tid_entityreference_filter']['id'] = 'field_session_type_tid_entityreference_filter';
+  $handler->display->display_options['filters']['field_session_type_tid_entityreference_filter']['table'] = 'field_data_field_session_type';
+  $handler->display->display_options['filters']['field_session_type_tid_entityreference_filter']['field'] = 'field_session_type_tid_entityreference_filter';
+  $handler->display->display_options['filters']['field_session_type_tid_entityreference_filter']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_session_type_tid_entityreference_filter']['expose']['operator_id'] = 'field_session_type_tid_entityreference_filter_op';
+  $handler->display->display_options['filters']['field_session_type_tid_entityreference_filter']['expose']['label'] = 'Session type';
+  $handler->display->display_options['filters']['field_session_type_tid_entityreference_filter']['expose']['use_operator'] = TRUE;
+  $handler->display->display_options['filters']['field_session_type_tid_entityreference_filter']['expose']['operator'] = 'field_session_type_tid_entityreference_filter_op';
+  $handler->display->display_options['filters']['field_session_type_tid_entityreference_filter']['expose']['identifier'] = 'field_session_type_tid_entityreference_filter';
+  $handler->display->display_options['filters']['field_session_type_tid_entityreference_filter']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
+    3 => 0,
+    4 => 0,
+  );
+  $handler->display->display_options['filters']['field_session_type_tid_entityreference_filter']['reference_display'] = 'entity_ref_taxonomy_list:entityreference_1';
+  $handler->display->display_options['filters']['field_session_type_tid_entityreference_filter']['reference_arguments'] = 'session_types';
 
   /* Display: Page */
   $handler = $view->new_display('page', 'Page', 'page');

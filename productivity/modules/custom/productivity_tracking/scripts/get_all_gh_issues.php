@@ -47,7 +47,7 @@ for($issue_num = $min_issue_id; $issue_num <= $max_issue_id; $issue_num++) {
     $uid = 1;
   }
 
-  if (!productivity_tracking_save_tracking($issue, $pr, $uid, $gh_username,$repository_info, $dont_create, FALSE)) {
+  if (!productivity_tracking_save_tracking($issue, $pr, $uid, $gh_username,$repository_info, $dont_create)) {
     productivity_admin_log("Failed to update $repo_user/$repo/$issue_num  this might because the issue did not exist before.", 'error');
   }
   productivity_admin_log("Done $repo_user/$repo/$issue_num", 'success');

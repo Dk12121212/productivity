@@ -88,8 +88,11 @@ projects[jquery_update][version] = "2.7"
 projects[libraries][subdir] = "contrib"
 projects[libraries][version] = "2.2"
 
-projects[logs_http][subdir] = "contrib"
-projects[logs_http][version] = "1.1"
+projects[logs_rollbar][type] = "module"
+projects[logs_rollbar][subdir] = "contrib"
+projects[logs_rollbar][download][type] = "git"
+projects[logs_rollbar][download][branch] = "master"
+projects[logs_rollbar][download][url] = "https://github.com/Gizra/logs_rollbar.git"
 
 projects[mailsystem][subdir] = "contrib"
 projects[mailsystem][version] = "3.x-dev"

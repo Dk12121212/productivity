@@ -635,7 +635,7 @@ function productivity_tracking_gh_payload($payload, $event) {
  * @return bool
  */
 function productivity_tracking_save_tracking($issue, $pr, $uid, $github_username, $repo, $dont_create = FALSE) {
-  $project_nid = productivity_tracking_get_project_by_repository($repo);
+  $project_nid = productivity_tracking_get_project_by_repository($repo, $issue);
 
   // Bypass if project is not in the system.
   if (!$project_nid) {
@@ -718,7 +718,12 @@ function productivity_tracking_save_tracking($issue, $pr, $uid, $github_username
  * @return int
  *   Project node ID.
  */
-function productivity_tracking_get_project_by_repository($repository_info) {
+function productivity_tracking_get_project_by_repository($repository_info, $issue) {
+  $milestone = FALSE;
+  if (isset($issue['issue']['milestone'])) {
+    $milestone = $issue['issue']['milestone'];
+  }
+
   // We need to add a second query since value2 of date has a default of value(1).
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'node')
@@ -729,6 +734,10 @@ function productivity_tracking_get_project_by_repository($repository_info) {
     ->propertyOrderBy('type', 'project')
     ->range(0, 1)
     ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
+
+  if ($milestone) {
+    $query->fieldCondition('field_github_milst', 'value', $milestone);
+  }
 
   $result = $query->execute();
 

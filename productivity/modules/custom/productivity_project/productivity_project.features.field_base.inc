@@ -438,39 +438,6 @@ function productivity_project_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
-  // Exported field_base: 'field_timetable_milestones'.
-  $field_bases['field_timetable_milestones'] = array(
-    'active' => 1,
-    'cardinality' => -1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_timetable_milestones',
-    'indexes' => array(
-      'field_milestone_format' => array(
-        0 => 'field_milestone_format',
-      ),
-      'field_scope_interval' => array(
-        0 => 'field_scope_interval',
-      ),
-      'field_scope_period' => array(
-        0 => 'field_scope_period',
-      ),
-      'id' => array(
-        0 => 'id',
-      ),
-    ),
-    'locked' => 0,
-    'module' => 'multifield',
-    'settings' => array(
-      'entity_translation_sync' => array(
-        0 => 'id',
-      ),
-      'hide_blank_items' => 1,
-    ),
-    'translatable' => 0,
-    'type' => 'multifield',
-  );
-
   // Exported field_base: 'field_type'.
   $field_bases['field_type'] = array(
     'active' => 1,

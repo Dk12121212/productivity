@@ -449,6 +449,8 @@ function productivity_tracking_save_callback() {
       $data = [
         // Set date with timezone to avoid timezone to shift to other day.
         'date_start' => strtotime($tracking['data']['date_str']) + date('Z'),
+        // Set date with extra 12H to avoid timezone to shift to other day.
+        'date_start' => strtotime($tracking['data']['date_str']) + (12 * 60 * 60),
         'label' => $track['description'],
         'pr_id' => $track['pr'] ? $track['pr'] : 0,
         'status' => 'open',

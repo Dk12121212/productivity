@@ -586,8 +586,6 @@ function productivity_project_field_default_field_instances() {
     ),
   );
 
-
-
   // Exported field_instance: 'node-project-field_account'.
   $field_instances['node-project-field_account'] = array(
     'bundle' => 'project',
@@ -680,6 +678,49 @@ Whether this project should be allowed as the project reference of a work sessio
     ),
   );
 
+  // Exported field_instance: 'node-project-field_close_tracking'.
+  $field_instances['node-project-field_close_tracking'] = array(
+    'bundle' => 'project',
+    'default_value' => array(
+      0 => array(
+        'value' => 0,
+      ),
+    ),
+    'deleted' => 0,
+    'description' => 'If checked, don\'t allow tracking to the project anymore.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 22,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_close_tracking',
+    'label' => 'Close for tracking',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'display_label' => 1,
+      ),
+      'type' => 'options_onoff',
+      'weight' => 13,
+    ),
+  );
+
   // Exported field_instance: 'node-project-field_date'.
   $field_instances['node-project-field_date'] = array(
     'bundle' => 'project',
@@ -736,6 +777,57 @@ Setting an end date, will make project invisible in some forms after the end dat
     ),
   );
 
+  // Exported field_instance: 'node-project-field_gh_milestone'.
+  $field_instances['node-project-field_gh_milestone'] = array(
+    'bundle' => 'project',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 21,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_gh_milestone',
+    'label' => 'GH Milstone',
+    'required' => 0,
+    'settings' => array(
+      'behaviors' => array(
+        'autofill' => array(
+          'status' => 0,
+        ),
+        'taxonomy-index' => array(
+          'status' => TRUE,
+        ),
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'entityreference',
+      'settings' => array(
+        'match_operator' => 'CONTAINS',
+        'path' => '',
+        'size' => 60,
+      ),
+      'type' => 'entityreference_autocomplete',
+      'weight' => 14,
+    ),
+  );
+
   // Exported field_instance: 'node-project-field_github_repository_name'.
   $field_instances['node-project-field_github_repository_name'] = array(
     'bundle' => 'project',
@@ -772,7 +864,7 @@ Setting an end date, will make project invisible in some forms after the end dat
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 8,
+      'weight' => 15,
     ),
   );
 
@@ -857,7 +949,7 @@ Setting an end date, will make project invisible in some forms after the end dat
       'module' => 'multifield',
       'settings' => array(),
       'type' => 'multifield_default',
-      'weight' => 13,
+      'weight' => 12,
     ),
   );
 
@@ -1167,12 +1259,14 @@ Setting an end date, will make project invisible in some forms after the end dat
   // Included for use with string extractors like potx.
   t('Account');
   t('Allow work session reference');
+  t('Close for tracking');
   t('Date');
   t('Employee');
+  t('GH Milstone');
   t('Github repository name');
+  t('If checked, don\'t allow tracking to the project anymore.');
   t('Internal team');
   t('Job type');
-  t('Milestone');
   t('One name type is supported -> Account + Project name  (ie. Gizra/generator-hedley).');
   t('Override to default title, in the hour report.');
   t('Percentage notified');
@@ -1188,7 +1282,6 @@ Setting an end date, will make project invisible in some forms after the end dat
   t('Team leads');
   t('This means it\'s a Madaan project.
 Whether this project should be allowed as the project reference of a work session.');
-  t('Timetable / Milestones');
   t('Total hours');
   t('Type');
   t('When set to Done, the project issue will not be assign from GH pushs.');

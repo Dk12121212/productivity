@@ -1051,47 +1051,6 @@ Setting an end date, will make project invisible in some forms after the end dat
     ),
   );
 
-  // Exported field_instance: 'node-project-field_status'.
-  $field_instances['node-project-field_status'] = array(
-    'bundle' => 'project',
-    'default_value' => array(
-      0 => array(
-        'value' => 'active',
-      ),
-    ),
-    'deleted' => 0,
-    'description' => 'When set to Done, the project issue will not be assign from GH pushs.',
-    'display' => array(
-      'default' => array(
-        'label' => 'inline',
-        'module' => 'list',
-        'settings' => array(),
-        'type' => 'list_default',
-        'weight' => 6,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_status',
-    'label' => 'Status',
-    'required' => 1,
-    'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(),
-      'type' => 'options_select',
-      'weight' => 7,
-    ),
-  );
-
   // Exported field_instance: 'node-project-field_table_rate'.
   $field_instances['node-project-field_table_rate'] = array(
     'bundle' => 'project',
@@ -1278,13 +1237,11 @@ Setting an end date, will make project invisible in some forms after the end dat
   t('Stakeholder');
   t('Start and end date of project, in case of retainer or hourly without end date, just add a start date.
 Setting an end date, will make project invisible in some forms after the end date.');
-  t('Status');
   t('Team leads');
   t('This means it\'s a Madaan project.
 Whether this project should be allowed as the project reference of a work session.');
   t('Total hours');
   t('Type');
-  t('When set to Done, the project issue will not be assign from GH pushs.');
   t('Work type');
   t('Work type display');
 

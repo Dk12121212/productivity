@@ -1416,6 +1416,10 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['fields']['field_github_repository_name']['id'] = 'field_github_repository_name';
   $handler->display->display_options['fields']['field_github_repository_name']['table'] = 'field_data_field_github_repository_name';
   $handler->display->display_options['fields']['field_github_repository_name']['field'] = 'field_github_repository_name';
+  /* Field: Content: Close for tracking */
+  $handler->display->display_options['fields']['field_close_tracking']['id'] = 'field_close_tracking';
+  $handler->display->display_options['fields']['field_close_tracking']['table'] = 'field_data_field_close_tracking';
+  $handler->display->display_options['fields']['field_close_tracking']['field'] = 'field_close_tracking';
   /* Field: Field: Project */
   $handler->display->display_options['fields']['field_project']['id'] = 'field_project';
   $handler->display->display_options['fields']['field_project']['table'] = 'field_data_field_project';
@@ -1423,10 +1427,6 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['fields']['field_project']['settings'] = array(
     'link' => 0,
   );
-  /* Field: Content: Status */
-  $handler->display->display_options['fields']['field_status']['id'] = 'field_status';
-  $handler->display->display_options['fields']['field_status']['table'] = 'field_data_field_status';
-  $handler->display->display_options['fields']['field_status']['field'] = 'field_status';
   /* Field: Content: Type */
   $handler->display->display_options['fields']['field_type']['id'] = 'field_type';
   $handler->display->display_options['fields']['field_type']['table'] = 'field_data_field_type';
@@ -1441,16 +1441,6 @@ function productivity_admin_views_default_views() {
     'multiple_number' => '',
     'multiple_from' => '',
     'multiple_to' => '',
-  );
-  /* Field: Field: Total hours */
-  $handler->display->display_options['fields']['field_hours']['id'] = 'field_hours';
-  $handler->display->display_options['fields']['field_hours']['table'] = 'field_data_field_hours';
-  $handler->display->display_options['fields']['field_hours']['field'] = 'field_hours';
-  $handler->display->display_options['fields']['field_hours']['settings'] = array(
-    'thousand_separator' => ',',
-    'decimal_separator' => '.',
-    'scale' => '2',
-    'prefix_suffix' => 1,
   );
   /* Field: Content: Edit link */
   $handler->display->display_options['fields']['edit_node']['id'] = 'edit_node';
@@ -1534,6 +1524,58 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['menu']['name'] = 'management';
   $handler->display->display_options['menu']['context'] = 0;
   $handler->display->display_options['menu']['context_only_inline'] = 0;
+
+  /* Display: Data export */
+  $handler = $view->new_display('views_data_export', 'Data export', 'views_data_export_1');
+  $handler->display->display_options['pager']['type'] = 'some';
+  $handler->display->display_options['style_plugin'] = 'views_data_export_csv';
+  $handler->display->display_options['defaults']['fields'] = FALSE;
+  /* Field: Content: Title */
+  $handler->display->display_options['fields']['title']['id'] = 'title';
+  $handler->display->display_options['fields']['title']['table'] = 'node';
+  $handler->display->display_options['fields']['title']['field'] = 'title';
+  /* Field: Content: Account */
+  $handler->display->display_options['fields']['field_account']['id'] = 'field_account';
+  $handler->display->display_options['fields']['field_account']['table'] = 'field_data_field_account';
+  $handler->display->display_options['fields']['field_account']['field'] = 'field_account';
+  $handler->display->display_options['fields']['field_account']['settings'] = array(
+    'link' => 0,
+  );
+  /* Field: Content: Github repository name */
+  $handler->display->display_options['fields']['field_github_repository_name']['id'] = 'field_github_repository_name';
+  $handler->display->display_options['fields']['field_github_repository_name']['table'] = 'field_data_field_github_repository_name';
+  $handler->display->display_options['fields']['field_github_repository_name']['field'] = 'field_github_repository_name';
+  /* Field: Field: Project */
+  $handler->display->display_options['fields']['field_project']['id'] = 'field_project';
+  $handler->display->display_options['fields']['field_project']['table'] = 'field_data_field_project';
+  $handler->display->display_options['fields']['field_project']['field'] = 'field_project';
+  $handler->display->display_options['fields']['field_project']['settings'] = array(
+    'link' => 0,
+  );
+  /* Field: Content: Status */
+  $handler->display->display_options['fields']['field_status']['id'] = 'field_status';
+  $handler->display->display_options['fields']['field_status']['table'] = 'field_data_field_status';
+  $handler->display->display_options['fields']['field_status']['field'] = 'field_status';
+  /* Field: Content: Type */
+  $handler->display->display_options['fields']['field_type']['id'] = 'field_type';
+  $handler->display->display_options['fields']['field_type']['table'] = 'field_data_field_type';
+  $handler->display->display_options['fields']['field_type']['field'] = 'field_type';
+  /* Field: Field: Date */
+  $handler->display->display_options['fields']['field_date']['id'] = 'field_date';
+  $handler->display->display_options['fields']['field_date']['table'] = 'field_data_field_date';
+  $handler->display->display_options['fields']['field_date']['field'] = 'field_date';
+  $handler->display->display_options['fields']['field_date']['settings'] = array(
+    'format_type' => 'long',
+    'fromto' => 'both',
+    'multiple_number' => '',
+    'multiple_from' => '',
+    'multiple_to' => '',
+  );
+  $handler->display->display_options['path'] = 'admin/content/projects/csv';
+  $handler->display->display_options['displays'] = array(
+    'page_1' => 'page_1',
+    'default' => 0,
+  );
   $export['projects'] = $view;
 
   $view = new view();

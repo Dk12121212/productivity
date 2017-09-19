@@ -1181,7 +1181,6 @@ function productivity_admin_views_default_views() {
     'field_rate' => 'field_rate',
     'field_rate_type' => 'field_rate_type',
     'field_scope' => 'field_scope',
-    'field_status' => 'field_status',
     'field_type' => 'field_type',
     'field_date' => 'field_date',
     'edit_node' => 'edit_node',
@@ -1249,13 +1248,6 @@ function productivity_admin_views_default_views() {
       'empty_column' => 0,
     ),
     'field_scope' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'field_status' => array(
       'sortable' => 1,
       'default_sort_order' => 'asc',
       'align' => '',
@@ -1552,10 +1544,6 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['fields']['field_project']['settings'] = array(
     'link' => 0,
   );
-  /* Field: Content: Status */
-  $handler->display->display_options['fields']['field_status']['id'] = 'field_status';
-  $handler->display->display_options['fields']['field_status']['table'] = 'field_data_field_status';
-  $handler->display->display_options['fields']['field_status']['field'] = 'field_status';
   /* Field: Content: Type */
   $handler->display->display_options['fields']['field_type']['id'] = 'field_type';
   $handler->display->display_options['fields']['field_type']['table'] = 'field_data_field_type';

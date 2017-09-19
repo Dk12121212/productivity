@@ -731,7 +731,6 @@ function productivity_tracking_get_project_by_repository($repository_info, $issu
   $query->entityCondition('entity_type', 'node')
     ->fieldCondition('field_github_repository_name', 'value', $repository_info['full_name'])
     // Just look for active or not started projects.
-    ->fieldCondition('field_status', 'value', 'done', '!=')
     ->propertyOrderBy('created', 'DESC')
     ->propertyOrderBy('type', 'project')
     ->range(0, 1)

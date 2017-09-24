@@ -92,14 +92,16 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
     user_save($user1);
 
     // This term was created in previous test.
-    $term = taxonomy_get_term_by_name('POC');
-    $term = reset($term);
+    $term = stdClass();
+    $term->vocabulary_machine_name = 'gh_milestones';
+    $term->name = 'POC';
+    taxonomy_term_save($term);
 
     $settings = array(
       'type' => 'project',
       'title' => 'Productivity',
       'field_github_repository_name' => array(LANGUAGE_NONE => array(array('value' => 'Gizra/productivity'))),
-      'field_gh_milestone' => array(LANGUAGE_NONE => array(array('target_id' => $term['tid']))),
+      'field_gh_milestone' => array(LANGUAGE_NONE => array(array('target_id' => $term->tid))),
     );
     $node = $this->drupalCreateNode($settings);
 
@@ -108,7 +110,7 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
       'type' => 'project',
       'title' => 'Productivity',
       'field_github_repository_name' => array(LANGUAGE_NONE => array(array('value' => 'Gizra/productivity'))),
-      'field_gh_milestone' => array(LANGUAGE_NONE => array(array('target_id' => $term['tid']))),
+      'field_gh_milestone' => array(LANGUAGE_NONE => array(array('target_id' => $term->tid))),
       'field_close_tracking' => array(LANGUAGE_NONE => array(array('value' => 1))),
     );
     $this->drupalCreateNode($settings);

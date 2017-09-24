@@ -7,6 +7,7 @@ dependencies[] = entityreference_filter
 dependencies[] = productivity_account
 dependencies[] = productivity_payment
 dependencies[] = productivity_tracking
+dependencies[] = filter
 dependencies[] = views
 dependencies[] = views_data_export
 features[ctools][] = strongarm:strongarm:1

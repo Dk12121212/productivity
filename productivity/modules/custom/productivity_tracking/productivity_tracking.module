@@ -747,7 +747,6 @@ function productivity_tracking_get_project_by_repository($repository_info, $issu
   else {
     $milestone = NULL;
     $nid = FALSE;
-    debug($issue);
     // If issue has no milestone, use first match.
     if ($issue['issue']['milestone'] != null) {
       $milestone = $issue['issue']['milestone']['title'];

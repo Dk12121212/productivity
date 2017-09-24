@@ -6,7 +6,6 @@ dependencies[] = entityreference
 dependencies[] = entityreference_filter
 dependencies[] = productivity_account
 dependencies[] = productivity_payment
-dependencies[] = productivity_payments
 dependencies[] = productivity_project
 dependencies[] = productivity_tracking
 dependencies[] = productivity_user

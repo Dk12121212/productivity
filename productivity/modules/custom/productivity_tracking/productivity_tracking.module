@@ -445,10 +445,7 @@ function productivity_tracking_save_callback() {
       // Get or create tracking node.
       $wrapper = productivity_tracking_get_tracking_node($data_issue, FALSE, FALSE, FALSE);
       $account_wrapper = entity_metadata_wrapper('user', $uid);
-
       $data = [
-        // Set date with timezone to avoid timezone to shift to other day.
-        'date_start' => strtotime($tracking['data']['date_str']) + date('Z'),
         // Set date with extra 12H to avoid timezone to shift to other day.
         'date_start' => strtotime($tracking['data']['date_str']) + (12 * 60 * 60),
         'label' => $track['description'],
@@ -721,36 +718,57 @@ function productivity_tracking_save_tracking($issue, $pr, $uid, $github_username
  *   Project node ID.
  */
 function productivity_tracking_get_project_by_repository($repository_info, $issue) {
-  $milestone = FALSE;
-  if (isset($issue['issue']['milestone'])) {
-    $milestone = $issue['issue']['milestone'];
-  }
-
   // We need to add a second query since value2 of date has a default of value(1).
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'project')
     ->fieldCondition('field_github_repository_name', 'value', $repository_info['full_name'])
+    ->fieldCondition('field_close_tracking', 'value', TRUE, '!=')
     // Just look for active or not started projects.
     ->propertyOrderBy('created', 'DESC')
-    ->propertyOrderBy('type', 'project')
-    ->range(0, 1)
     ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
 
-  if ($milestone) {
-    $query->fieldCondition('field_github_milst', 'value', $milestone);
-  }
 
   $result = $query->execute();
 
-  if (isset($result['node'])) {
-    $nid = reset($result['node']);
+  // Fine tune search, look for milestone and remove closed for tracking.
+  // Searching in this order:
+  // 1. first look for project with same REPO + Same Milestone.
+  // In case we have more than one match for the above, use first one
+  // (most recent).
+  // 2. first look for project with same REPO.
+
+  if (!isset($result['node'])) {
+    productivity_admin_log("No project with github repository: $repository_info", 'success');
+    // Print error if no repo was found.
+    watchdog('productivity', t('No project with github repository: @repository', array('@repository' => print_r($repository_info, TRUE))));
+    return FALSE;
+  }
+  else {
+    $milestone = NULL;
+    $nid = FALSE;
+
+    // If ussue has no milestone, use first match.
+    if ($issue['issue']['milestone']) {
+      $milestone = $issue['issue']['milestone']['title'];
+
+      // Find matching milestone.
+      foreach ($result['node'] as $node) {
+        $wrapper = entity_metadata_wrapper('node', $node->nid);
+        if ($wrapper->field_gh_milestone->label() == $milestone) {
+          $nid = $node->nid;
+          break;
+        }
+      }
+    }
+    // Default to first match.
+    if (!$nid) {
+      $nid = reset($result['node']);
+      $nid =  $nid->nid;
+    }
+
     return $nid;
   }
-
-  productivity_admin_log("No project with github repository: $repository_info", 'success');
-  // Print error if no repo was found.
-  watchdog('productivity', t('No project with github repository: @repository', array('@repository' => print_r($repository_info, TRUE))));
-  return FALSE;
 }
 
 /**

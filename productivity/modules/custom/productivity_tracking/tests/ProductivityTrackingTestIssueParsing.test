@@ -60,7 +60,7 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
       'title' => 'Productivity',
       'field_github_repository_name' => array(LANGUAGE_NONE => array(array('value' => 'Gizra/productivity'))),
     );
-    $this->drupalCreateNode($settings);
+    $node = $this->drupalCreateNode($settings);
 
     productivity_tracking_gh_payload($payload, 'issues');
 
@@ -75,5 +75,55 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
     $this->assertEqual($wrapper->field_issue_status->label(), 'open', 'Status saved correctly', 'Productivity');
     $this->assertEqual($wrapper->field_gh_label[0]->label(), 'Drupal', 'Label saved correctly', 'Productivity');
     $this->assertEqual($wrapper->field_gh_milestone->label(), 'POC', 'Milestone saved correctly', 'Productivity');
+
+
+    $repo = $payload['repository']['full_name'];
+    $issue = $payload['issue'];
+    $project_nid = productivity_tracking_get_project_by_repository($repo, $issue);
+    $this->assertEqual($project_nid, $node->nid, 'Project selected correctly', 'Productivity');
+  }
+
+  // Check the issue is assigned to the right project with the proper milestone.
+  public function testPayloadProjectSelection() {
+    $path = drupal_get_path('module', 'productivity_tracking') . '/tests/json/';
+    $json = file_get_contents($path . 'issuePayload.json');
+    $payload = json_decode($json, TRUE);
+
+    $user1 = $this->drupalCreateUser();
+    $user1->field_github_username['und']['0']['value'] = 'ordavidil';
+    user_save($user1);
+
+    // This term was created in previous test.
+    $term = taxonomy_get_term_by_name('POC');
+    $term = reset($term);
+
+    $settings = array(
+      'type' => 'project',
+      'title' => 'Productivity',
+      'field_github_repository_name' => array(LANGUAGE_NONE => array(array('value' => 'Gizra/productivity'))),
+      'field_gh_milestone' => array(LANGUAGE_NONE => array(array('target_id' => $term->tid))),
+    );
+    $node = $this->drupalCreateNode($settings);
+
+    // Create a project with close for tracking to check it's not assigned.
+    $term = taxonomy_get_term_by_name('POC');
+    $term = reset($term);
+
+    $settings = array(
+      'type' => 'project',
+      'title' => 'Productivity',
+      'field_github_repository_name' => array(LANGUAGE_NONE => array(array('value' => 'Gizra/productivity'))),
+      'field_gh_milestone' => array(LANGUAGE_NONE => array(array('target_id' => $term->tid))),
+      'field_close_tracking' => array(LANGUAGE_NONE => array(array('value' => 1))),
+    );
+    $this->drupalCreateNode($settings);
+
+    $repo = $payload['repository']['full_name'];
+    $issue = $payload['issue'];
+
+    $project_nid = productivity_tracking_get_project_by_repository($repo, $issue);
+
+    $this->assertEqual($project_nid, $node->nid, 'Project selected correctly', 'Productivity');
+
   }
 }

@@ -778,7 +778,6 @@ function productivity_tracking_get_project_by_repository($repository_info, $issu
       $nid = $nid->nid;
     }
 
-    debug($ms_mapping);
     return $nid;
   }
 }

@@ -63,7 +63,4 @@ features[profile2_type][] = main
 features[profile2_type][] = stakeholder
 features[taxonomy][] = stakeholders_roles
 features[variable][] = field_bundle_settings_message__catch_test_mail
-features[views_view][] = user_by_profile
-features[views_view][] = user_list
-features[views_view][] = work_sessions
 files[] = includes/catchTest.mail.inc

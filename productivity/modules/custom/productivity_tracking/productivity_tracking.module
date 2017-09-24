@@ -747,23 +747,32 @@ function productivity_tracking_get_project_by_repository($repository_info, $issu
   else {
     $milestone = NULL;
     $nid = FALSE;
-    // If issue has no milestone, use first match.
-    if ($issue['issue']['milestone'] != null) {
-      $milestone = $issue['issue']['milestone']['title'];
-
-      // Find matching milestone.
-      foreach ($result['node'] as $node) {
-        $wrapper = entity_metadata_wrapper('node', $node->nid);
-        if ($wrapper->field_gh_milestone->label() == $milestone) {
-          $nid = $node->nid;
-          break;
-        }
+    // Build associative array with milestones as key.
+    $ms_mapping = [];
+    foreach ($result['node'] as $node) {
+      $wrapper = entity_metadata_wrapper('node', $node->nid);
+      $milestone = $wrapper->field_gh_milestone ? $wrapper->field_gh_milestone->label() : 'none';
+      // Since we sort by created date, we don't ovverid older.
+      if (!isset($ms_mapping[$milestone])) {
+        $ms_mapping[$milestone] = $node->nid;
       }
     }
+    // If issue has no milestone, use first match.
+    if ($issue['issue']['milestone'] != NULL) {
+      $key = $issue['issue']['milestone']['title'];
+    }
+    else {
+      $key = 'none';
+    }
+    // Need to make sure we select project with no misletone if exist.
     // Default to first match.
-    if (!$nid) {
+    if (isset($ms_mapping[$key])) {
+      $nid = $ms_mapping[$key];
+    }
+    // Default.
+    else {
       $nid = reset($result['node']);
-      $nid =  $nid->nid;
+      $nid = $nid->nid;
     }
 
     return $nid;

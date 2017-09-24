@@ -134,7 +134,6 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
     // Check issue with no milestone.
     $payload['issue']['milestone'] = null;
     $project_nid = productivity_tracking_get_project_by_repository($payload['repository'], ['issue' => $payload['issue']]);
-    $this->assertEqual($project_nid, $node1->nid, 'Project selected correctly with milestone', 'Productivity');
-
+    $this->assertEqual($project_nid, $node1->nid, 'Project selected correctly with no milestone on the issue', 'Productivity');
   }
 }

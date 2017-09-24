@@ -99,19 +99,16 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
       'type' => 'project',
       'title' => 'Productivity',
       'field_github_repository_name' => array(LANGUAGE_NONE => array(array('value' => 'Gizra/productivity'))),
-      'field_gh_milestone' => array(LANGUAGE_NONE => array(array('target_id' => $term->tid))),
+      'field_gh_milestone' => array(LANGUAGE_NONE => array(array('target_id' => $term['tid']))),
     );
     $node = $this->drupalCreateNode($settings);
 
     // Create a project with close for tracking to check it's not assigned.
-    $term = taxonomy_get_term_by_name('POC');
-    $term = reset($term);
-
     $settings = array(
       'type' => 'project',
       'title' => 'Productivity',
       'field_github_repository_name' => array(LANGUAGE_NONE => array(array('value' => 'Gizra/productivity'))),
-      'field_gh_milestone' => array(LANGUAGE_NONE => array(array('target_id' => $term->tid))),
+      'field_gh_milestone' => array(LANGUAGE_NONE => array(array('target_id' => $term['tid']))),
       'field_close_tracking' => array(LANGUAGE_NONE => array(array('value' => 1))),
     );
     $this->drupalCreateNode($settings);

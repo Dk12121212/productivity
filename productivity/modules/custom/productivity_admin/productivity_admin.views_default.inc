@@ -731,7 +731,7 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['fields']['field_employee']['settings'] = array(
     'link' => 0,
   );
-  /* Field: Field: Issue ID */
+  /* Field: Field: PR ID */
   $handler->display->display_options['fields']['field_issue_id']['id'] = 'field_issue_id';
   $handler->display->display_options['fields']['field_issue_id']['table'] = 'field_data_field_issue_id';
   $handler->display->display_options['fields']['field_issue_id']['field'] = 'field_issue_id';
@@ -1177,10 +1177,8 @@ function productivity_admin_views_default_views() {
     'changed' => 'changed',
     'field_account' => 'field_account',
     'field_github_repository_name' => 'field_github_repository_name',
+    'field_close_tracking' => 'field_close_tracking',
     'field_project' => 'field_project',
-    'field_rate' => 'field_rate',
-    'field_rate_type' => 'field_rate_type',
-    'field_scope' => 'field_scope',
     'field_type' => 'field_type',
     'field_date' => 'field_date',
     'edit_node' => 'edit_node',
@@ -1220,34 +1218,18 @@ function productivity_admin_views_default_views() {
       'empty_column' => 0,
     ),
     'field_github_repository_name' => array(
-      'sortable' => 1,
+      'align' => '',
+      'separator' => '',
+      'empty_column' => 0,
+    ),
+    'field_close_tracking' => array(
+      'sortable' => 0,
       'default_sort_order' => 'asc',
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
     ),
     'field_project' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'field_rate' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'field_rate_type' => array(
-      'sortable' => 1,
-      'default_sort_order' => 'asc',
-      'align' => '',
-      'separator' => '',
-      'empty_column' => 0,
-    ),
-    'field_scope' => array(
       'sortable' => 1,
       'default_sort_order' => 'asc',
       'align' => '',

@@ -480,8 +480,8 @@ function productivity_user_views_default_views() {
   $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['expose']['remember_roles'] = array(
     2 => '2',
     1 => 0,
-    3 => 0,
     4 => 0,
+    3 => 0,
   );
   $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['reference_display'] = 'entity_ref_list:entityreference_1';
   $handler->display->display_options['filters']['field_project_target_id_entityreference_filter']['reference_arguments'] = 'project';

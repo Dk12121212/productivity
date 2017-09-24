@@ -737,7 +737,6 @@ function productivity_tracking_get_project_by_repository($repository_info, $issu
   // In case we have more than one match for the above, use first one
   // (most recent).
   // 2. first look for project with same REPO.
-
   if (!isset($result['node'])) {
     productivity_admin_log("No project with github repository: $repository_info", 'success');
     // Print error if no repo was found.
@@ -746,21 +745,21 @@ function productivity_tracking_get_project_by_repository($repository_info, $issu
   }
   else {
     $milestone = NULL;
-    $nid = FALSE;
     // Build associative array with milestones as key.
     $ms_mapping = [];
     foreach ($result['node'] as $node) {
       $wrapper = entity_metadata_wrapper('node', $node->nid);
-      $milestone = $wrapper->field_gh_milestone ? $wrapper->field_gh_milestone->label() : 'none';
+      $milestone = $wrapper->field_gh_milestone->label() ? $wrapper->field_gh_milestone->label() : 'none';
       // Since we sort by created date, we don't ovverid older.
       if (!isset($ms_mapping[$milestone])) {
         $ms_mapping[$milestone] = $node->nid;
       }
     }
-    // If issue has no milestone, use first match.
+    // Set default key.
     if ($issue['issue']['milestone'] != NULL) {
       $key = $issue['issue']['milestone']['title'];
     }
+    // If issue has no milestone, use none.
     else {
       $key = 'none';
     }
@@ -769,12 +768,17 @@ function productivity_tracking_get_project_by_repository($repository_info, $issu
     if (isset($ms_mapping[$key])) {
       $nid = $ms_mapping[$key];
     }
+    // Otherwise choose the project with no Ms.
+    elseif (isset($ms_mapping['none'])) {
+      $nid = $ms_mapping['none'];
+    }
     // Default.
     else {
       $nid = reset($result['node']);
       $nid = $nid->nid;
     }
 
+    debug($ms_mapping);
     return $nid;
   }
 }

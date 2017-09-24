@@ -37,7 +37,6 @@ features[page_manager_pages][] = payments
 features[taxonomy][] = bank_account
 features[taxonomy][] = payment_status
 features[variable][] = field_bundle_settings_node__payment
-features[views_view][] = payments
 features_exclude[dependencies][date] = date
 features_exclude[dependencies][entityreference] = entityreference
 features_exclude[dependencies][features] = features

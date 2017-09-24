@@ -14,7 +14,6 @@ features[variable][] = page_manager_node_view_disabled
 features[views_view][] = account
 features[views_view][] = entity_ref_list
 features[views_view][] = entity_ref_taxonomy_list
-features[views_view][] = github
 features[views_view][] = project_monthly_report
 features[views_view][] = projects
 features[views_view][] = tracking

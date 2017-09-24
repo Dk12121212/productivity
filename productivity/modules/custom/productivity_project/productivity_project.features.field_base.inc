@@ -128,6 +128,43 @@ function productivity_project_field_default_field_bases() {
     'type' => 'datetime',
   );
 
+  // Exported field_base: 'field_gh_milestone'.
+  $field_bases['field_gh_milestone'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_gh_milestone',
+    'indexes' => array(
+      'target_id' => array(
+        0 => 'target_id',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'entityreference',
+    'settings' => array(
+      'delete_on_parent_delete' => '',
+      'handler' => 'base',
+      'handler_settings' => array(
+        'behaviors' => array(
+          'views-select-list' => array(
+            'status' => 0,
+          ),
+        ),
+        'sort' => array(
+          'type' => 'none',
+        ),
+        'target_bundles' => array(
+          'gh_milestones' => 'gh_milestones',
+        ),
+      ),
+      'profile2_private' => FALSE,
+      'target_type' => 'taxonomy_term',
+    ),
+    'translatable' => 0,
+    'type' => 'entityreference',
+  );
+
   // Exported field_base: 'field_github_repository_name'.
   $field_bases['field_github_repository_name'] = array(
     'active' => 1,
@@ -178,9 +215,6 @@ function productivity_project_field_default_field_bases() {
     'indexes' => array(
       'field_employee_target_id' => array(
         0 => 'field_employee_target_id',
-      ),
-      'field_job_type_value' => array(
-        0 => 'field_job_type_value',
       ),
       'id' => array(
         0 => 'id',

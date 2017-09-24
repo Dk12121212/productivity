@@ -48,37 +48,6 @@ function productivity_project_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'multifield-field_internal_team-field_job_type'.
-  $field_instances['multifield-field_internal_team-field_job_type'] = array(
-    'bundle' => 'field_internal_team',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'list',
-        'settings' => array(),
-        'type' => 'list_default',
-        'weight' => 3,
-      ),
-    ),
-    'entity_type' => 'multifield',
-    'field_name' => 'field_job_type',
-    'label' => 'Job type',
-    'required' => 0,
-    'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(),
-      'type' => 'options_select',
-      'weight' => 6,
-    ),
-  );
-
   // Exported field_instance: 'multifield-field_table_rate-field_hours'.
   $field_instances['multifield-field_table_rate-field_hours'] = array(
     'bundle' => 'field_table_rate',
@@ -782,7 +751,7 @@ Setting an end date, will make project invisible in some forms after the end dat
     'bundle' => 'project',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'The milestone to filter issues.',
     'display' => array(
       'default' => array(
         'label' => 'above',
@@ -791,7 +760,7 @@ Setting an end date, will make project invisible in some forms after the end dat
           'link' => FALSE,
         ),
         'type' => 'entityreference_label',
-        'weight' => 21,
+        'weight' => 23,
       ),
       'teaser' => array(
         'label' => 'above',
@@ -823,7 +792,7 @@ Setting an end date, will make project invisible in some forms after the end dat
         'path' => '',
         'size' => 60,
       ),
-      'type' => 'entityreference_autocomplete',
+      'type' => 'entityreference_autocomplete_tags',
       'weight' => 14,
     ),
   );
@@ -1225,7 +1194,6 @@ Setting an end date, will make project invisible in some forms after the end dat
   t('Github repository name');
   t('If checked, don\'t allow tracking to the project anymore.');
   t('Internal team');
-  t('Job type');
   t('One name type is supported -> Account + Project name  (ie. Gizra/generator-hedley).');
   t('Override to default title, in the hour report.');
   t('Percentage notified');
@@ -1238,6 +1206,7 @@ Setting an end date, will make project invisible in some forms after the end dat
   t('Start and end date of project, in case of retainer or hourly without end date, just add a start date.
 Setting an end date, will make project invisible in some forms after the end date.');
   t('Team leads');
+  t('The milestone to filter issues.');
   t('This means it\'s a Madaan project.
 Whether this project should be allowed as the project reference of a work session.');
   t('Total hours');

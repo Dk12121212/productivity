@@ -26,7 +26,6 @@ features[ctools][] = strongarm:strongarm:1
 features[ctools][] = views:views_default:3.0
 features[features_api][] = api:2
 features[field_base][] = field_gh_label
-features[field_base][] = field_gh_milestone
 features[field_base][] = field_issue_status
 features[field_base][] = field_last_push
 features[field_base][] = field_track_date

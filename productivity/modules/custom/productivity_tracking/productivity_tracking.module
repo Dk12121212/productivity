@@ -495,7 +495,7 @@ function productivity_tracking_save_callback() {
  * Github endpoint callback
  */
 function productivity_tracking_payload() {
-  // set NULL to disable check
+  // Set NULL to disable check.
   $hookSecret = variable_get('productivity_github_secret', '1234');
 
   $rawPost = NULL;

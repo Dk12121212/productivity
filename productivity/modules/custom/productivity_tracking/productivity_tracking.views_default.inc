@@ -266,7 +266,7 @@ function productivity_tracking_views_default_views() {
     'scale' => '2',
     'prefix_suffix' => 1,
   );
-  /* Field: Field: Issue ID */
+  /* Field: Field: PR ID */
   $handler->display->display_options['fields']['field_issue_id']['id'] = 'field_issue_id';
   $handler->display->display_options['fields']['field_issue_id']['table'] = 'field_data_field_issue_id';
   $handler->display->display_options['fields']['field_issue_id']['field'] = 'field_issue_id';
@@ -499,7 +499,7 @@ function productivity_tracking_views_default_views() {
     'scale' => '2',
     'prefix_suffix' => 1,
   );
-  /* Field: Field: Issue ID */
+  /* Field: Field: PR ID */
   $handler->display->display_options['fields']['field_issue_id']['id'] = 'field_issue_id';
   $handler->display->display_options['fields']['field_issue_id']['table'] = 'field_data_field_issue_id';
   $handler->display->display_options['fields']['field_issue_id']['field'] = 'field_issue_id';
@@ -646,7 +646,7 @@ function productivity_tracking_views_default_views() {
     3 => 0,
     4 => 0,
   );
-  /* Filter criterion: Field: Issue ID (field_issue_id) */
+  /* Filter criterion: Field: PR ID (field_issue_id) */
   $handler->display->display_options['filters']['field_issue_id_value']['id'] = 'field_issue_id_value';
   $handler->display->display_options['filters']['field_issue_id_value']['table'] = 'field_data_field_issue_id';
   $handler->display->display_options['filters']['field_issue_id_value']['field'] = 'field_issue_id_value';

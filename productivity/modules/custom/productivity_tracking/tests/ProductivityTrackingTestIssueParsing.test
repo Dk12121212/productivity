@@ -77,9 +77,7 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
     $this->assertEqual($wrapper->field_gh_milestone->label(), 'POC', 'Milestone saved correctly', 'Productivity');
 
 
-    $repo = $payload['repository']['full_name'];
-    $issue = $payload['issue'];
-    $project_nid = productivity_tracking_get_project_by_repository($repo, $issue);
+    $project_nid = productivity_tracking_get_project_by_repository($payload['repository'], $payload['issue']);
     $this->assertEqual($project_nid, $node->nid, 'Project selected correctly', 'Productivity');
   }
 
@@ -118,10 +116,7 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
     );
     $this->drupalCreateNode($settings);
 
-    $repo = $payload['repository']['full_name'];
-    $issue = $payload['issue'];
-
-    $project_nid = productivity_tracking_get_project_by_repository($repo, $issue);
+    $project_nid = productivity_tracking_get_project_by_repository($payload['repository'], $payload['issue']);
 
     $this->assertEqual($project_nid, $node->nid, 'Project selected correctly', 'Productivity');
 

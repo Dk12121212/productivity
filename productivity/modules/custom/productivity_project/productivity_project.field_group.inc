@@ -23,9 +23,9 @@ function productivity_project_field_group_info() {
     'label' => 'Project triage filters',
     'weight' => '8',
     'children' => array(
-      0 => 'field_github_repository_name',
-      1 => 'field_gh_milestone',
-      2 => 'field_close_tracking',
+      0 => 'field_close_tracking',
+      1 => 'field_github_repository_name',
+      2 => 'field_gh_milestone',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(

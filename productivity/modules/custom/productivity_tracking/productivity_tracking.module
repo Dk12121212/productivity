@@ -731,12 +731,12 @@ function productivity_tracking_get_project_by_repository($repository_info, $issu
 
   $result = $query->execute();
 
-  // Fine tune search, look for milestone and remove closed for tracking.
-  // Searching in this order:
+  // Fine tune search, look for milestone, Searching in this order:
   // 1. first look for project with same REPO + Same Milestone.
   // In case we have more than one match for the above, use first one
   // (most recent).
   // 2. first look for project with same REPO.
+  // 3. Force match of project with no MS and issue with no MS
   if (!isset($result['node'])) {
     productivity_admin_log("No project with github repository: $repository_info", 'success');
     // Print error if no repo was found.

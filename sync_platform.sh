@@ -13,7 +13,7 @@ WORKING_DIR_app="/Applications/MAMP/htdocs/productivity/www/app/dist"
 PLATFORM_DIR="/Applications/MAMP/htdocs/productivity_pantheon"
 ALIAS="@productivity.dev"
 
-# Danel
+
 rsync -azvr --delete-after --exclude=".git" --exclude=".idea" profiles/ $PLATFORM_DIR
 rsync -azvr --delete-after --exclude=".git" --exclude=".idea" $WORKING_DIR_app app/
 rsync -azvr --exclude=".git" --exclude=".gitignore" --delete-after profiles/productivity/composer $PLATFORM_DIR/sites/all

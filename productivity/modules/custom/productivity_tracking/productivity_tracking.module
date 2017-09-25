@@ -738,9 +738,9 @@ function productivity_tracking_get_project_by_repository($repository_info, $issu
   // 2. first look for project with same REPO.
   // 3. Force match of project with no MS and issue with no MS
   if (!isset($result['node'])) {
-    productivity_admin_log("No project with github repository: $repository_info", 'success');
+    productivity_admin_log("No project with github repository: {$repository_info['full_name']}", 'success');
     // Print error if no repo was found.
-    watchdog('productivity', t('No project with github repository: @repository', array('@repository' => print_r($repository_info, TRUE))));
+    watchdog('productivity', t('No project with github repository: @repository', array('@repository' => $repository_info['full_name'])));
     return FALSE;
   }
   else {

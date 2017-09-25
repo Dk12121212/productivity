@@ -55,10 +55,22 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
     $user1 = $this->drupalCreateUser();
     $user1->field_github_username['und']['0']['value'] = 'ordavidil';
     user_save($user1);
+
+
+    $vocab =  taxonomy_vocabulary_machine_name_load('gh_milestones');
+    // This term was created in previous test.
+    $term = (object) [
+      'vid' => $vocab->vid,
+      'vocabulary_machine_name' => 'gh_milestones',
+      'name' => 'POC',
+    ];
+
+    taxonomy_term_save($term);
     $settings = array(
       'type' => 'project',
       'title' => 'Productivity',
       'field_github_repository_name' => array(LANGUAGE_NONE => array(array('value' => 'Gizra/productivity'))),
+      'field_gh_milestone' => array(LANGUAGE_NONE => array(array('target_id' => $term->tid))),
     );
     $node = $this->drupalCreateNode($settings);
 
@@ -91,8 +103,10 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
     $user1->field_github_username['und']['0']['value'] = 'ordavidil';
     user_save($user1);
 
+    $vocab =  taxonomy_vocabulary_machine_name_load('gh_milestones');
     // This term was created in previous test.
     $term = (object) [
+    'vid' => $vocab->vid,
     'vocabulary_machine_name' => 'gh_milestones',
     'name' => 'POC',
     ];

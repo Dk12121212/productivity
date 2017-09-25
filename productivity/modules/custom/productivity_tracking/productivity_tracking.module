@@ -749,8 +749,9 @@ function productivity_tracking_get_project_by_repository($repository_info, $issu
     $ms_mapping = [];
     foreach ($result['node'] as $node) {
       $wrapper = entity_metadata_wrapper('node', $node->nid);
-      $milestone = $wrapper->field_gh_milestone->label() ? $wrapper->field_gh_milestone->label() : 'none';
-      // Since we sort by created date, we don't ovverid older.
+
+      $milestone = $wrapper->field_gh_milestone->value() ? $wrapper->field_gh_milestone->label() : 'none';
+      // Since we sort by created date, we don't override older.
       if (!isset($ms_mapping[$milestone])) {
         $ms_mapping[$milestone] = $node->nid;
       }
@@ -759,7 +760,7 @@ function productivity_tracking_get_project_by_repository($repository_info, $issu
     if ($issue['issue']['milestone'] != NULL) {
       $key = $issue['issue']['milestone']['title'];
     }
-    // If issue has no milestone, use none.
+    // If issue has no milestone, use `none`.
     else {
       $key = 'none';
     }

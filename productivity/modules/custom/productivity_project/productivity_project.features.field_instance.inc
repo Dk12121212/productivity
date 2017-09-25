@@ -48,37 +48,6 @@ function productivity_project_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance: 'multifield-field_internal_team-field_job_type'.
-  $field_instances['multifield-field_internal_team-field_job_type'] = array(
-    'bundle' => 'field_internal_team',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'list',
-        'settings' => array(),
-        'type' => 'list_default',
-        'weight' => 3,
-      ),
-    ),
-    'entity_type' => 'multifield',
-    'field_name' => 'field_job_type',
-    'label' => 'Job type',
-    'required' => 0,
-    'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(),
-      'type' => 'options_select',
-      'weight' => 6,
-    ),
-  );
-
   // Exported field_instance: 'multifield-field_table_rate-field_hours'.
   $field_instances['multifield-field_table_rate-field_hours'] = array(
     'bundle' => 'field_table_rate',
@@ -586,134 +555,6 @@ function productivity_project_field_default_field_instances() {
     ),
   );
 
-  // Exported field_instance:
-  // 'multifield-field_timetable_milestones-field_date'.
-  $field_instances['multifield-field_timetable_milestones-field_date'] = array(
-    'bundle' => 'field_timetable_milestones',
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'date',
-        'settings' => array(
-          'format_type' => 'long',
-          'fromto' => 'both',
-          'multiple_from' => '',
-          'multiple_number' => '',
-          'multiple_to' => '',
-          'show_remaining_days' => FALSE,
-        ),
-        'type' => 'date_default',
-        'weight' => 4,
-      ),
-    ),
-    'entity_type' => 'multifield',
-    'field_name' => 'field_date',
-    'label' => 'Date',
-    'required' => 0,
-    'settings' => array(
-      'default_value' => 'now',
-      'default_value2' => 'same',
-      'default_value_code' => '',
-      'default_value_code2' => '',
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'date',
-      'settings' => array(
-        'increment' => 15,
-        'input_format' => 'd/m/Y - H:i:s',
-        'input_format_custom' => '',
-        'label_position' => 'above',
-        'no_fieldset' => 0,
-        'text_parts' => array(),
-        'year_range' => '-3:+3',
-      ),
-      'type' => 'date_popup',
-      'weight' => 1,
-    ),
-  );
-
-  // Exported field_instance:
-  // 'multifield-field_timetable_milestones-field_milestone'.
-  $field_instances['multifield-field_timetable_milestones-field_milestone'] = array(
-    'bundle' => 'field_timetable_milestones',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'text',
-        'settings' => array(),
-        'type' => 'text_default',
-        'weight' => 5,
-      ),
-    ),
-    'entity_type' => 'multifield',
-    'field_name' => 'field_milestone',
-    'label' => 'Milestone',
-    'required' => 0,
-    'settings' => array(
-      'text_processing' => 0,
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'text',
-      'settings' => array(
-        'size' => 60,
-      ),
-      'type' => 'text_textfield',
-      'weight' => 0,
-    ),
-  );
-
-  // Exported field_instance:
-  // 'multifield-field_timetable_milestones-field_scope'.
-  $field_instances['multifield-field_timetable_milestones-field_scope'] = array(
-    'bundle' => 'field_timetable_milestones',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'interval',
-        'settings' => array(),
-        'type' => 'interval_default',
-        'weight' => 3,
-      ),
-    ),
-    'entity_type' => 'multifield',
-    'field_name' => 'field_scope',
-    'label' => 'Scope',
-    'required' => 0,
-    'settings' => array(
-      'allowed_periods' => array(
-        'day' => 'day',
-        'fortnight' => 0,
-        'hour' => 'hour',
-        'minute' => 0,
-        'month' => 0,
-        'quarter' => 0,
-        'second' => 0,
-        'week' => 0,
-        'year' => 0,
-      ),
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'interval',
-      'settings' => array(),
-      'type' => 'interval_default',
-      'weight' => 2,
-    ),
-  );
-
   // Exported field_instance: 'node-project-field_account'.
   $field_instances['node-project-field_account'] = array(
     'bundle' => 'project',
@@ -806,6 +647,49 @@ Whether this project should be allowed as the project reference of a work sessio
     ),
   );
 
+  // Exported field_instance: 'node-project-field_close_tracking'.
+  $field_instances['node-project-field_close_tracking'] = array(
+    'bundle' => 'project',
+    'default_value' => array(
+      0 => array(
+        'value' => 0,
+      ),
+    ),
+    'deleted' => 0,
+    'description' => 'If checked, don\'t allow tracking to the project anymore.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'list',
+        'settings' => array(),
+        'type' => 'list_default',
+        'weight' => 22,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_close_tracking',
+    'label' => 'Close for tracking',
+    'required' => 0,
+    'settings' => array(
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(
+        'display_label' => 1,
+      ),
+      'type' => 'options_onoff',
+      'weight' => 13,
+    ),
+  );
+
   // Exported field_instance: 'node-project-field_date'.
   $field_instances['node-project-field_date'] = array(
     'bundle' => 'project',
@@ -862,6 +746,57 @@ Setting an end date, will make project invisible in some forms after the end dat
     ),
   );
 
+  // Exported field_instance: 'node-project-field_gh_milestone'.
+  $field_instances['node-project-field_gh_milestone'] = array(
+    'bundle' => 'project',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'The milestone to filter issues.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 23,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_gh_milestone',
+    'label' => 'GH Milstone',
+    'required' => 0,
+    'settings' => array(
+      'behaviors' => array(
+        'autofill' => array(
+          'status' => 0,
+        ),
+        'taxonomy-index' => array(
+          'status' => TRUE,
+        ),
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'entityreference',
+      'settings' => array(
+        'match_operator' => 'CONTAINS',
+        'path' => '',
+        'size' => 60,
+      ),
+      'type' => 'entityreference_autocomplete_tags',
+      'weight' => 14,
+    ),
+  );
+
   // Exported field_instance: 'node-project-field_github_repository_name'.
   $field_instances['node-project-field_github_repository_name'] = array(
     'bundle' => 'project',
@@ -898,7 +833,7 @@ Setting an end date, will make project invisible in some forms after the end dat
         'size' => 60,
       ),
       'type' => 'text_textfield',
-      'weight' => 8,
+      'weight' => 15,
     ),
   );
 
@@ -983,7 +918,7 @@ Setting an end date, will make project invisible in some forms after the end dat
       'module' => 'multifield',
       'settings' => array(),
       'type' => 'multifield_default',
-      'weight' => 13,
+      'weight' => 12,
     ),
   );
 
@@ -1082,47 +1017,6 @@ Setting an end date, will make project invisible in some forms after the end dat
       ),
       'type' => 'entityreference_autocomplete',
       'weight' => 14,
-    ),
-  );
-
-  // Exported field_instance: 'node-project-field_status'.
-  $field_instances['node-project-field_status'] = array(
-    'bundle' => 'project',
-    'default_value' => array(
-      0 => array(
-        'value' => 'active',
-      ),
-    ),
-    'deleted' => 0,
-    'description' => 'When set to Done, the project issue will not be assign from GH pushs.',
-    'display' => array(
-      'default' => array(
-        'label' => 'inline',
-        'module' => 'list',
-        'settings' => array(),
-        'type' => 'list_default',
-        'weight' => 6,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_status',
-    'label' => 'Status',
-    'required' => 1,
-    'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(),
-      'type' => 'options_select',
-      'weight' => 7,
     ),
   );
 
@@ -1252,45 +1146,6 @@ Setting an end date, will make project invisible in some forms after the end dat
     ),
   );
 
-  // Exported field_instance: 'node-project-field_timetable_milestones'.
-  $field_instances['node-project-field_timetable_milestones'] = array(
-    'bundle' => 'project',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'multifield',
-        'settings' => array(
-          'view_mode' => 'default',
-        ),
-        'type' => 'multifield_default',
-        'weight' => 17,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_timetable_milestones',
-    'label' => 'Timetable / Milestones',
-    'required' => 0,
-    'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'multifield',
-      'settings' => array(),
-      'type' => 'multifield_default',
-      'weight' => 12,
-    ),
-  );
-
   // Exported field_instance: 'node-project-field_type'.
   $field_instances['node-project-field_type'] = array(
     'bundle' => 'project',
@@ -1332,12 +1187,13 @@ Setting an end date, will make project invisible in some forms after the end dat
   // Included for use with string extractors like potx.
   t('Account');
   t('Allow work session reference');
+  t('Close for tracking');
   t('Date');
   t('Employee');
+  t('GH Milstone');
   t('Github repository name');
+  t('If checked, don\'t allow tracking to the project anymore.');
   t('Internal team');
-  t('Job type');
-  t('Milestone');
   t('One name type is supported -> Account + Project name  (ie. Gizra/generator-hedley).');
   t('Override to default title, in the hour report.');
   t('Percentage notified');
@@ -1349,14 +1205,12 @@ Setting an end date, will make project invisible in some forms after the end dat
   t('Stakeholder');
   t('Start and end date of project, in case of retainer or hourly without end date, just add a start date.
 Setting an end date, will make project invisible in some forms after the end date.');
-  t('Status');
   t('Team leads');
+  t('The milestone to filter issues.');
   t('This means it\'s a Madaan project.
 Whether this project should be allowed as the project reference of a work session.');
-  t('Timetable / Milestones');
   t('Total hours');
   t('Type');
-  t('When set to Done, the project issue will not be assign from GH pushs.');
   t('Work type');
   t('Work type display');
 

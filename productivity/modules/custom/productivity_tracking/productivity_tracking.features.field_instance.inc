@@ -893,7 +893,7 @@ function productivity_tracking_field_default_field_instances() {
     'bundle' => 'tracking',
     'default_value' => NULL,
     'deleted' => 0,
-    'description' => '',
+    'description' => 'Used for issue triage, when creating stubs from GH.',
     'display' => array(
       'default' => array(
         'label' => 'inline',
@@ -1240,6 +1240,7 @@ function productivity_tracking_field_default_field_instances() {
   t('Track Date');
   t('Track log');
   t('Track log items');
+  t('Used for issue triage, when creating stubs from GH.');
   t('We save both username and GH user, in case user is not part of productivity yet.');
   t('Work type');
 

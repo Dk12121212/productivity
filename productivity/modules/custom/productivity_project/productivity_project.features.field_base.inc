@@ -72,6 +72,32 @@ function productivity_project_field_default_field_bases() {
     'type' => 'list_boolean',
   );
 
+  // Exported field_base: 'field_close_tracking'.
+  $field_bases['field_close_tracking'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_close_tracking',
+    'indexes' => array(
+      'value' => array(
+        0 => 'value',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'list',
+    'settings' => array(
+      'allowed_values' => array(
+        0 => '',
+        1 => '',
+      ),
+      'allowed_values_function' => '',
+      'profile2_private' => FALSE,
+    ),
+    'translatable' => 0,
+    'type' => 'list_boolean',
+  );
+
   // Exported field_base: 'field_date'.
   $field_bases['field_date'] = array(
     'active' => 1,
@@ -100,6 +126,43 @@ function productivity_project_field_default_field_bases() {
     ),
     'translatable' => 0,
     'type' => 'datetime',
+  );
+
+  // Exported field_base: 'field_gh_milestone'.
+  $field_bases['field_gh_milestone'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_gh_milestone',
+    'indexes' => array(
+      'target_id' => array(
+        0 => 'target_id',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'entityreference',
+    'settings' => array(
+      'delete_on_parent_delete' => '',
+      'handler' => 'base',
+      'handler_settings' => array(
+        'behaviors' => array(
+          'views-select-list' => array(
+            'status' => 0,
+          ),
+        ),
+        'sort' => array(
+          'type' => 'none',
+        ),
+        'target_bundles' => array(
+          'gh_milestones' => 'gh_milestones',
+        ),
+      ),
+      'profile2_private' => FALSE,
+      'target_type' => 'taxonomy_term',
+    ),
+    'translatable' => 0,
+    'type' => 'entityreference',
   );
 
   // Exported field_base: 'field_github_repository_name'.
@@ -153,9 +216,6 @@ function productivity_project_field_default_field_bases() {
       'field_employee_target_id' => array(
         0 => 'field_employee_target_id',
       ),
-      'field_job_type_value' => array(
-        0 => 'field_job_type_value',
-      ),
       'id' => array(
         0 => 'id',
       ),
@@ -179,28 +239,6 @@ function productivity_project_field_default_field_bases() {
     'deleted' => 0,
     'entity_types' => array(),
     'field_name' => 'field_issue_type_label',
-    'indexes' => array(
-      'format' => array(
-        0 => 'format',
-      ),
-    ),
-    'locked' => 0,
-    'module' => 'text',
-    'settings' => array(
-      'max_length' => 255,
-      'profile2_private' => FALSE,
-    ),
-    'translatable' => 0,
-    'type' => 'text',
-  );
-
-  // Exported field_base: 'field_milestone'.
-  $field_bases['field_milestone'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_milestone',
     'indexes' => array(
       'format' => array(
         0 => 'format',
@@ -338,33 +376,6 @@ function productivity_project_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
-  // Exported field_base: 'field_status'.
-  $field_bases['field_status'] = array(
-    'active' => 1,
-    'cardinality' => 1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_status',
-    'indexes' => array(
-      'value' => array(
-        0 => 'value',
-      ),
-    ),
-    'locked' => 0,
-    'module' => 'list',
-    'settings' => array(
-      'allowed_values' => array(
-        'not_started' => 'Not Started',
-        'active' => 'Active',
-        'done' => 'Done',
-      ),
-      'allowed_values_function' => '',
-      'profile2_private' => FALSE,
-    ),
-    'translatable' => 0,
-    'type' => 'list_text',
-  );
-
   // Exported field_base: 'field_table_rate'.
   $field_bases['field_table_rate'] = array(
     'active' => 1,
@@ -436,39 +447,6 @@ function productivity_project_field_default_field_bases() {
     ),
     'translatable' => 0,
     'type' => 'entityreference',
-  );
-
-  // Exported field_base: 'field_timetable_milestones'.
-  $field_bases['field_timetable_milestones'] = array(
-    'active' => 1,
-    'cardinality' => -1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_timetable_milestones',
-    'indexes' => array(
-      'field_milestone_format' => array(
-        0 => 'field_milestone_format',
-      ),
-      'field_scope_interval' => array(
-        0 => 'field_scope_interval',
-      ),
-      'field_scope_period' => array(
-        0 => 'field_scope_period',
-      ),
-      'id' => array(
-        0 => 'id',
-      ),
-    ),
-    'locked' => 0,
-    'module' => 'multifield',
-    'settings' => array(
-      'entity_translation_sync' => array(
-        0 => 'id',
-      ),
-      'hide_blank_items' => 1,
-    ),
-    'translatable' => 0,
-    'type' => 'multifield',
   );
 
   // Exported field_base: 'field_type'.

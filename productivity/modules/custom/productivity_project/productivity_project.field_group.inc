@@ -13,38 +13,36 @@ function productivity_project_field_group_info() {
   $field_group = new stdClass();
   $field_group->disabled = FALSE; /* Edit this to true to make a default field_group disabled initially */
   $field_group->api_version = 1;
-  $field_group->identifier = 'group_deprecated|node|project|form';
-  $field_group->group_name = 'group_deprecated';
+  $field_group->identifier = 'group_triage|node|project|form';
+  $field_group->group_name = 'group_triage';
   $field_group->entity_type = 'node';
   $field_group->bundle = 'project';
   $field_group->mode = 'form';
   $field_group->parent_name = '';
   $field_group->data = array(
-    'label' => 'Deprecated',
-    'weight' => '15',
+    'label' => 'Project triage filters',
+    'weight' => '8',
     'children' => array(
-      0 => 'field_days',
-      1 => 'field_rate',
-      2 => 'field_rate_type',
-      3 => 'field_scope',
+      0 => 'field_close_tracking',
+      1 => 'field_github_repository_name',
+      2 => 'field_gh_milestone',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
-      'label' => 'Deprecated',
+      'formatter' => 'collapsible',
       'instance_settings' => array(
+        'description' => '',
+        'classes' => 'group-triage field-group-fieldset',
         'required_fields' => 1,
         'id' => '',
-        'classes' => 'group-deprecated field-group-fieldset',
-        'description' => 'Do not use those fileds, they will be deleted soon.',
       ),
-      'formatter' => 'collapsible',
     ),
   );
-  $field_groups['group_deprecated|node|project|form'] = $field_group;
+  $field_groups['group_triage|node|project|form'] = $field_group;
 
   // Translatables
   // Included for use with string extractors like potx.
-  t('Deprecated');
+  t('Project triage filters');
 
   return $field_groups;
 }

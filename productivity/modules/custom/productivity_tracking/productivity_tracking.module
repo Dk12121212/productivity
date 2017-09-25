@@ -445,10 +445,9 @@ function productivity_tracking_save_callback() {
       // Get or create tracking node.
       $wrapper = productivity_tracking_get_tracking_node($data_issue, FALSE, FALSE, FALSE);
       $account_wrapper = entity_metadata_wrapper('user', $uid);
-
       $data = [
-        // Set date with timezone to avoid timezone to shift to other day.
-        'date_start' => strtotime($tracking['data']['date_str']) + date('Z'),
+        // Set date with extra 12H to avoid timezone to shift to other day.
+        'date_start' => strtotime($tracking['data']['date_str']) + (12 * 60 * 60),
         'label' => $track['description'],
         'pr_id' => $track['pr'] ? $track['pr'] : 0,
         'status' => 'open',
@@ -496,7 +495,7 @@ function productivity_tracking_save_callback() {
  * Github endpoint callback
  */
 function productivity_tracking_payload() {
-  // set NULL to disable check
+  // Set NULL to disable check.
   $hookSecret = variable_get('productivity_github_secret', '1234');
 
   $rawPost = NULL;
@@ -635,7 +634,7 @@ function productivity_tracking_gh_payload($payload, $event) {
  * @return bool
  */
 function productivity_tracking_save_tracking($issue, $pr, $uid, $github_username, $repo, $dont_create = FALSE) {
-  $project_nid = productivity_tracking_get_project_by_repository($repo);
+  $project_nid = productivity_tracking_get_project_by_repository($repo, $issue);
 
   // Bypass if project is not in the system.
   if (!$project_nid) {
@@ -718,29 +717,70 @@ function productivity_tracking_save_tracking($issue, $pr, $uid, $github_username
  * @return int
  *   Project node ID.
  */
-function productivity_tracking_get_project_by_repository($repository_info) {
+function productivity_tracking_get_project_by_repository($repository_info, $issue) {
   // We need to add a second query since value2 of date has a default of value(1).
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'project')
     ->fieldCondition('field_github_repository_name', 'value', $repository_info['full_name'])
+    ->fieldCondition('field_close_tracking', 'value', TRUE, '!=')
     // Just look for active or not started projects.
-    ->fieldCondition('field_status', 'value', 'done', '!=')
     ->propertyOrderBy('created', 'DESC')
-    ->propertyOrderBy('type', 'project')
-    ->range(0, 1)
     ->addTag('DANGEROUS_ACCESS_CHECK_OPT_OUT');
+
 
   $result = $query->execute();
 
-  if (isset($result['node'])) {
-    $nid = reset($result['node']);
+  // Fine tune search, look for milestone, Searching in this order:
+  // 1. first look for project with same REPO + Same Milestone.
+  // In case we have more than one match for the above, use first one
+  // (most recent).
+  // 2. first look for project with same REPO.
+  // 3. Force match of project with no MS and issue with no MS
+  if (!isset($result['node'])) {
+    productivity_admin_log("No project with github repository: $repository_info", 'success');
+    // Print error if no repo was found.
+    watchdog('productivity', t('No project with github repository: @repository', array('@repository' => print_r($repository_info, TRUE))));
+    return FALSE;
+  }
+  else {
+    $milestone = NULL;
+    // Build associative array with milestones as key.
+    $ms_mapping = [];
+    foreach ($result['node'] as $node) {
+      $wrapper = entity_metadata_wrapper('node', $node->nid);
+
+      $milestone = $wrapper->field_gh_milestone->value() ? $wrapper->field_gh_milestone->label() : 'none';
+      // Since we sort by created date, we don't override older.
+      if (!isset($ms_mapping[$milestone])) {
+        $ms_mapping[$milestone] = $node->nid;
+      }
+    }
+    // Set default key.
+    if ($issue['issue']['milestone'] != NULL) {
+      $key = $issue['issue']['milestone']['title'];
+    }
+    // If issue has no milestone, use `none`.
+    else {
+      $key = 'none';
+    }
+    // Need to make sure we select project with no misletone if exist.
+    // Default to first match.
+    if (isset($ms_mapping[$key])) {
+      $nid = $ms_mapping[$key];
+    }
+    // Otherwise choose the project with no Ms.
+    elseif (isset($ms_mapping['none'])) {
+      $nid = $ms_mapping['none'];
+    }
+    // Default.
+    else {
+      $nid = reset($result['node']);
+      $nid = $nid->nid;
+    }
+
     return $nid;
   }
-
-  productivity_admin_log("No project with github repository: $repository_info", 'success');
-  // Print error if no repo was found.
-  watchdog('productivity', t('No project with github repository: @repository', array('@repository' => print_r($repository_info, TRUE))));
-  return FALSE;
 }
 
 /**

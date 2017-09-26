@@ -10,44 +10,6 @@
 function productivity_project_field_default_field_instances() {
   $field_instances = array();
 
-  // Exported field_instance: 'multifield-field_internal_team-field_employee'.
-  $field_instances['multifield-field_internal_team-field_employee'] = array(
-    'bundle' => 'field_internal_team',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'hidden',
-        'module' => 'entityreference',
-        'settings' => array(
-          'link' => FALSE,
-        ),
-        'type' => 'entityreference_label',
-        'weight' => 2,
-      ),
-    ),
-    'entity_type' => 'multifield',
-    'field_name' => 'field_employee',
-    'label' => 'Employee',
-    'required' => 0,
-    'settings' => array(
-      'behaviors' => array(
-        'autofill' => array(
-          'status' => 0,
-        ),
-      ),
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 1,
-      'module' => 'options',
-      'settings' => array(),
-      'type' => 'options_select',
-      'weight' => 4,
-    ),
-  );
-
   // Exported field_instance: 'multifield-field_table_rate-field_hours'.
   $field_instances['multifield-field_table_rate-field_hours'] = array(
     'bundle' => 'field_table_rate',
@@ -880,45 +842,6 @@ Setting an end date, will make project invisible in some forms after the end dat
       'settings' => array(),
       'type' => 'number',
       'weight' => 10,
-    ),
-  );
-
-  // Exported field_instance: 'node-project-field_internal_team'.
-  $field_instances['node-project-field_internal_team'] = array(
-    'bundle' => 'project',
-    'default_value' => NULL,
-    'deleted' => 0,
-    'description' => '',
-    'display' => array(
-      'default' => array(
-        'label' => 'above',
-        'module' => 'multifield',
-        'settings' => array(
-          'view_mode' => 'default',
-        ),
-        'type' => 'multifield_default',
-        'weight' => 18,
-      ),
-      'teaser' => array(
-        'label' => 'above',
-        'settings' => array(),
-        'type' => 'hidden',
-        'weight' => 0,
-      ),
-    ),
-    'entity_type' => 'node',
-    'field_name' => 'field_internal_team',
-    'label' => 'Internal team',
-    'required' => 0,
-    'settings' => array(
-      'user_register_form' => FALSE,
-    ),
-    'widget' => array(
-      'active' => 0,
-      'module' => 'multifield',
-      'settings' => array(),
-      'type' => 'multifield_default',
-      'weight' => 12,
     ),
   );
 

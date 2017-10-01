@@ -142,11 +142,13 @@
   <?php endif; ?>
 
   <div class="col-xs-12">
-    <ul>
-      <li>
-        <?php print l(t('Issues Diagram'), 'admin/reports/issue-diagram/' . $nid); ?>
-      </li>
-    </ul>
+    <?php if (!empty($burn_rate_chart)): ?>
+      <?php foreach ($burn_rate_chart as $chart): ?>
+        <div class="main-box infographic-box">
+          <?php print $chart; ?>
+        </div>
+      <?php endforeach; ?>
+    <?php endif; ?>
   </div>
 
 

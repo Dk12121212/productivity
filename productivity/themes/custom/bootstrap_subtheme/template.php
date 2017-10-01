@@ -33,13 +33,14 @@ function bootstrap_subtheme_preprocess_node__project__full(&$variables) {
   $variables['project_total'] = $totals[0]->total_done ;
   $variables['project_estimated'] = number_format($totals[0]->total_estimate);
 
-
   // Add charts.
   $chart = productivity_project_get_developer_chart($node);
   $variables['developer_chart'] = drupal_render($chart);
 
   $chart = _bootstrap_subtheme_get_hours_type_chart($rows);
   $variables['hours_chart'] = drupal_render($chart);
+
+  $variables['burn_rate_chart'] = _bootstrap_subtheme_burn_rate_chart($node, $wrapper);
 
   $variables['total_budget'] = productivity_project_get_total_budget($wrapper);
 
@@ -49,13 +50,105 @@ function bootstrap_subtheme_preprocess_node__project__full(&$variables) {
   $field = field_view_field('node', $node, 'field_date', $display);
   $variables['project_date_start'] = render($field);
 
-  $fields = array(
-    'field_employee',
-    'field_job_type'
-  );
-
   $variables['stakeholders'] = _bootstrap_subtheme_stakeholder_markup($wrapper);
 
+}
+
+function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
+  if (isset($project_node->field_table_rate['und'])) {
+    // Go over rate type.
+    $data = [];
+    $stub = [];
+    foreach ($wrapper->field_table_rate as $type) {
+      $rate_code = $type->field_issue_type->value();
+      $tracking = productivity_tracking_get_tracking($project_node->nid, $rate_code);
+      $data[$rate_code]['actual'] = [];
+      // Prepare table for tracking data.
+      while ($track_record = $tracking->fetchAssoc()) {
+        // Pr data.
+        $pr_time = $track_record['field_track_log_field_time_spent_value'];
+
+        // Bypass issue with no time.
+        if ($pr_time == '0.00') {
+          continue;
+        }
+        $pr_date = $track_record['field_track_log_field_date_value'];
+        $actual = $track_record['field_track_log_field_time_spent_value'];
+        $week_number = date('W', strtotime($pr_date));
+        $week_number = intval($week_number);
+
+        $actual_acumulated = isset($data[$rate_code]['actual'][$week_number][1]) ? $data[$rate_code]['actual'][$week_number][1] : 0;
+        $data[$rate_code]['actual'][$week_number] = [
+          $week_number,
+          intval($actual_acumulated + $actual)
+        ];
+
+        // Create a unified structure.
+        $stub[$week_number] = [
+          $week_number,
+          0
+        ];
+      }
+    }
+
+    foreach ($wrapper->field_table_rate as $type) {
+      $rate_code = $type->field_issue_type->value();
+      // Sort array by week number.
+      foreach ($data[$rate_code] as $data_name => &$data_type) {
+        ksort($data_type, SORT_NUMERIC);
+      }
+
+      // Create accumulated data.
+      $first = reset($data[$rate_code]['actual']);
+      $first = $first[0];
+
+      foreach ($data[$rate_code]['actual'] as $week_key => &$week) {
+        // Bypass first value.
+        if ($week_key == $first) {
+          $sum = $week[1];
+          $first = FALSE;
+          continue;
+        }
+        $week[1] += $sum;
+        $sum = $week[1];
+      }
+
+      // Total lines
+      foreach ($data[$rate_code] as $data_name => &$data_type) {
+        $data[$rate_code]['total'] = $stub;
+        foreach ($data[$rate_code]['total'] as &$total) {
+          $total[1] = intval($type->field_scope->interval->value());
+        }
+        ksort($data_type, SORT_NUMERIC);
+      }
+    }
+
+    // Render charts.
+    $rendered_charts = [];
+    foreach ($data as $rate_code => $rate_data) {
+      $chart = [
+        '#type' => 'chart',
+        '#chart_type' => 'line',
+        '#title' => t('Burn Rate: ') . $rate_code,
+      ];
+      // Test with a gap in the data.
+      $chart['actual'] = [
+        '#type' => 'chart_data',
+        '#title' => "Actual $rate_code",
+        '#data' => $rate_data['actual'],
+      ];
+      $chart['total'] = [
+        '#type' => 'chart_data',
+        '#title' => "Total $rate_code",
+        '#data' => $rate_data['total'],
+      ];
+      $chart_container = [];
+      $chart_container['chart'] = $chart;
+      $rendered_charts[] = drupal_render($chart_container);
+    }
+    return $rendered_charts;
+  }
+  return FALSE;
 }
 
 /**
@@ -182,7 +275,6 @@ function _bootstrap_subtheme_get_hours_type_chart($rows) {
     '#type' => 'chart',
     '#title' => t('Hours by type'),
     '#chart_type' => 'pie',
-    '#chart_library' => 'highcharts',
     '#legend_position' => 'right',
     '#data_labels' => FALSE,
     '#tooltips' => TRUE,

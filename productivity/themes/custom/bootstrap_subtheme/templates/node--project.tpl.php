@@ -143,10 +143,13 @@
 
   <div class="col-xs-12">
     <?php if (!empty($burn_rate_chart)): ?>
-      <?php foreach ($burn_rate_chart as $chart): ?>
-        <div class="main-box infographic-box">
-          <?php print $chart; ?>
-        </div>
+      <?php foreach ($burn_rate_chart as $year_title => $year_chart): ?>
+        <h3><?php print $year_title; ?></h3>
+        <?php foreach ($year_chart as $chart): ?>
+          <div class="main-box infographic-box">
+            <?php print $chart; ?>
+          </div>
+        <?php endforeach; ?>
       <?php endforeach; ?>
     <?php endif; ?>
   </div>

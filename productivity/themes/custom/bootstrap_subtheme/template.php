@@ -41,7 +41,7 @@ function bootstrap_subtheme_preprocess_node__project__full(&$variables) {
   $variables['hours_chart'] = drupal_render($chart);
 
   $variables['burn_rate_chart'] = _bootstrap_subtheme_burn_rate_chart($node, $wrapper);
-
+  
   $variables['total_budget'] = productivity_project_get_total_budget($wrapper);
 
   $variables['project_scope'] = productivity_project_get_scope($wrapper);
@@ -63,6 +63,7 @@ function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
     // happen when same issue has tracking on multiple weeks.
     $data_issue_estimate_processed = [];
     $stub = [];
+    $years = [];
     // Collect data.
     foreach ($wrapper->field_table_rate as $type) {
       $rate_code = $type->field_issue_type->value();
@@ -82,10 +83,12 @@ function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
         $issue_id = $track_record['field_issue_id_value'];
         $estimate = $track_record['field_time_estimate_value'];
         $week_number = date('W', strtotime($pr_date));
+        $year = date('Y', strtotime($pr_date));
+        $years[$year] = $year;
         $week_number = intval($week_number);
 
-        $actual_acumulated = isset($data[$rate_code]['actual'][$week_number][1]) ? $data[$rate_code]['actual'][$week_number][1] : 0;
-        $data[$rate_code]['actual'][$week_number] = [
+        $actual_acumulated = isset($data[$year][$rate_code]['actual'][$week_number][1]) ? $data[$year][$rate_code]['actual'][$week_number][1] : 0;
+        $data[$year][$rate_code]['actual'][$week_number] = [
           $week_number,
           $actual_acumulated + $actual
         ];
@@ -111,64 +114,71 @@ function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
         ];
       }
     }
-    // Sort by week number.
-    foreach ($wrapper->field_table_rate as $type) {
-      $rate_code = $type->field_issue_type->value();
-      // Sort array by week number.
-      foreach ($data[$rate_code] as $data_name => &$data_type) {
-        ksort($data_type, SORT_NUMERIC);
-      }
 
-      // Convert actual totla to intval, we have to do this after total is done.
-      foreach ($data[$rate_code]['actual'] as $week_num => &$actual_total) {
-        intval($actual_total[1]);
-      }
-
-      // Total lines
-      foreach ($data[$rate_code] as $data_name => &$data_type) {
-        $data[$rate_code]['total'] = $stub;
-        foreach ($data[$rate_code]['total'] as &$total) {
-          $total[1] = intval($type->field_scope->interval->value());
-        }
-        ksort($data_type, SORT_NUMERIC);
-      }
-      // Create estimate curve line data.
-      foreach ($data_issue_estimate[$rate_code] as $week_num => $issue_estimates) {
-        $data[$rate_code]['estimate'][$week_num] = [$week_num, intval($issue_estimates['total'])];
-        ksort($data[$rate_code]['estimate'], SORT_NUMERIC);
-      }
-    }
-
-    // Render charts.
+    // Render charts for each year.
     $rendered_charts = [];
-    foreach ($data as $rate_code => $rate_data) {
-      if (empty($rate_data['actual'])) {
-        continue;
+    foreach ($years as $year) {
+      // Sort by week number.
+      foreach ($wrapper->field_table_rate as $type) {
+        $rate_code = $type->field_issue_type->value();
+        // Sort array by week number.
+        foreach ($data[$year][$rate_code] as $data_name => &$data_type) {
+          ksort($data_type, SORT_NUMERIC);
+        }
+
+        // Convert actual totla to intval, we have to do this after total is done.
+        foreach ($data[$year][$rate_code]['actual'] as $week_num => &$actual_total) {
+          intval($actual_total[1]);
+        }
+
+        // Total lines
+        foreach ($data[$year][$rate_code] as $data_name => &$data_type) {
+          $data[$year][$rate_code]['total'] = $stub;
+          foreach ($data[$year][$rate_code]['total'] as &$total) {
+            $total[1] = intval($type->field_scope->interval->value());
+          }
+          ksort($data_type, SORT_NUMERIC);
+        }
+        // Create estimate curve line data.
+        foreach ($data_issue_estimate[$rate_code] as $week_num => $issue_estimates) {
+          $data[$year][$rate_code]['estimate'][$week_num] = [
+            $week_num,
+            intval($issue_estimates['total'])
+          ];
+          ksort($data[$year][$rate_code]['estimate'], SORT_NUMERIC);
+        }
       }
-      $chart = [
-        '#type' => 'chart',
-        '#chart_type' => 'line',
-        '#title' => t('Burn Rate: ') . $rate_code,
-      ];
-      // Test with a gap in the data.
-      $chart['actual'] = [
-        '#type' => 'chart_data',
-        '#title' => "Actual $rate_code",
-        '#data' => _bootstrap_subtheme_accumulate_array($rate_data['actual']),
-      ];
-      $chart['total'] = [
-        '#type' => 'chart_data',
-        '#title' => "Scope $rate_code",
-        '#data' => $rate_data['total'],
-      ];
-      $chart['estimate'] = [
-        '#type' => 'chart_data',
-        '#title' => "Estimated $rate_code",
-        '#data' => _bootstrap_subtheme_accumulate_array($rate_data['estimate']),
-      ];
-      $chart_container = [];
-      $chart_container['chart'] = $chart;
-      $rendered_charts[] = drupal_render($chart_container);
+
+
+      foreach ($data[$year] as $rate_code => $rate_data) {
+        if (empty($rate_data['actual'])) {
+          continue;
+        }
+        $chart = [
+          '#type' => 'chart',
+          '#chart_type' => 'line',
+          '#title' => t('Burn Rate: ') . $rate_code,
+        ];
+        // Test with a gap in the data.
+        $chart['actual'] = [
+          '#type' => 'chart_data',
+          '#title' => "Actual $rate_code",
+          '#data' => _bootstrap_subtheme_accumulate_array($rate_data['actual']),
+        ];
+        $chart['total'] = [
+          '#type' => 'chart_data',
+          '#title' => "Scope $rate_code",
+          '#data' => $rate_data['total'],
+        ];
+        $chart['estimate'] = [
+          '#type' => 'chart_data',
+          '#title' => "Estimated $rate_code",
+          '#data' => _bootstrap_subtheme_accumulate_array($rate_data['estimate']),
+        ];
+        $chart_container = [];
+        $chart_container['chart'] = $chart;
+        $rendered_charts[$year][] = drupal_render($chart_container);
+      }
     }
     return $rendered_charts;
   }

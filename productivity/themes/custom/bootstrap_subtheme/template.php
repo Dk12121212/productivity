@@ -87,7 +87,7 @@ function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
         $actual_acumulated = isset($data[$rate_code]['actual'][$week_number][1]) ? $data[$rate_code]['actual'][$week_number][1] : 0;
         $data[$rate_code]['actual'][$week_number] = [
           $week_number,
-          intval($actual_acumulated + $actual)
+          $actual_acumulated + $actual
         ];
 
         // We collect current status of all issues.
@@ -117,6 +117,11 @@ function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
       // Sort array by week number.
       foreach ($data[$rate_code] as $data_name => &$data_type) {
         ksort($data_type, SORT_NUMERIC);
+      }
+
+      // Convert actual totla to intval, we have to do this after total is done.
+      foreach ($data[$rate_code]['actual'] as $week_num => &$actual_total) {
+        intval($actual_total[1]);
       }
 
       // Total lines

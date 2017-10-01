@@ -205,33 +205,6 @@ function productivity_project_field_default_field_bases() {
     'type' => 'number_decimal',
   );
 
-  // Exported field_base: 'field_internal_team'.
-  $field_bases['field_internal_team'] = array(
-    'active' => 1,
-    'cardinality' => -1,
-    'deleted' => 0,
-    'entity_types' => array(),
-    'field_name' => 'field_internal_team',
-    'indexes' => array(
-      'field_employee_target_id' => array(
-        0 => 'field_employee_target_id',
-      ),
-      'id' => array(
-        0 => 'id',
-      ),
-    ),
-    'locked' => 0,
-    'module' => 'multifield',
-    'settings' => array(
-      'entity_translation_sync' => array(
-        0 => 'id',
-      ),
-      'hide_blank_items' => 1,
-    ),
-    'translatable' => 0,
-    'type' => 'multifield',
-  );
-
   // Exported field_base: 'field_issue_type_label'.
   $field_bases['field_issue_type_label'] = array(
     'active' => 1,

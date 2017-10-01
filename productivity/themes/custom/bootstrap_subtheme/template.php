@@ -53,7 +53,6 @@ function bootstrap_subtheme_preprocess_node__project__full(&$variables) {
     'field_employee',
     'field_job_type'
   );
-  $variables['the_team'] = _bootstrap_subtheme_rendered_field_array($wrapper, $fields);
 
   $variables['stakeholders'] = _bootstrap_subtheme_stakeholder_markup($wrapper);
 
@@ -89,19 +88,6 @@ function _bootstrap_subtheme_stakeholder_markup($wrapper) {
       'field_email' => $stakeholder->mail->value(),
       'field_phone' => $profile_wrapper->field_phone->value()
     );
-  }
-
-  return theme('table', ['header' => $header, 'rows' => $rows]);
-}
-
-/**
- * Create rendered table from field array.
- */
-function _bootstrap_subtheme_rendered_field_array($wrapper, $fields) {
-  $header = array_fill(0, 2, NULL);
-  $rows = array();
-  foreach ($wrapper->field_internal_team as $key => $member) {
-    _bootstrap_subtheme_render($rows, $key, $member->value(), 'multifield', $fields);
   }
 
   return theme('table', ['header' => $header, 'rows' => $rows]);

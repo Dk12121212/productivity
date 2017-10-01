@@ -158,7 +158,7 @@
   <div class="col-xs-6">
     <div class="main-box infographic-box">
       <h2>Team members</h2>
-      <?php print $the_team; ?>
+      TBD
     </div>
   </div>
   <div class="col-xs-6">

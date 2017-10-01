@@ -58,7 +58,12 @@ function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
   if (isset($project_node->field_table_rate['und'])) {
     // Go over rate type.
     $data = [];
+    $data_issue_estimate = [];
+    // Avoid counting estimation of same issue previously processed, this can
+    // happen when same issue has tracking on multiple weeks.
+    $data_issue_estimate_processed = [];
     $stub = [];
+    // Collect data.
     foreach ($wrapper->field_table_rate as $type) {
       $rate_code = $type->field_issue_type->value();
       $tracking = productivity_tracking_get_tracking($project_node->nid, $rate_code);
@@ -74,6 +79,8 @@ function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
         }
         $pr_date = $track_record['field_track_log_field_date_value'];
         $actual = $track_record['field_track_log_field_time_spent_value'];
+        $issue_id = $track_record['field_issue_id_value'];
+        $estimate = $track_record['field_time_estimate_value'];
         $week_number = date('W', strtotime($pr_date));
         $week_number = intval($week_number);
 
@@ -83,6 +90,20 @@ function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
           intval($actual_acumulated + $actual)
         ];
 
+        // We collect current status of all issues.
+        if (!isset($data_issue_estimate_processed[$rate_code][$issue_id])) {
+          $data_issue_estimate_processed[$rate_code][$issue_id] = TRUE;
+          if (!isset($data_issue_estimate[$rate_code][$week_number][$issue_id])) {
+            $data_issue_estimate[$rate_code][$week_number][$issue_id] = $estimate;
+            if (!isset($data_issue_estimate[$rate_code][$week_number]['total'])) {
+              $data_issue_estimate[$rate_code][$week_number]['total'] = $estimate;
+            }
+            else {
+              $data_issue_estimate[$rate_code][$week_number]['total'] += $estimate;
+            }
+          }
+        }
+
         // Create a unified structure.
         $stub[$week_number] = [
           $week_number,
@@ -91,26 +112,12 @@ function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
       }
     }
 
+    // Sort by week number.
     foreach ($wrapper->field_table_rate as $type) {
       $rate_code = $type->field_issue_type->value();
       // Sort array by week number.
       foreach ($data[$rate_code] as $data_name => &$data_type) {
         ksort($data_type, SORT_NUMERIC);
-      }
-
-      // Create accumulated data.
-      $first = reset($data[$rate_code]['actual']);
-      $first = $first[0];
-
-      foreach ($data[$rate_code]['actual'] as $week_key => &$week) {
-        // Bypass first value.
-        if ($week_key == $first) {
-          $sum = $week[1];
-          $first = FALSE;
-          continue;
-        }
-        $week[1] += $sum;
-        $sum = $week[1];
       }
 
       // Total lines
@@ -120,6 +127,11 @@ function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
           $total[1] = intval($type->field_scope->interval->value());
         }
         ksort($data_type, SORT_NUMERIC);
+      }
+      // Create estimate curve line data.
+      foreach ($data_issue_estimate[$rate_code] as $week_num => $issue_estimates) {
+        $data[$rate_code]['estimate'][$week_num] = [$week_num, intval($issue_estimates['total'])];
+        ksort($data[$rate_code]['estimate'], SORT_NUMERIC);
       }
     }
 
@@ -135,12 +147,17 @@ function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
       $chart['actual'] = [
         '#type' => 'chart_data',
         '#title' => "Actual $rate_code",
-        '#data' => $rate_data['actual'],
+        '#data' => _bootstrap_subtheme_accumulate_array($rate_data['actual']),
       ];
       $chart['total'] = [
         '#type' => 'chart_data',
         '#title' => "Total $rate_code",
         '#data' => $rate_data['total'],
+      ];
+      $chart['estimate'] = [
+        '#type' => 'chart_data',
+        '#title' => "Estimated $rate_code",
+        '#data' => _bootstrap_subtheme_accumulate_array($rate_data['estimate']),
       ];
       $chart_container = [];
       $chart_container['chart'] = $chart;
@@ -151,6 +168,26 @@ function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
   return FALSE;
 }
 
+/**
+ * Create an accumlated array for charts.
+ */
+function _bootstrap_subtheme_accumulate_array($array) {
+  $first = reset($array);
+  $first = $first[0];
+
+  foreach ($array as $week_key => &$week) {
+    // Bypass first value.
+    if ($week_key == $first) {
+      $sum = $week[1];
+      $first = FALSE;
+      continue;
+    }
+    $week[1] += $sum;
+    $sum = $week[1];
+  }
+
+  return $array;
+}
 /**
  * Return field values rendered by their display settings.
  */

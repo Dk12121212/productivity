@@ -111,7 +111,6 @@ function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
         ];
       }
     }
-
     // Sort by week number.
     foreach ($wrapper->field_table_rate as $type) {
       $rate_code = $type->field_issue_type->value();
@@ -138,6 +137,9 @@ function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
     // Render charts.
     $rendered_charts = [];
     foreach ($data as $rate_code => $rate_data) {
+      if (empty($rate_data['actual'])) {
+        continue;
+      }
       $chart = [
         '#type' => 'chart',
         '#chart_type' => 'line',

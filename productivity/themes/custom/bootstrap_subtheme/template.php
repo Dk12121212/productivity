@@ -158,7 +158,7 @@ function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
       ];
       $chart['total'] = [
         '#type' => 'chart_data',
-        '#title' => "Total $rate_code",
+        '#title' => "Scope $rate_code",
         '#data' => $rate_data['total'],
       ];
       $chart['estimate'] = [

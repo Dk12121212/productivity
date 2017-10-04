@@ -1112,11 +1112,9 @@ Setting an end date, will make project invisible in some forms after the end dat
   t('Allow work session reference');
   t('Close for tracking');
   t('Date');
-  t('Employee');
   t('GH Milstone');
   t('Github repository name');
   t('If checked, don\'t allow tracking to the project anymore.');
-  t('Internal team');
   t('One name type is supported -> Account + Project name  (ie. Gizra/generator-hedley).');
   t('Override to default title, in the hour report.');
   t('Percentage notified');

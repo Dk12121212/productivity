@@ -721,8 +721,11 @@ function productivity_project_get_total_days($hours) {
 
 /**
  * Get all active project title in the given month.
+ *
+ * @param $month_back
+ *  How many month back in time to add to range.
  */
-function productivity_project_get_project_by_date($month = FALSE, $year = FALSE) {
+function productivity_project_get_project_by_date($month = FALSE, $year = FALSE, $month_back = FALSE) {
   if (!$month) {
     $month = date('m');
   }
@@ -732,6 +735,11 @@ function productivity_project_get_project_by_date($month = FALSE, $year = FALSE)
 
   $start_timestamp =  $year . '-' . $month. '-01'. ' 00:00:00';
   $end_timestamp = date('Y-m-d 00:00:00', strtotime('+1 month', strtotime($start_timestamp)));
+
+  // Take x month back in time.
+  if ($month_back) {
+    $start_timestamp = date('Y-m-d 00:00:00', strtotime("first day of -$month_back month"));
+  }
 
   // We need to add a second query since value2 of date has a default of value(1).
   $query = new EntityFieldQuery();
@@ -749,7 +757,6 @@ function productivity_project_get_project_by_date($month = FALSE, $year = FALSE)
   }
 
   return array();
-
 }
 
 
@@ -818,7 +825,6 @@ function productivity_project_get_all_projects($active_only = FALSE, $limit = 0)
   if ($limit) {
     $query->range(0, $limit);
   }
-
 
   $query
     ->condition('n.type', 'project')

@@ -30,7 +30,6 @@ function productivity_timewatch_field_default_field_bases() {
         1 => '',
       ),
       'allowed_values_function' => '',
-      'profile2_private' => FALSE,
     ),
     'translatable' => 0,
     'type' => 'list_boolean',

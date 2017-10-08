@@ -40,8 +40,11 @@ function bootstrap_subtheme_preprocess_node__project__full(&$variables) {
   $chart = _bootstrap_subtheme_get_hours_type_chart($rows);
   $variables['hours_chart'] = drupal_render($chart);
 
-  $variables['burn_rate_chart'] = _bootstrap_subtheme_burn_rate_chart($node, $wrapper);
-  
+  $burn_rate_chart = _bootstrap_subtheme_burn_rate_chart($node, $wrapper);
+  $variables['burn_rate_chart_active_year'] = key($burn_rate_chart);
+
+  $variables['burn_rate_chart'] = $burn_rate_chart;
+
   $variables['total_budget'] = productivity_project_get_total_budget($wrapper);
 
   $variables['project_scope'] = productivity_project_get_scope($wrapper);
@@ -54,6 +57,16 @@ function bootstrap_subtheme_preprocess_node__project__full(&$variables) {
 
 }
 
+/**
+ * Create a chart showing actual vs estimation over time.
+ *
+ * @param $project_node
+ *  The project node
+ * @param $wrapper
+ *  The node wrapper.
+ * @return array|bool
+ *  An array with all years the project was active.
+ */
 function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
   if (isset($project_node->field_table_rate['und'])) {
     // Go over rate type.
@@ -96,8 +109,10 @@ function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
         // We collect current status of all issues.
         if (!isset($data_issue_estimate_processed[$rate_code][$issue_id])) {
           $data_issue_estimate_processed[$rate_code][$issue_id] = TRUE;
+
           if (!isset($data_issue_estimate[$rate_code][$week_number][$issue_id])) {
             $data_issue_estimate[$rate_code][$week_number][$issue_id] = $estimate;
+
             if (!isset($data_issue_estimate[$rate_code][$week_number]['total'])) {
               $data_issue_estimate[$rate_code][$week_number]['total'] = $estimate;
             }
@@ -149,7 +164,7 @@ function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
         }
       }
 
-
+      // Render charts for each type.
       foreach ($data[$year] as $rate_code => $rate_data) {
         if (empty($rate_data['actual'])) {
           continue;
@@ -180,6 +195,7 @@ function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
         $rendered_charts[$year][] = drupal_render($chart_container);
       }
     }
+    krsort($rendered_charts, SORT_NUMERIC);
     return $rendered_charts;
   }
   return FALSE;

@@ -141,19 +141,33 @@
     </div>
   <?php endif; ?>
 
-  <div class="col-xs-12">
-    <?php if (!empty($burn_rate_chart)): ?>
-      <?php foreach ($burn_rate_chart as $year_title => $year_chart): ?>
-        <h3><?php print $year_title; ?></h3>
-        <?php foreach ($year_chart as $chart): ?>
-          <div class="main-box infographic-box">
-            <?php print $chart; ?>
-          </div>
-        <?php endforeach; ?>
-      <?php endforeach; ?>
-    <?php endif; ?>
-  </div>
 
+
+  <?php if (!empty($burn_rate_chart)): ?>
+    <div class="col-xs-12">
+      <div class="main-box-body clearfix">
+        <div class="tabs-wrapper">
+          <ul class="nav nav-tabs">
+            <?php foreach ($burn_rate_chart as $year_title => $year_chart): ?>
+              <li class="<?php print $burn_rate_chart_active_year == $year_title ? 'active' : ''; ?>"><a href="#tab-<?php print $year_title; ?>" data-toggle="tab"><?php print $year_title; ?></a></li>
+            <?php endforeach; ?>
+          </ul>
+
+          <div class="tab-content">
+            <?php foreach ($burn_rate_chart as $year_title => $year_chart): ?>
+              <div class="tab-pane fade in <?php print $burn_rate_chart_active_year == $year_title ? 'active' : ''; ?>" id="tab-<?php print $year_title; ?>">
+                <?php foreach ($year_chart as $chart): ?>
+                  <div class="main-box infographic-box">
+                    <?php print $chart; ?>
+                  </div>
+                <?php endforeach; ?>
+              </div>
+            <?php endforeach; ?>
+          </div>
+        </div>
+      </div>
+    </div>
+  <?php endif; ?>
 
   <div class="col-xs-12">
     <div class="main-box infographic-box">

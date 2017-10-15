@@ -846,7 +846,7 @@ function productivity_admin_views_default_views() {
     'scale' => '2',
     'prefix_suffix' => 1,
   );
-  /* Field: Field: PR ID */
+  /* Field: Field: Issue ID */
   $handler->display->display_options['fields']['field_issue_id']['id'] = 'field_issue_id';
   $handler->display->display_options['fields']['field_issue_id']['table'] = 'field_data_field_issue_id';
   $handler->display->display_options['fields']['field_issue_id']['field'] = 'field_issue_id';
@@ -1032,10 +1032,11 @@ function productivity_admin_views_default_views() {
       'postpone_processing' => 0,
     ),
   );
-  /* Field: Content: Body */
+  /* Field: Content: Description */
   $handler->display->display_options['fields']['body']['id'] = 'body';
   $handler->display->display_options['fields']['body']['table'] = 'field_data_body';
   $handler->display->display_options['fields']['body']['field'] = 'body';
+  $handler->display->display_options['fields']['body']['label'] = 'Body';
   /* Field: Content: Title */
   $handler->display->display_options['fields']['title']['id'] = 'title';
   $handler->display->display_options['fields']['title']['table'] = 'node';
@@ -1079,7 +1080,7 @@ function productivity_admin_views_default_views() {
     'scale' => '2',
     'prefix_suffix' => 1,
   );
-  /* Field: Field: PR ID */
+  /* Field: Field: Issue ID */
   $handler->display->display_options['fields']['field_issue_id']['id'] = 'field_issue_id';
   $handler->display->display_options['fields']['field_issue_id']['table'] = 'field_data_field_issue_id';
   $handler->display->display_options['fields']['field_issue_id']['field'] = 'field_issue_id';
@@ -1135,7 +1136,7 @@ function productivity_admin_views_default_views() {
   );
   $handler->display->display_options['filters']['field_gh_milestone_target_id_entityreference_filter']['reference_display'] = 'entity_ref_taxonomy_list:entityreference_1';
   $handler->display->display_options['filters']['field_gh_milestone_target_id_entityreference_filter']['reference_arguments'] = 'gh_milestones';
-  /* Filter criterion: Content: Body (body) */
+  /* Filter criterion: Content: Description (body) */
   $handler->display->display_options['filters']['body_value']['id'] = 'body_value';
   $handler->display->display_options['filters']['body_value']['table'] = 'field_data_body';
   $handler->display->display_options['filters']['body_value']['field'] = 'body_value';
@@ -1226,7 +1227,7 @@ function productivity_admin_views_default_views() {
     3 => 0,
     4 => 0,
   );
-  /* Filter criterion: Field: PR ID (field_issue_id) */
+  /* Filter criterion: Field: Issue ID (field_issue_id) */
   $handler->display->display_options['filters']['field_issue_id_value']['id'] = 'field_issue_id_value';
   $handler->display->display_options['filters']['field_issue_id_value']['table'] = 'field_data_field_issue_id';
   $handler->display->display_options['filters']['field_issue_id_value']['field'] = 'field_issue_id_value';
@@ -1279,7 +1280,7 @@ function productivity_admin_views_default_views() {
 
   /* Display: Master */
   $handler = $view->new_display('default', 'Master', 'default');
-  $handler->display->display_options['title'] = 'Payed';
+  $handler->display->display_options['title'] = 'Payments';
   $handler->display->display_options['css_class'] = 'main-box';
   $handler->display->display_options['use_more_always'] = FALSE;
   $handler->display->display_options['access']['type'] = 'perm';
@@ -2050,10 +2051,6 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['fields']['field_project']['settings'] = array(
     'link' => 0,
   );
-  /* Field: Content: Status */
-  $handler->display->display_options['fields']['field_status']['id'] = 'field_status';
-  $handler->display->display_options['fields']['field_status']['table'] = 'field_data_field_status';
-  $handler->display->display_options['fields']['field_status']['field'] = 'field_status';
   /* Field: Content: Type */
   $handler->display->display_options['fields']['field_type']['id'] = 'field_type';
   $handler->display->display_options['fields']['field_type']['table'] = 'field_data_field_type';
@@ -2179,10 +2176,6 @@ function productivity_admin_views_default_views() {
   $handler->display->display_options['fields']['field_project']['settings'] = array(
     'link' => 0,
   );
-  /* Field: Content: Status */
-  $handler->display->display_options['fields']['field_status']['id'] = 'field_status';
-  $handler->display->display_options['fields']['field_status']['table'] = 'field_data_field_status';
-  $handler->display->display_options['fields']['field_status']['field'] = 'field_status';
   /* Field: Content: Type */
   $handler->display->display_options['fields']['field_type']['id'] = 'field_type';
   $handler->display->display_options['fields']['field_type']['table'] = 'field_data_field_type';

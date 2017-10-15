@@ -33,13 +33,17 @@ function bootstrap_subtheme_preprocess_node__project__full(&$variables) {
   $variables['project_total'] = $totals[0]->total_done ;
   $variables['project_estimated'] = number_format($totals[0]->total_estimate);
 
-
   // Add charts.
   $chart = productivity_project_get_developer_chart($node);
   $variables['developer_chart'] = drupal_render($chart);
 
   $chart = _bootstrap_subtheme_get_hours_type_chart($rows);
   $variables['hours_chart'] = drupal_render($chart);
+
+  $burn_rate_chart = _bootstrap_subtheme_burn_rate_chart($node, $wrapper);
+  $variables['burn_rate_chart_active_year'] = key($burn_rate_chart);
+
+  $variables['burn_rate_chart'] = $burn_rate_chart;
 
   $variables['total_budget'] = productivity_project_get_total_budget($wrapper);
 
@@ -49,15 +53,174 @@ function bootstrap_subtheme_preprocess_node__project__full(&$variables) {
   $field = field_view_field('node', $node, 'field_date', $display);
   $variables['project_date_start'] = render($field);
 
-  $fields = array(
-    'field_employee',
-    'field_job_type'
-  );
-
   $variables['stakeholders'] = _bootstrap_subtheme_stakeholder_markup($wrapper);
 
 }
 
+/**
+ * Create a chart showing actual vs estimation over time.
+ *
+ * @param $project_node
+ *  The project node
+ * @param $wrapper
+ *  The node wrapper.
+ * @return array|bool
+ *  An array with all years the project was active.
+ */
+function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
+  if (isset($project_node->field_table_rate['und'])) {
+    // Go over rate type.
+    $data = [];
+    $data_issue_estimate = [];
+    // Avoid counting estimation of same issue previously processed, this can
+    // happen when same issue has tracking on multiple weeks.
+    $data_issue_estimate_processed = [];
+    $stub = [];
+    $years = [];
+    // Collect data.
+    foreach ($wrapper->field_table_rate as $type) {
+      $rate_code = $type->field_issue_type->value();
+      $tracking = productivity_tracking_get_tracking($project_node->nid, $rate_code);
+      $data[$rate_code]['actual'] = [];
+      // Prepare table for tracking data.
+      while ($track_record = $tracking->fetchAssoc()) {
+        // Pr data.
+        $pr_time = $track_record['field_track_log_field_time_spent_value'];
+
+        // Bypass issue with no time.
+        if ($pr_time == '0.00') {
+          continue;
+        }
+        $pr_date = $track_record['field_track_log_field_date_value'];
+        $actual = $track_record['field_track_log_field_time_spent_value'];
+        $issue_id = $track_record['field_issue_id_value'];
+        $estimate = $track_record['field_time_estimate_value'];
+        $week_number = date('W', strtotime($pr_date));
+        $year = date('Y', strtotime($pr_date));
+        $years[$year] = $year;
+        $week_number = intval($week_number);
+
+        $actual_acumulated = isset($data[$year][$rate_code]['actual'][$week_number][1]) ? $data[$year][$rate_code]['actual'][$week_number][1] : 0;
+        $data[$year][$rate_code]['actual'][$week_number] = [
+          $week_number,
+          $actual_acumulated + $actual
+        ];
+
+        // We collect current status of all issues.
+        if (!isset($data_issue_estimate_processed[$rate_code][$issue_id])) {
+          $data_issue_estimate_processed[$rate_code][$issue_id] = TRUE;
+
+          if (!isset($data_issue_estimate[$rate_code][$week_number][$issue_id])) {
+            $data_issue_estimate[$rate_code][$week_number][$issue_id] = $estimate;
+
+            if (!isset($data_issue_estimate[$rate_code][$week_number]['total'])) {
+              $data_issue_estimate[$rate_code][$week_number]['total'] = $estimate;
+            }
+            else {
+              $data_issue_estimate[$rate_code][$week_number]['total'] += $estimate;
+            }
+          }
+        }
+
+        // Create a unified structure.
+        $stub[$week_number] = [
+          $week_number,
+          0
+        ];
+      }
+    }
+
+    // Render charts for each year.
+    $rendered_charts = [];
+    foreach ($years as $year) {
+      // Sort by week number.
+      foreach ($wrapper->field_table_rate as $type) {
+        $rate_code = $type->field_issue_type->value();
+        // Sort array by week number.
+        foreach ($data[$year][$rate_code] as $data_name => &$data_type) {
+          ksort($data_type, SORT_NUMERIC);
+        }
+
+        // Convert actual totla to intval, we have to do this after total is done.
+        foreach ($data[$year][$rate_code]['actual'] as $week_num => &$actual_total) {
+          intval($actual_total[1]);
+        }
+
+        // Total lines
+        foreach ($data[$year][$rate_code] as $data_name => &$data_type) {
+          $data[$year][$rate_code]['total'] = $stub;
+          foreach ($data[$year][$rate_code]['total'] as &$total) {
+            $total[1] = intval($type->field_scope->interval->value());
+          }
+          ksort($data_type, SORT_NUMERIC);
+        }
+        // Create estimate curve line data.
+        foreach ($data_issue_estimate[$rate_code] as $week_num => $issue_estimates) {
+          $data[$year][$rate_code]['estimate'][$week_num] = [
+            $week_num,
+            intval($issue_estimates['total'])
+          ];
+          ksort($data[$year][$rate_code]['estimate'], SORT_NUMERIC);
+        }
+      }
+
+      // Render charts for each type.
+      foreach ($data[$year] as $rate_code => $rate_data) {
+        if (empty($rate_data['actual'])) {
+          continue;
+        }
+        $chart = [
+          '#type' => 'chart',
+          '#chart_type' => 'line',
+          '#title' => t('Burn Rate: ') . $rate_code,
+        ];
+        // Test with a gap in the data.
+        $chart['actual'] = [
+          '#type' => 'chart_data',
+          '#title' => "Actual $rate_code",
+          '#data' => _bootstrap_subtheme_accumulate_array($rate_data['actual']),
+        ];
+        $chart['total'] = [
+          '#type' => 'chart_data',
+          '#title' => "Scope $rate_code",
+          '#data' => $rate_data['total'],
+        ];
+        $chart['estimate'] = [
+          '#type' => 'chart_data',
+          '#title' => "Estimated $rate_code",
+          '#data' => _bootstrap_subtheme_accumulate_array($rate_data['estimate']),
+        ];
+        $chart_container = [];
+        $chart_container['chart'] = $chart;
+        $rendered_charts[$year][] = drupal_render($chart_container);
+      }
+    }
+    krsort($rendered_charts, SORT_NUMERIC);
+    return $rendered_charts;
+  }
+  return FALSE;
+}
+
+/**
+ * Create an accumlated array for charts.
+ */
+function _bootstrap_subtheme_accumulate_array($array) {
+  $first = reset($array);
+  $first = $first[0];
+
+  foreach ($array as $week_key => &$week) {
+    // Bypass first value.
+    if ($week_key == $first) {
+      $sum = $week[1];
+      $first = FALSE;
+      continue;
+    }
+    $week[1] += $sum;
+    $sum = $week[1];
+  }
+
+  return $array;
+}
 /**
  * Return field values rendered by their display settings.
  */
@@ -182,7 +345,6 @@ function _bootstrap_subtheme_get_hours_type_chart($rows) {
     '#type' => 'chart',
     '#title' => t('Hours by type'),
     '#chart_type' => 'pie',
-    '#chart_library' => 'highcharts',
     '#legend_position' => 'right',
     '#data_labels' => FALSE,
     '#tooltips' => TRUE,

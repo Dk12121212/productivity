@@ -21,8 +21,6 @@ function productivity_tracking_burn_report_callback($project_node, $detailed = T
   drupal_add_js("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.0/js/bootstrap-datepicker.min.js", array('type' => 'external'));
   drupal_add_css("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.0/css/bootstrap-datepicker.min.css", array('type' => 'external'));
 
-
-
   $variables = array();
   $variables['year'] = !empty($year) ? $year : date('Y');
   $variables['month']= !empty($month) ? $month : date('m', strtotime("-1 month"));
@@ -79,7 +77,7 @@ function productivity_tracking_burn_report_callback($project_node, $detailed = T
 /**
  * Display tracking table for issues.
  */
-function productivity_tracking_burn_report($project_node, $work_type = FALSE, $no_pr = TRUE, $not_started = FALSE, $year, $month) {
+function productivity_tracking_burn_report($project_node, $work_type = FALSE, $no_pr = TRUE, $not_started = FALSE, $year = 'all', $month = 'all') {
   $tracking = productivity_tracking_get_tracking($project_node->nid, $work_type, $year, $month);
 
   $total_row = array(

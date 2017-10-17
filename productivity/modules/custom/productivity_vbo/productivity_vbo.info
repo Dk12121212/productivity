@@ -1,0 +1,6 @@
+name = Productivity custom VBO actions
+core = 7.x
+package = Content
+
+configure = admin/config/content/productivity_vbo
+

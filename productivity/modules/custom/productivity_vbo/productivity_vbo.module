@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * Implements hook_action_info().
+ */
+function productivity_vbo_action_info() {
+  return array(
+    'productivity_vbo_reset_changed' => array(
+      'type' => 'node',
+      'permissions' => array('access content', 'administer site configuration'),
+      'label' => t('Reset created and changed to same value'),
+      'behavior' => array('changes_property'),
+      'configurable' => FALSE,
+      'triggers' => array('any'),
+    ),
+  );
+}
+
+
+/**
+ * Callback for VBO action.
+ */
+function productivity_vbo_reset_changed(&$node, $context) {
+  // Mark node to modify.
+  $node->reset_changed = TRUE;
+}
+
+/**
+ * Implements hook_node_presave().
+ */
+function productivity_vbo_node_presave($node) {
+  // We make the change in presave to avoid override by node_save().
+  if (isset($node->reset_changed)) {
+    $node->changed = $node->created;
+  }
+}

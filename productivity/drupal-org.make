@@ -124,6 +124,9 @@ projects[multifield][patch][] = "https://www.drupal.org/files/issues/multifield-
 projects[multifield][patch][] = "https://www.drupal.org/files/issues/2041531-23-entity-api-support.patch"
 ; Fix feature integration.
 
+projects[node_revision_delete][version] = "2.7"
+projects[node_revision_delete][subdir] = "contrib"
+
 projects[panels][version] = "3.8"
 projects[panels][subdir] = "contrib"
 

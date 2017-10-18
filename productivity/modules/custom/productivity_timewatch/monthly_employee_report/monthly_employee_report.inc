@@ -244,11 +244,13 @@ function productivity_timewatch_create_summary_maddan_table($summaries_madaan, $
     // The total on madaan project is the larger number btw total and potential.
     $total_all = $summaries['6.potential']['total_minutes'] > $summaries['4.total']['total_minutes'] ? $summaries['6.potential']['total_minutes'] : $summaries['4.total']['total_minutes'];
 
-    // Add Vacation, Sick and Miluim to total.
+    // Add Vacation, Reto, Sick and Miluim to total.
     $total = $summary['1.Attendance']['total_minutes'];
     $total += isset($summaries['1.Vacation']['total_minutes']) ? $summaries['1.Vacation']['total_minutes'] : 0;
     $total += isset($summaries['1.Miluim']['total_minutes']) ? $summaries['1.Miluim']['total_minutes'] : 0;
     $total += isset($summaries['1.Sick']['total_minutes']) ? $summaries['1.Sick']['total_minutes'] : 0;
+    $total += isset($summary['2.retro']['total_minutes']) ? $summary['2.retro']['total_minutes'] : 0;
+
     $summary['1.Attendance']['total_minutes'] += isset($summaries['1.Convention']['total_minutes']) ? $summaries['1.Convention']['total_minutes'] : 0;
 
     $summary['6.potential_maddan'] = array(
@@ -259,7 +261,7 @@ function productivity_timewatch_create_summary_maddan_table($summaries_madaan, $
 
 
     $summary['7.Total'] = array(
-      'name' => t('Total (inc. Sick, Miluim and Vacation)'),
+      'name' => t('Total (inc. Sick, Reto,  Miluim and Vacation)'),
       'total_minutes' => productivity_timewatch_format_total($total, TRUE),
       'actual' => number_format(100 / $total_all * $total, 2) . '%',
     );

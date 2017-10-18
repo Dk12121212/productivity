@@ -31,7 +31,6 @@ function productivity_project_finance_report_table($year, $month) {
     )
   ), 'setting');
 
-  dpm( $variables['projects']);
   $summary_project_combined = [];
   $summary_project_combined[$year] = [];
   $summary_project_combined[$year][$month] = [];
@@ -39,7 +38,7 @@ function productivity_project_finance_report_table($year, $month) {
   foreach ($variables['projects'] as $nid => $project_name) {
     // Get all project tracking.
     $work_type = FALSE;
-    $result = productivity_tracking_get_tracking($nid, $work_type, $year, $month);
+    $result = productivity_project_finance_get_tracking($nid, $work_type, $year, $month);
     $types = [];
     // Read result a sum total.
     while ($record = $result->fetchAssoc()) {
@@ -55,16 +54,15 @@ function productivity_project_finance_report_table($year, $month) {
       }
 
       // Create skeleton
-      if (!isset($summary_project['types'])) {
-        $summary_project['types'] = [];
+      if (!isset($summary_project['types'][$type])) {
+        $summary_project['types'][$type] = [];
       }
+      $summary_project['types'][$type]['rate'] = $record['rate'];
+      $summary_project['types'][$type]['currency'] = $record['currency'];
+      $summary_project['types'][$type]['typename'] = $record['typename'];
 
       // Summarize hours by user.
-      productivity_finance_reset_value($summary_project['types'][$type], $time);
-      // Total per month.
-//      productivity_time_tracking_reset_value($sum_month[$track_year][$track_month], $time);
-      // Total per year.
-//      productivity_time_tracking_reset_value($summary_year[$track_year], $time);
+      productivity_finance_reset_value($summary_project['types'][$type]['amount'], $time);
     }
     // Set project name.
     $summary_project['name'] = $project_name;
@@ -74,18 +72,23 @@ function productivity_project_finance_report_table($year, $month) {
 
   // Build display table.
   // Build table.
-   $header = ['Type', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 'Sum'];
-  dpm($summary_project_combined);
-   foreach ($summary_project_combined as $year => $month_data) {
+   $header = ['Name', 'Type', 'Total', 'Rate', 'currency', 'type'];
+   foreach ($summary_project_combined as $year_name => $month_data) {
      $rows = [];
-     foreach ($month_data as $project_nid => $project_data) {
-       foreach ($project_data['types'] as $type_name => $type_total) {
-         $rows[] = [$project_data['name']] + ':' + $type_name + ':' + $type_total;
+     foreach ($month_data as $project_nid => $projects) {
+       foreach ($projects as $nid => $project_data) {
+         foreach ($project_data['types'] as $type_name => $type_total) {
+           $rows[] =
+             [$project_data['name']] +
+             [1 => $type_name] +
+             [2 => $type_total['amount']] +
+             [3 => $type_total['rate']] +
+             [4 => $type_total['currency']]   +
+             [5 => $type_total['typename']];
+         }
        }
      }
-//     $rows[] = ['Sum'] + $sum_month[$year] + ['sum' => $summary_year[$year]];
-//     // Save one table per year.
-     $variables['tables'][$year] = theme('table', array(
+     $variables['tables'][$year_name] = theme('table', array(
        'header' => $header,
        'rows' => $rows
      ));
@@ -103,4 +106,41 @@ function productivity_finance_reset_value(&$element, $value){
     $element = 0;
   }
   $element += $value;
+}
+
+/**
+ * Get entity reference connections.
+ *
+ * @param $project_nid
+ *  The project nid.
+ *
+ * @param $work_type
+ *  qa, dev, management or other type.
+ *
+ * @return
+ *   SelectQuery::execute();
+ */
+function productivity_project_finance_get_tracking($project_nid = FALSE, $work_type = FALSE, $year = FALSE, $month = FALSE) {
+  $dates = [];
+  $dates['start']['month'] = $month;
+  $dates['start']['year'] = $year;
+  // List of issues for a project nid.
+  $query = productivity_tracking_get_tracking_base_query($project_nid, $work_type, $dates);
+  //field_data_field_table_rate
+
+  // Get project rate for this type.
+  $query
+    ->leftjoin("field_data_field_table_rate",
+      'rate',
+      'p.field_project_target_id = rate.entity_id AND rate.field_table_rate_field_issue_type_value = type.field_issue_type_value');
+
+  $query->addField('rate', 'field_table_rate_field_rate_amount', 'rate');
+  $query->addField('rate', 'field_table_rate_field_rate_currency', 'currency');
+  $query->addField('rate', 'field_table_rate_field_issue_type_value', 'typename');
+  $query
+    ->orderBy('gpi.field_github_project_id_value')
+    ->orderBy('i.field_issue_id_value');
+
+  $result = $query->execute();
+  return $result;
 }

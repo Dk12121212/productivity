@@ -34,10 +34,23 @@ function productivity_project_finance_report_table($year, $month) {
   $summary_project_combined = [];
   $summary_project_combined[$year] = [];
   $summary_project_combined[$year][$month] = [];
-  $summary_project = [];
   foreach ($variables['projects'] as $nid => $project_name) {
+    $summary_project = [];
     // Get all project tracking.
     $work_type = FALSE;
+    $wrapper = entity_metadata_wrapper('node', $nid);
+    $summary_project['link'] = l($wrapper->label(), 'node/' . $nid);
+    $summary_project['url'] = url('node/' . $nid);
+    $summary_project['scope'] = productivity_project_get_total_scope($wrapper);
+    $summary_project['total_done'] = $wrapper->field_hours->value();
+    // TODO: Make this more accurate removing non-billable and so.
+    $node_variables['percent_done'] = 0;
+    if ($node_variables['scope'] != 0) {
+      $summary_project['percent_done'] = 100 / $summary_project['scope'] * $summary_project['total_done'];
+    }
+    $summary_project['name'] = $project_name;
+    $summary_project['type'] = $wrapper->field_type->value();
+
     $result = productivity_project_finance_get_tracking($nid, $work_type, $year, $month);
     $types = [];
     // Read result a sum total.
@@ -64,15 +77,14 @@ function productivity_project_finance_report_table($year, $month) {
       // Summarize hours by user.
       productivity_finance_reset_value($summary_project['types'][$type]['amount'], $time);
     }
-    // Set project name.
-    $summary_project['name'] = $project_name;
+
     $summary_project_combined[$year][$month][$nid] = $summary_project;
   }
 
 
   // Build display table.
   // Build table.
-   $header = ['Name', 'Type', 'Total', 'Rate', 'currency', 'type'];
+   $header = ['Name', 'Type', 'Total', 'Rate', 'Currency', 'Type', 'Project type', 'Sum'];
    foreach ($summary_project_combined as $year_name => $month_data) {
      $rows = [];
      foreach ($month_data as $project_nid => $projects) {
@@ -84,7 +96,9 @@ function productivity_project_finance_report_table($year, $month) {
              [2 => $type_total['amount']] +
              [3 => $type_total['rate']] +
              [4 => $type_total['currency']]   +
-             [5 => $type_total['typename']];
+             [5 => $type_total['typename']] +
+             [6 => $project_data['type']] +
+             [7 => $type_total['currency'] . ($type_total['amount'] * $type_total['rate'])];
          }
        }
      }

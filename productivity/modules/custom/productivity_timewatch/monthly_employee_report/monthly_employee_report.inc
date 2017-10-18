@@ -261,7 +261,7 @@ function productivity_timewatch_create_summary_maddan_table($summaries_madaan, $
 
 
     $summary['7.Total'] = array(
-      'name' => t('Total (inc. Sick, Reto,  Miluim and Vacation)'),
+      'name' => t('Total (inc. Sick, Retro,  Miluim and Vacation)'),
       'total_minutes' => productivity_timewatch_format_total($total, TRUE),
       'actual' => number_format(100 / $total_all * $total, 2) . '%',
     );

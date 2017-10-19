@@ -4,6 +4,8 @@
       <div class="row">
         <div class="col-sm-12"><?php print $message; ?></div>
       </div>
+
+      <!--  Single month    -->
       <h3>Month <?php print "$year/$month"; ?></h3>
       <div class="row">
         <div class="col-lg-3 col-sm-6 col-xs-12">
@@ -42,7 +44,7 @@
           <div class="main-box infographic-box">
             <i class="fa fa-money green-bg"></i>
             <span class="headline">Income <?php print $rate_str; ?></span>
-            <span class="value"><?php print $total_ils; ?></span>
+            <span style="font-size: 24px" class="value"><?php print $total_ils; ?></span>
           </div>
         </div>
         <div class="col-lg-3 col-sm-6 col-xs-12">
@@ -53,8 +55,26 @@
           </div>
         </div>
       </div>
+
+
     </div>
-      <?php print $table; ?>
+    <div class="main-box-body clearfix">
+      <div class="panel-group accordion" id="accordion">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#<?php print $nid; ?>">
+                Month <?php print "$year/$month"; ?> Details
+              </a>
+            </h4>
+          </div>
+          <div id="<?php print $nid; ?>" class="panel-collapse collapse">
+            <div class="panel-body">
+              <?php print $table; ?>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

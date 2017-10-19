@@ -404,17 +404,31 @@ function productivity_project_notify($wrapper_project, $arguments) {
  * @param $work_type
  *  Get normalized scope for the specific work typ only.
  *
+ * @param $all
+ *  Get an array of all types scope.
+ *
  * @return double
  *  Scope normalized to hours
  */
-function productivity_project_get_total_scope($project_wrapper, $work_type = FALSE) {
-  $total = 0;
+function productivity_project_get_total_scope($project_wrapper, $work_type = FALSE, $all = FALSE) {
+  $total = $all ? [] : 0;
+
   foreach ($project_wrapper->field_table_rate as $rate) {
     if ($work_type && $rate->field_issue_type->value() != $work_type) {
       continue;
     }
-    // TODO: Maybe don't count non-billable scope here ?
-    $total += productivity_project_normalize_scope($rate);
+    $type = $rate->field_issue_type->value();
+    // Summarize by type.
+    if ($all) {
+      if (!isset($total[$type])) {
+        $total[$type] = 0;
+      }
+      $total[$type] += productivity_project_normalize_scope($rate);
+    }
+    else {
+       // TODO: Maybe don't count non-billable scope here ?
+      $total += productivity_project_normalize_scope($rate);
+    }
   }
   return $total;
 }

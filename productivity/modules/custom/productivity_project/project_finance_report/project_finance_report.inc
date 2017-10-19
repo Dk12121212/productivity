@@ -158,7 +158,7 @@ function productivity_project_finance_report_table($year, $month) {
       $avg_per_hour = number_format($avg_per_hour);
       $total_hours += $type_total['amount'];
       $rows[] =
-        ["$link:($nid)"] +
+        [$link] +
         [1 => $type_name] +
         [3 => "{$type_total['rate']} ($avg_per_hour)"] +
         [4 => $type_total['currency']] +

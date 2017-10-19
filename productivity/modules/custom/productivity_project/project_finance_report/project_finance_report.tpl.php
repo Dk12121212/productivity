@@ -9,7 +9,7 @@
         <div class="col-lg-3 col-sm-6 col-xs-12">
           <div class="main-box infographic-box">
             <i class="fa fa-user red-bg"></i>
-            <span class="headline">Total Hours billed</span>
+            <span class="headline">Total Hours billed (partial rate)</span>
             <span class="value"><?php print $total_hours; ?></span>
           </div>
         </div>

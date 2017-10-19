@@ -82,13 +82,13 @@ function productivity_project_finance_report_table($year, $month) {
 
   $total_row_ils = 0;
   $total_hours_billed = 0;
+  $total_hours_billed_partial = 0;
   $total_projects = 0;
 
   // Iterates over projects.
   foreach ($summary_project as $nid => $project_data) {
     $total_projects++;
     $wrapper = entity_metadata_wrapper('node', $nid);
-    $project_name = $wrapper->label();
     $project_type = $wrapper->field_type->value();
     $link = l($wrapper->label(), 'node/' . $nid);
     $scope = productivity_project_get_total_scope($wrapper, FALSE, TRUE);
@@ -117,6 +117,10 @@ function productivity_project_finance_report_table($year, $month) {
             $divider = $scope[$type_name] > $all_time_totals ? $scope[$type_name] : $all_time_totals;
             $avg_per_hour = $budget / $divider;
             $total_earn = $type_total['amount'] * $avg_per_hour;
+
+            if ($avg_per_hour < $type_total['rate']) {
+              $total_hours_billed_partial += $type_total['amount'];
+            }
           }
 
           // For T&M we simply multiply the hours (except non-billable)
@@ -135,7 +139,11 @@ function productivity_project_finance_report_table($year, $month) {
             $total_row_ils += $total_earn_ils;
             $total_earn_ils = $currency['ILS']['obj']->format(number_format($total_earn_ils, 0, '.', ''));
           }
-          $total_hours_billed += $type_total['amount'];
+
+          // Summarize hours payed.
+          if ($type_total['rate'] != 0.00) {
+            $total_hours_billed += $type_total['amount'];
+          }
         }
 
 
@@ -157,7 +165,7 @@ function productivity_project_finance_report_table($year, $month) {
   $total_hours = productivity_tracking_get_tracking_totals($month, $year, FALSE);
 
   $variables['total_ils'] = $currency['ILS']['obj']->format(number_format($total_row_ils, 0, '.', ''));
-  $variables['total_hours'] = number_format($total_hours_billed);
+  $variables['total_hours'] = number_format($total_hours_billed) . ' (' . number_format($total_hours_billed_partial) . ')';
   $variables['total_hours_not_billed'] = $total_hours['sum']['month'] - $total_hours_billed;
   $variables['total_projects'] = $total_projects;
   $variables['table'] = theme('table', array(

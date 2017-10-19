@@ -171,8 +171,8 @@ function productivity_project_finance_report_table($year, $month) {
   $variables['total_hours_overtime'] = number_format($total_hours_billed_partial);
   $variables['total_hours_not_billed'] = "$not_billed ($not_billed_percent%)" ;
   $variables['total_projects'] = $total_projects;
-  $variables['total_projects_avg'] = $currency['ILS']['obj']->format(number_format($total_projects / $total_hours['sum']['month'], 0, '.', ''));
-  
+  $variables['total_projects_avg'] = $currency['ILS']['obj']->format(number_format($total_row_ils / $total_hours['sum']['month'], 0, '.', ''));
+
   $variables['table'] = theme('table', array(
     'header' => $header,
     'rows' => $rows

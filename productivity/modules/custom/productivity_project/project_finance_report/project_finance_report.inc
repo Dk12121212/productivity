@@ -124,12 +124,13 @@ function productivity_project_finance_report_table($year, $month) {
       $all_time_totals = number_format($all_time_totals[0]->total_done);
 
       // Estimate the gain.
-      // For regular T&M and fix look at the total budget, and divide
+      // For fix look at the total budget, and divide
       // by actual. TODO: We should make those 2 into 1 type.
       $total_earn_ils = 0;
       $total_earn = 0;
       if ($type_total['rate']) {
-        if ($project_data['type'] == 'T&M' || $project_data['type'] == 'fix') {
+        // Type is fix, mean the budget is closed.
+        if ($project_data['type'] == 'fix') {
           $budget = $scope[$type_name] * $type_total['rate'];
           // Take the bigger number. This can be improved by adding waited
           // data, taken from estimate vs done.
@@ -139,7 +140,7 @@ function productivity_project_finance_report_table($year, $month) {
         }
 
         // For pure T&M we simply multiply the hours (except non-billable)
-        if ($project_data['type'] == 'pure T&M') {
+        if ($project_data['type'] == 'T&M') {
           $total_earn = $type_total['amount'] * $type_total['rate'];
         }
 

@@ -163,10 +163,12 @@ function productivity_project_finance_report_table($year, $month) {
   }
 
   $total_hours = productivity_tracking_get_tracking_totals($month, $year, FALSE);
+  $not_billed = $total_hours['sum']['month'] - $total_hours_billed;
+  $not_billed_percent = number_format(100 / $total_hours['sum']['month']  * $not_billed);
 
   $variables['total_ils'] = $currency['ILS']['obj']->format(number_format($total_row_ils, 0, '.', ''));
   $variables['total_hours'] = number_format($total_hours_billed) . ' (' . number_format($total_hours_billed_partial) . ')';
-  $variables['total_hours_not_billed'] = $total_hours['sum']['month'] - $total_hours_billed;
+  $variables['total_hours_not_billed'] = "$not_billed ($not_billed_percent%)" ;
   $variables['total_projects'] = $total_projects;
   $variables['table'] = theme('table', array(
     'header' => $header,

@@ -9,14 +9,15 @@
         <div class="col-lg-3 col-sm-6 col-xs-12">
           <div class="main-box infographic-box">
             <i class="fa fa-user red-bg"></i>
-            <span class="headline">Total Hours billed (partial rate)</span>
+            <span class="headline">Billed hours (overtime)</span>
             <span class="value"><?php print $total_hours; ?></span>
           </div>
+            <span class="">Overtime hour are hours paid on average lower than original rate due to over scope work.</span>
         </div>
         <div class="col-lg-3 col-sm-6 col-xs-12">
           <div class="main-box infographic-box">
             <i class="fa fa-eye yellow-bg"></i>
-            <span class="headline">Total Hours not billed</span>
+            <span class="headline">Hours not billed</span>
             <span class="value"><?php print $total_hours_not_billed; ?></span>
           </div>
         </div>

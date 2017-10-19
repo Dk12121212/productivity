@@ -139,7 +139,7 @@ function productivity_project_finance_report_table($year, $month) {
           $total_earn = $type_total['amount'] * $avg_per_hour;
         }
 
-        // For pure T&M we simply multiply the hours (except non-billable)
+        // For T&M we simply multiply the hours (except non-billable)
         if ($project_data['type'] == 'T&M') {
           $total_earn = $type_total['amount'] * $type_total['rate'];
         }

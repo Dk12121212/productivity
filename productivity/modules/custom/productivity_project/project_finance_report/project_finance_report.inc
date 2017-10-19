@@ -102,6 +102,8 @@ function productivity_project_finance_report_table($year, $month) {
   $currency['EUR']['obj'] = currency_load('EUR');
   $currency['ILS']['obj'] = currency_load('ILS');
 
+  $variables['rate_str'] = "(\${$currency['USD']['rate']} €{$currency['EUR']['rate']})";
+
   $total_row_ils = 0;
   $total_hours = 0;
   $total_hours_billed = 0;

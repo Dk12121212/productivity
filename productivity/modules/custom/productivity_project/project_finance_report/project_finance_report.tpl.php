@@ -30,7 +30,7 @@
         <div class="col-lg-3 col-sm-6 col-xs-12">
           <div class="main-box infographic-box">
             <i class="fa fa-money green-bg"></i>
-            <span class="headline">Income</span>
+            <span class="headline">Income <?php print $rate_str; ?></span>
             <span class="value"><?php print $total_ils; ?></span>
           </div>
         </div>

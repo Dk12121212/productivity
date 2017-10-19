@@ -132,9 +132,28 @@ function productivity_user_update_7005() {
 function productivity_user_update_7006() {
   module_enable(array('productivity_holiday', 'country_field'));
 }
+
 /**
  * Enable inline_entity_form.
  */
 function productivity_user_update_7007() {
   module_enable(array('inline_entity_form', 'field_referenced_delete'));
+}
+
+/**
+ * Enable currency_exchange_rate_db_table.
+ */
+function productivity_user_update_7008() {
+  module_enable(array('currency_exchange_rate_db_table'));
+  // Set default curencies.
+  $query = "INSERT INTO `variable` (`name`, `value`)
+            VALUES
+	        ('currency_exchange_rate_db_table_currency_codes_from1', X'613A333A7B733A333A22455552223B733A333A22455552223B733A333A22494C53223B733A333A22494C53223B733A333A22555344223B733A333A22555344223B7D');
+            ";
+  db_query($query);
+  $query = "INSERT INTO `variable` (`name`, `value`)
+            VALUES
+            ('currency_exchange_rate_db_table_currency_codes_to', X'613A333A7B733A333A22455552223B733A333A22455552223B733A333A22494C53223B733A333A22494C53223B733A333A22555344223B733A333A22555344223B7D');
+            ";
+  db_query($query);
 }

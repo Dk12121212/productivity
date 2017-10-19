@@ -24,6 +24,8 @@ function productivity_project_finance_report_table($year, $month) {
   $variables['account'] = '';
   $variables['no_result'] = FALSE;
   $variables['message'] = '';
+  $variables['month'] = $month;
+  $variables['year'] = $year;
 
   drupal_add_js(array(
     'monthly_report' => array(
@@ -32,8 +34,6 @@ function productivity_project_finance_report_table($year, $month) {
   ), 'setting');
 
   $summary_project_combined = [];
-  $summary_project_combined[$year] = [];
-  $summary_project_combined[$year][$month] = [];
   foreach ($variables['projects'] as $nid => $project_name) {
     $summary_project = [];
     // Get all project tracking.
@@ -78,7 +78,7 @@ function productivity_project_finance_report_table($year, $month) {
       productivity_finance_reset_value($summary_project['types'][$type]['amount'], $time);
     }
 
-    $summary_project_combined[$year][$month][$nid] = $summary_project;
+    $summary_project_combined[$nid] = $summary_project;
   }
 
 
@@ -94,59 +94,89 @@ function productivity_project_finance_report_table($year, $month) {
     'Total this month',
     'Earn this month'
   ];
-  // Iterates over years.
-  foreach ($summary_project_combined as $year_name => $month_data) {
-    $rows = [];
-    // Iterates over month.
-    foreach ($month_data as $month => $projects) {
-      // Iterates over projects.
-      foreach ($projects as $nid => $project_data) {
-        $wrapper = $project_data['wrapper'];
-        $link = l($wrapper->label(), 'node/' . $nid);
-        $scope = productivity_project_get_total_scope($wrapper, FALSE, TRUE);
+  // Currency normalize.
+  $currency = [];
+  $currency['USD']['rate'] = CurrencyExchangerFixedRates::load('USD', 'ILS');
+  $currency['USD']['obj'] = currency_load('USD');
+  $currency['EUR']['rate'] = CurrencyExchangerFixedRates::load('EUR', 'ILS');
+  $currency['EUR']['obj'] = currency_load('EUR');
+  $currency['ILS']['obj'] = currency_load('ILS');
 
-        // Iterates over dev types.
-        foreach ($project_data['types'] as $type_name => $type_total) {
-          // Get total of hours done since begining of project ins same dev type.
-          $all_time_totals = productivity_tracking_get_tracking_total($nid, $type_name);
-          $all_time_totals = number_format($all_time_totals[0]->total_done);
+  $total_row_ils = 0;
+  $total_hours = 0;
+  $total_hours_billed = 0;
+  $total_projects = 0;
 
-          // Estimate the gain.
-          // For regular T&M and fix look at the total budget, and divide
-          // by actual. TODO: We should make those 2 into 1 type.
-          if ($project_data['type'] == 'T&M' || $project_data['type'] == 'fix') {
-            $budget = $scope[$type_name] * $type_total['rate'];
-            // Take the bigger number. This can be improved by adding waited
-            // data, taken from estimate vs done.
-            $divider = $scope[$type_name] > $all_time_totals ? $scope[$type_name] : $all_time_totals;
-            $avg_per_hour = $budget / $divider;
-            $total_earn = number_format(($type_total['amount'] * $avg_per_hour)) . ' ' . strtoupper($type_total['currency']);
-          }
+  // Iterates over projects.
+  foreach ($summary_project_combined as $nid => $project_data) {
+//        if ($nid != 98771) { continue; }
+    $total_projects++;
+    $wrapper = $project_data['wrapper'];
+    $link = l($wrapper->label(), 'node/' . $nid);
+    $scope = productivity_project_get_total_scope($wrapper, FALSE, TRUE);
 
-          // For pure T&M we simply multiply the hours (except non-billable)
-          if ($project_data['type'] == 'pure T&M') {
-            $total_earn = number_format(($type_total['amount'] * $type_total['rate'])) . ' ' . strtoupper($type_total['currency']);
-          }
+    // Iterates over dev types.
+    foreach ($project_data['types'] as $type_name => $type_total) {
+      // Get total of hours done since begining of project ins same dev type.
+      $all_time_totals = productivity_tracking_get_tracking_total($nid, $type_name);
+      $all_time_totals = number_format($all_time_totals[0]->total_done);
 
-          $avg_per_hour = number_format($avg_per_hour);
-          $rows[] =
-            ["$link:($nid)"] +
-            [1 => $type_name] +
-            [3 => "{$type_total['rate']} ($avg_per_hour)" ] +
-            [4 => $type_total['currency']] +
-            [6 => $project_data['type']] +
-            [7 => isset($scope[$type_name]) ? "{$scope[$type_name]}/{$all_time_totals}" : 0 ]  +
-            [2 => $type_total['amount']] +
-            [8 => $total_earn];
+      // Estimate the gain.
+      // For regular T&M and fix look at the total budget, and divide
+      // by actual. TODO: We should make those 2 into 1 type.
+      $total_earn_ils = 0;
+      $total_earn = 0;
+      if ($type_total['rate']) {
+        if ($project_data['type'] == 'T&M' || $project_data['type'] == 'fix') {
+          $budget = $scope[$type_name] * $type_total['rate'];
+          // Take the bigger number. This can be improved by adding waited
+          // data, taken from estimate vs done.
+          $divider = $scope[$type_name] > $all_time_totals ? $scope[$type_name] : $all_time_totals;
+          $avg_per_hour = $budget / $divider;
+          $total_earn = $type_total['amount'] * $avg_per_hour;
         }
-      }
-    }
-    $variables['tables'][$year_name] = theme('table', array(
-      'header' => $header,
-      'rows' => $rows
-    ));
 
+        // For pure T&M we simply multiply the hours (except non-billable)
+        if ($project_data['type'] == 'pure T&M') {
+          $total_earn = $type_total['amount'] * $type_total['rate'];
+        }
+
+        // Check we have USD or ILS or EUR.
+        if (!is_object($currency[$type_total['currency']]['obj'])) {
+          drupal_set_message("Project $link:($nid) has an undefined currency {$type_total['currency']} ");
+        }
+        else {
+          // Formatting currency.
+          $total_earn = $currency[$type_total['currency']]['obj']->format(number_format($total_earn, 0, '.', ''));
+          $total_earn_ils = $type_total['amount'] * $type_total['rate'] * $currency[$type_total['currency']]['rate'];
+          $total_row_ils += $total_earn_ils;
+          $total_earn_ils = $currency['ILS']['obj']->format(number_format($total_earn_ils, 0, '.', ''));
+        }
+        $total_hours_billed += $type_total['amount'];
+      }
+
+      $avg_per_hour = number_format($avg_per_hour);
+      $total_hours += $type_total['amount'];
+      $rows[] =
+        ["$link:($nid)"] +
+        [1 => $type_name] +
+        [3 => "{$type_total['rate']} ($avg_per_hour)"] +
+        [4 => $type_total['currency']] +
+        [6 => $project_data['type']] +
+        [7 => isset($scope[$type_name]) ? "{$scope[$type_name]}/{$all_time_totals}" : 0] +
+        [2 => $type_total['amount']] +
+        [8 => "$total_earn  ($total_earn_ils)"];
+    }
   }
+  $variables['total_ils'] = $currency['ILS']['obj']->format(number_format($total_row_ils, 0, '.', ''));
+  $variables['total_hours'] = $total_hours;
+  $variables['total_hours_not_billed'] = $total_hours - $total_hours_billed;
+  $variables['total_projects'] = $total_projects;
+  $variables['table'] = theme('table', array(
+    'header' => $header,
+    'rows' => $rows
+  ));
+
   return theme('productivity_project_finance_report', $variables);
 }
 

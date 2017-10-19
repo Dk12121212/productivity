@@ -984,7 +984,7 @@ function productivity_tracking_get_tracking_total_estimate($project_nid) {
  * @return
  *   SelectQuery::execute();
  */
-function productivity_tracking_get_tracking_by_user($uid, $year = FALSE, $month = 'all', $work_type = FALSE, $project_nid = FALSE) {
+function productivity_tracking_get_tracking_by_user($uid = FALSE, $year = FALSE, $month = 'all', $work_type = FALSE, $project_nid = FALSE) {
   $dates = [];
   $dates['start']['month'] = $month;
   $dates['start']['year'] = $year;
@@ -1695,7 +1695,7 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
  *
  * @return array|mixed
  */
-function productivity_tracking_get_tracking_totals($month, $year, $uid, $project_nid = FALSE) {
+function productivity_tracking_get_tracking_totals($month, $year, $uid = FALSE, $project_nid = FALSE) {
   // Static caching.
   $cached_data = &drupal_static(__FUNCTION__ . "$year-$month-$uid-$project_nid");
   if (isset($cached_data)) {

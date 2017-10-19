@@ -19,9 +19,7 @@ function productivity_project_finance_report_table($year, $month) {
 
   $variables = array();
 
-  $variables['projects'] = productivity_project_get_project_by_date($month, $year);
-  $variables['project_title'] = 'Select a project';
-  $variables['account'] = '';
+//  $variables['projects'] = productivity_project_get_project_by_date($month, $year);
   $variables['no_result'] = FALSE;
   $variables['message'] = '';
   $variables['month'] = $month;
@@ -33,48 +31,29 @@ function productivity_project_finance_report_table($year, $month) {
     )
   ), 'setting');
 
-  $summary_project_combined = [];
-  $node_variables = [];
 
-  foreach ($variables['projects'] as $nid => $project_name) {
-    $summary_project = [];
-    // Get all project tracking.
-    $wrapper = entity_metadata_wrapper('node', $nid);
-    $summary_project['wrapper'] = $wrapper;
+  $result = productivity_project_finance_get_tracking(FALSE, FALSE, $year, $month);
+  // Read result and sum total.
+  while ($record = $result->fetchAssoc()) {
+    $nid = $record['field_project_target_id'];
+    $time = $record['field_track_log_field_time_spent_value'];
+    $type = $record['field_track_log_field_issue_type_value'];
 
-    // TODO: Make this more accurate removing non-billable and so.
-    $node_variables['percent_done'] = 0;
-    $summary_project['name'] = $project_name;
-    $summary_project['type'] = $wrapper->field_type->value();
-
-    $result = productivity_project_finance_get_tracking($nid, FALSE, $year, $month);
-    $types = [];
-    // Read result and sum total.
-    while ($record = $result->fetchAssoc()) {
-      $time = $record['field_track_log_field_time_spent_value'];
-      $type = $record['field_track_log_field_issue_type_value'];
-
-      if (!$time || !$type) {
-        continue;
-      }
-      // Save all types in use.
-      if (!isset($types['types'][$type])) {
-        $types['types'][$type] = $type;
-      }
-
-      // Create skeleton
-      if (!isset($summary_project['types'][$type])) {
-        $summary_project['types'][$type] = [];
-      }
-      $summary_project['types'][$type]['rate'] = $record['rate'];
-      $summary_project['types'][$type]['currency'] = $record['currency'];
-      $summary_project['types'][$type]['typename'] = $record['typename'];
-
-      // Summarize hours by dev type.
-      productivity_finance_reset_value($summary_project['types'][$type]['amount'], $time);
+    if (!$time || !$type) {
+      continue;
     }
 
-    $summary_project_combined[$nid] = $summary_project;
+    // Create skeleton
+    if (!isset($summary_project[$nid]['types'][$type])) {
+      $summary_project[$nid]['types'][$type] = [];
+    }
+    $summary_project[$nid]['types'][$type]['rate'] = $record['rate'];
+    $summary_project[$nid]['types'][$type]['currency'] = $record['currency'];
+    $summary_project[$nid]['types'][$type]['typename'] = $record['typename'];
+
+    // Summarize hours by dev type.
+    productivity_finance_reset_value($summary_project[$nid]['types'][$type]['amount'], $time);
+
   }
 
 
@@ -106,15 +85,15 @@ function productivity_project_finance_report_table($year, $month) {
   $total_projects = 0;
 
   // Iterates over projects.
-  foreach ($summary_project_combined as $nid => $project_data) {
-    if ($nid != 14525) {
-//      continue;
-    }
+  foreach ($summary_project as $nid => $project_data) {
     $total_projects++;
-    $wrapper = $project_data['wrapper'];
+    $wrapper = entity_metadata_wrapper('node', $nid);
+    $project_name = $wrapper->label();
+    $project_type = $wrapper->field_type->value();
     $link = l($wrapper->label(), 'node/' . $nid);
     $scope = productivity_project_get_total_scope($wrapper, FALSE, TRUE);
 
+    // If no rates.
     if (isset($project_data['types'])) {
       // Iterates over dev types.
       foreach ($project_data['types'] as $type_name => $type_total) {
@@ -131,7 +110,7 @@ function productivity_project_finance_report_table($year, $month) {
         $avg_per_hour = 0;
         if ($type_total['rate']) {
           // Type is fix, mean the budget is closed.
-          if ($project_data['type'] == 'fix') {
+          if ($project_type == 'fix') {
             $budget = $scope[$type_name] * $type_total['rate'];
             // Take the bigger number. This can be improved by adding waited
             // data, taken from estimate vs done.
@@ -141,7 +120,7 @@ function productivity_project_finance_report_table($year, $month) {
           }
 
           // For T&M we simply multiply the hours (except non-billable)
-          if ($project_data['type'] == 'T&M') {
+          if ($project_type == 'T&M') {
             $total_earn = $type_total['amount'] * $type_total['rate'];
           }
 
@@ -160,7 +139,6 @@ function productivity_project_finance_report_table($year, $month) {
         }
 
 
-
         $avg_per_hour = number_format($avg_per_hour);
         $all_time_totals = number_format($all_time_totals);
         $rows[] =
@@ -168,17 +146,18 @@ function productivity_project_finance_report_table($year, $month) {
           [1 => $type_name] +
           [3 => "{$type_total['rate']} ($avg_per_hour)"] +
           [4 => $type_total['currency']] +
-          [6 => $project_data['type']] +
+          [6 => $project_type] +
           [7 => isset($scope[$type_name]) ? "{$scope[$type_name]}/{$all_time_totals}" : 0] +
           [2 => $type_total['amount']] +
           [8 => "$total_earn  ($total_earn_ils)"];
       }
     }
   }
+
   $total_hours = productivity_tracking_get_tracking_totals($month, $year, FALSE);
 
   $variables['total_ils'] = $currency['ILS']['obj']->format(number_format($total_row_ils, 0, '.', ''));
-  $variables['total_hours'] = $total_hours_billed;
+  $variables['total_hours'] = number_format($total_hours_billed);
   $variables['total_hours_not_billed'] = $total_hours['sum']['month'] - $total_hours_billed;
   $variables['total_projects'] = $total_projects;
   $variables['table'] = theme('table', array(

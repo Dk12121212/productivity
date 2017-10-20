@@ -8,7 +8,7 @@
  * Menu callback; display tracking table for issues.
  * Render callback;  Bidder page.
  */
-function productivity_project_finance_report_table($year, $month) {
+function productivity_project_finance_report_table($year, $month, $month_back = 0) {
   global $base_url;
   // Add JavaScript file with the base url of the page.
   drupal_add_js(drupal_get_path('module', 'productivity_project') . '/project_finance_report/project_finance_report.js');
@@ -16,21 +16,40 @@ function productivity_project_finance_report_table($year, $month) {
   drupal_add_css("//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/css/select2.min.css", array('type' => 'external'));
   drupal_add_css('https://fonts.googleapis.com/css?family=Abril+Fatface', array('type' => 'external'));
   drupal_add_js("//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/js/select2.min.js", array('type' => 'external'));
-
-  $variables = array();
-
-//  $variables['projects'] = productivity_project_get_project_by_date($month, $year);
-  $variables['no_result'] = FALSE;
-  $variables['message'] = '';
-  $variables['month'] = $month;
-  $variables['year'] = $year;
-
   drupal_add_js(array(
     'monthly_report' => array(
       'base_url' => $base_url,
     )
   ), 'setting');
 
+  $rendered = [];
+  While ($month_back >= 0) {
+
+    if ($month_back > 0) {
+      $year_it = date("Y", strtotime(date("Y-m-d", strtotime(date("Y-m-d", strtotime("$year-$month-1")))) . "-$month_back month"));
+      $month_it = date("m", strtotime(date("Y-m-d", strtotime(date("Y-m-d", strtotime("$year-$month-1")))) . "-$month_back month"));
+    }
+    else {
+      $year_it = $year;
+      $month_it = $month;
+    }
+    dpm($year_it, $month_it);
+    $rendered[] = productivity_project_finance_report_table_render($year_it, $month_it);
+    $month_back--;
+  }
+  $rendered = array_reverse($rendered);
+  return implode('', $rendered);
+}
+
+/**
+ * Render a single month.
+ */
+function productivity_project_finance_report_table_render($year, $month) {
+  $variables = array();
+  $variables['no_result'] = FALSE;
+  $variables['message'] = '';
+  $variables['month'] = $month;
+  $variables['year'] = $year;
 
   $result = productivity_project_finance_get_tracking(FALSE, FALSE, $year, $month);
   // Read result and sum total.
@@ -53,9 +72,7 @@ function productivity_project_finance_report_table($year, $month) {
 
     // Summarize hours by dev type.
     productivity_finance_reset_value($summary_project[$nid]['types'][$type]['amount'], $time);
-
   }
-
 
   // Build display table.
   // Build table.

@@ -63,7 +63,7 @@ function productivity_project_menu() {
   $items['project-finance-report'] = array(
     'title' => t('Finance report (summary)'),
     'page callback' => 'productivity_project_finance_report_table',
-    'page arguments' => array(1, 2),
+    'page arguments' => array(1, 2, 3),
     'access arguments' => array('project admin'),
     'file path' => drupal_get_path('module', 'productivity_project') . '/project_finance_report',
     'file' => 'project_finance_report.inc',

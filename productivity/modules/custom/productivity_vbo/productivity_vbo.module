@@ -31,6 +31,15 @@ function productivity_vbo_reset_changed(&$node, $context) {
 function productivity_vbo_node_presave($node) {
   // We make the change in presave to avoid override by node_save().
   if (isset($node->reset_changed)) {
-    $node->changed = $node->created;
+    // Reset using entry date too.
+    $wrapper = entity_metadata_wrapper('node', $node);
+    if ($node->type == 'work_session') {
+      if (!empty($wrapper->field_session_date->value())) {
+        $node->changed = $wrapper->field_session_date->value->value();
+      }
+    }
+    else {
+      $node->changed = $node->created;
+    }
   }
 }

@@ -33,7 +33,6 @@ function productivity_project_finance_report_table($year, $month, $month_back = 
       $year_it = $year;
       $month_it = $month;
     }
-    dpm($year_it, $month_it);
     $rendered[] = productivity_project_finance_report_table_render($year_it, $month_it);
     $month_back--;
   }
@@ -44,12 +43,26 @@ function productivity_project_finance_report_table($year, $month, $month_back = 
 /**
  * Render a single month.
  */
-function productivity_project_finance_report_table_render($year, $month) {
-  $variables = array();
-  $variables['no_result'] = FALSE;
-  $variables['message'] = '';
-  $variables['month'] = $month;
-  $variables['year'] = $year;
+function productivity_project_finance_report_table_render($year, $month){
+  $variables = productivity_project_finance_report_data($year, $month);
+  $variables['table'] = theme('table', array(
+    'header' => $variables['headers'],
+    'rows' => $variables['rows']
+  ));
+
+  return theme('productivity_project_finance_report', $variables);
+}
+
+/**
+ * Get finance for a single month.
+ */
+function productivity_project_finance_report_data($year, $month) {
+//  $variables = array();
+  $data = array();
+//  $variables['month'] = $month;
+  $data['month'] = $month;
+//  $variables['year'] = $year;
+  $data['year'] = $year;
 
   $result = productivity_project_finance_get_tracking(FALSE, FALSE, $year, $month);
   // Read result and sum total.
@@ -75,7 +88,6 @@ function productivity_project_finance_report_table_render($year, $month) {
   }
 
   // Build display table.
-  // Build table.
   $header = [
     'Name',
     'Type',
@@ -88,6 +100,7 @@ function productivity_project_finance_report_table_render($year, $month) {
   ];
   // Currency normalize.
   $currency = [];
+  // Replace with fixer.io
   $currency['USD']['rate'] = CurrencyExchangerFixedRates::load('USD', 'ILS');
   $currency['USD']['obj'] = currency_load('USD');
   $currency['EUR']['rate'] = CurrencyExchangerFixedRates::load('EUR', 'ILS');
@@ -97,87 +110,107 @@ function productivity_project_finance_report_table_render($year, $month) {
 
   $variables['rate_str'] = "(\${$currency['USD']['rate']} €{$currency['EUR']['rate']})";
 
-  $total_row_ils = 0;
-  $total_hours_billed = 0;
-  $total_hours_billed_partial = 0;
-  $total_projects = 0;
+//  $total_row_ils = 0;
+  $data['total']['ils'] = 0;
+
+//  $total_hours_billed = 0;
+  $data['total']['hours_billed'] = 0;
+
+//  $total_hours_billed_partial = 0;
+  $data['total']['hours_billed_partial'] = 0;
+
+//  $total_projects = 0;
+  $data['total']['projects'] = 0;
 
   // Iterates over projects.
   foreach ($summary_project as $nid => $project_data) {
-    $total_projects++;
+//    $total_projects++;
+    $data['total']['projects']++;
+
     $wrapper = entity_metadata_wrapper('node', $nid);
-    $project_type = $wrapper->field_type->value();
-    $link = l($wrapper->label(), 'node/' . $nid);
-    $scope = productivity_project_get_total_scope($wrapper, FALSE, TRUE);
+//    $project_type = $wrapper->field_type->value();
+    $data['project']['type'] = $wrapper->field_type->value();
+
+//    $link = l($wrapper->label(), 'node/' . $nid);
+    $data['project']['link'] = l($wrapper->label(), 'node/' . $nid);
+
+//    $scope = productivity_project_get_total_scope($wrapper, FALSE, TRUE);
+    $data['total']['scope'] = productivity_project_get_total_scope($wrapper, FALSE, TRUE);
 
     // If no rates.
     if (isset($project_data['types'])) {
       // Iterates over dev types.
       foreach ($project_data['types'] as $type_name => $type_total) {
         // Get total of hours done since begining of project ins same dev type.
-        $all_time_totals = productivity_tracking_get_tracking_total($nid, $type_name);
-        $all_time_totals = $all_time_totals[0]->total_done;
+        $all_time_total = productivity_tracking_get_tracking_total($nid, $type_name);
+        $data['total']['actual'] = $all_time_total[0]->total_done;
 
         // Estimate the gain.
-        // For fix look at the total budget, and divide
-        // by actual.
-        $total_earn_ils = 0;
+//        $total_earn_ils = 0;
+        $data['total']['types'][$type_name]['ils'] = 0;
 
-        $total_earn = 0;
+//        $total_earn = 0;
+        $data['total']['types'][$type_name]['ils'] = 0;
+
         $avg_per_hour = 0;
         if ($type_total['rate']) {
           // Type is fix, mean the budget is closed.
-          if ($project_type == 'fix') {
-            $budget = $scope[$type_name] * $type_total['rate'];
+          if ($data['project']['type'] == 'fix') {
+            $budget = $data['total']['scope'][$type_name] * $type_total['rate'];
             // Take the bigger number. This can be improved by adding waited
             // data, taken from estimate vs done.
-            $divider = $scope[$type_name] > $all_time_totals ? $scope[$type_name] : $all_time_totals;
+            $divider = $data['total']['scope'][$type_name] > $data['total']['actual'] ? $data['total']['scope'][$type_name] : $data['total']['actual'];
             $avg_per_hour = $budget / $divider;
             $total_earn = $type_total['amount'] * $avg_per_hour;
 
             if ($avg_per_hour < $type_total['rate']) {
-              $total_hours_billed_partial += $type_total['amount'];
+              $data['total']['hours_billed_partial'] += $type_total['amount'];
             }
           }
 
           // For T&M we simply multiply the hours (except non-billable)
-          if ($project_type == 'T&M') {
+          if ($data['project']['type'] == 'T&M') {
             $total_earn = $type_total['amount'] * $type_total['rate'];
           }
 
           // Check we have USD or ILS or EUR.
           if (!is_object($currency[$type_total['currency']]['obj'])) {
-            drupal_set_message("Project $link:($nid) has an undefined currency {$type_total['currency']} ");
+            drupal_set_message("Project {$data['project']['link']}:($nid) has an undefined currency {$type_total['currency']} ");
           }
           else {
             // Formatting currency.
             $total_earn_ils = $total_earn * $currency[$type_total['currency']]['rate'];
             $total_earn = $currency[$type_total['currency']]['obj']->format(number_format($total_earn, 0, '.', ''));
-            $total_row_ils += $total_earn_ils;
+            $data['total']['ils'] += $total_earn_ils;
             $total_earn_ils = $currency['ILS']['obj']->format(number_format($total_earn_ils, 0, '.', ''));
           }
 
           // Summarize hours payed.
           if ($type_total['rate'] != 0.00) {
-            $total_hours_billed += $type_total['amount'];
+            $data['total']['hours_billed'] += $type_total['amount'];
           }
         }
 
-
         $avg_per_hour = number_format($avg_per_hour);
-        $all_time_totals = number_format($all_time_totals);
+        $all_time_totals_formatted_ = number_format($data['total']['hours_all_time']['number']);
+        $scope_formatted = number_format($data['total']['scope'][$type_name]);
+
         $rows[] =
-          [$link] +
+          [$data['project']['link']] +
           [1 => $type_name] +
           [3 => "{$type_total['rate']} ($avg_per_hour)"] +
           [4 => $type_total['currency']] +
-          [6 => $project_type] +
-          [7 => isset($scope[$type_name]) ? "{$scope[$type_name]}/{$all_time_totals}" : 0] +
+          [6 => $data['project']['type']] +
+          [7 => isset($data['total']['scope'][$type_name]) ? "$scope_formatted/{$all_time_totals_formatted_}" : 0] +
           [2 => $type_total['amount']] +
           [8 => "$total_earn  ($total_earn_ils)"];
       }
     }
   }
+
+//  $variables['headers'] = $header;
+  $data['table']['headers'] = $header;
+  $variables['rows'] = $rows;
 
   $total_hours = productivity_tracking_get_tracking_totals($month, $year, FALSE);
   $not_billed = $total_hours['sum']['month'] - $total_hours_billed;
@@ -191,14 +224,8 @@ function productivity_project_finance_report_table_render($year, $month) {
   $variables['total_projects'] = $total_projects;
   $variables['total_projects_avg'] = $currency['ILS']['obj']->format(number_format($total_row_ils / $total_hours['sum']['month'], 0, '.', ''));
 
-  $variables['table'] = theme('table', array(
-    'header' => $header,
-    'rows' => $rows
-  ));
 
-  // TODO: Cache data for graph.
-
-  return theme('productivity_project_finance_report', $variables);
+  return $variables;
 }
 
 /**

@@ -1,10 +1,6 @@
 <div class="row">
   <div class="main-box clearfix project-box emerald-box col-sm-12">
     <div class="main-box-body clearfix">
-      <div class="row">
-        <div class="col-sm-12"><?php print $message; ?></div>
-      </div>
-
       <!--  Single month    -->
       <h3>Month <?php print "$year/$month"; ?></h3>
       <div class="row">

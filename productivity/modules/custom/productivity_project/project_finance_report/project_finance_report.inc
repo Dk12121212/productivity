@@ -141,39 +141,48 @@ function productivity_project_finance_report_data($year, $month) {
     if (isset($project_data['types'])) {
       // Iterates over dev types.
       foreach ($project_data['types'] as $type_name => $type_total) {
-        // Get total of hours done since begining of project ins same dev type.
+        // Get total of hours done since beginning of project in same dev type.
         $all_time_total = productivity_tracking_get_tracking_total($nid, $type_name);
         $data['total']['actual'] = $all_time_total[0]->total_done;
 
+        $data['currency'] = $type_total['currency'];
+        $data['rate'] = $type_total['rate'];
+        $data['amount'] = $type_total['amount'];
+
         // Estimate the gain.
 //        $total_earn_ils = 0;
-        $data['total']['types'][$type_name]['ils'] = 0;
+        $data['total']['earn']['ils'] = 0;
 
 //        $total_earn = 0;
-        $data['total']['types'][$type_name]['ils'] = 0;
+        $data['total']['earn']['original_currency'] = 0;
 
-        $avg_per_hour = 0;
+//        $avg_per_hour = 0;
+        $data['total']['avg_per_hour'] = 0;
+        // Bypass types with no hours.
         if ($type_total['rate']) {
           // Type is fix, mean the budget is closed.
           if ($data['project']['type'] == 'fix') {
-            $budget = $data['total']['scope'][$type_name] * $type_total['rate'];
+            $budget = $data['total']['scope'] * $type_total['rate'];
             // Take the bigger number. This can be improved by adding waited
             // data, taken from estimate vs done.
-            $divider = $data['total']['scope'][$type_name] > $data['total']['actual'] ? $data['total']['scope'][$type_name] : $data['total']['actual'];
-            $avg_per_hour = $budget / $divider;
-            $total_earn = $type_total['amount'] * $avg_per_hour;
+            $divider = $data['total']['scope'] > $data['total']['actual'] ? $data['total']['scope'] : $data['total']['actual'];
+//            $avg_per_hour = $budget / $divider;
+            $data['total']['avg_per_hour'] = $budget / $divider;
+//            $total_earn = $type_total['amount'] * $avg_per_hour;
+            $data['total']['earn']['original_currency'] = $type_total['amount'] * $data['total']['avg_per_hour'];
 
-            if ($avg_per_hour < $type_total['rate']) {
+            // Count overtime hours.
+//            if ($avg_per_hour < $type_total['rate']) {
+            if ($data['total']['avg_per_hour'] < $type_total['rate']) {
               $data['total']['hours_billed_partial'] += $type_total['amount'];
             }
           }
 
           // For T&M we simply multiply the hours (except non-billable)
           if ($data['project']['type'] == 'T&M') {
-            $total_earn = $type_total['amount'] * $type_total['rate'];
           }
 
-          // Check we have USD or ILS or EUR.
+          // Check we have USD or ILS or EUR obj for the currency.
           if (!is_object($currency[$type_total['currency']]['obj'])) {
             drupal_set_message("Project {$data['project']['link']}:($nid) has an undefined currency {$type_total['currency']} ");
           }

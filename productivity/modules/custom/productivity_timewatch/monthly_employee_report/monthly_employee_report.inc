@@ -164,7 +164,7 @@ function productivity_timewatch_build_report($account, $year, $month, $uid_sign 
         $year_sign = $year + 1;
       }
       // Use for test.
-      if ("$year_sign.$month_sign" != date('Y.n')) {
+      if ("$year_sign.$month_sign" !== date('Y.m')) {
         $day_sign = rand(1, 20);
         $date_sign = strtotime("$year_sign-$month_sign-$day_sign");
       }
@@ -182,7 +182,7 @@ function productivity_timewatch_build_report($account, $year, $month, $uid_sign 
         $year_sign = $year + 1;
       }
       // Use for test.
-      if ("$year_sign.$month_sign" != date('Y.n')) {
+      if ("$year_sign.$month_sign" !== date('Y.m')) {
         $day_sign = rand(1, 20);
         $date_sign_manager = strtotime("$year_sign-$month_sign-$day_sign");
       }

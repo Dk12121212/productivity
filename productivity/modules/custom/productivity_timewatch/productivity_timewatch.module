@@ -511,7 +511,7 @@ function productivity_timewatch_create_sessions_array($node_keys, &$summary, &$m
 
       // Retro.
       $one_day = 24 * 60 * 60;
-      if ($wrapper->changed->value() > $end_time + $one_day && !variable_get('productivity_bypass_retro', TRUE)) {
+      if ($wrapper->changed->value() > $end_time + $one_day) {
         $retro = TRUE;
       }
     }

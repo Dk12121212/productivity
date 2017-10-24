@@ -180,6 +180,7 @@ function productivity_project_finance_report_data($year, $month) {
 
           // For T&M we simply multiply the hours (except non-billable)
           if ($data['project']['type'] == 'T&M') {
+            $data['total']['earn']['original_currency'] = $type_total['amount'] * $type_total['rate'];
           }
 
           // Check we have USD or ILS or EUR obj for the currency.
@@ -188,16 +189,19 @@ function productivity_project_finance_report_data($year, $month) {
           }
           else {
             // Formatting currency.
-            $total_earn_ils = $total_earn * $currency[$type_total['currency']]['rate'];
-            $total_earn = $currency[$type_total['currency']]['obj']->format(number_format($total_earn, 0, '.', ''));
-            $data['total']['ils'] += $total_earn_ils;
-            $total_earn_ils = $currency['ILS']['obj']->format(number_format($total_earn_ils, 0, '.', ''));
+//            $total_earn_ils = $total_earn * $currency[$type_total['currency']]['rate'];
+            $data['total']['earn']['ils'] = $data['total']['earn']['original_currency'] * $currency[$type_total['currency']]['rate'];
+//
+//            $total_earn = $currency[$type_total['currency']]['obj']->format(number_format($total_earn, 0, '.', ''));
+            $data['total']['earn']['original_currency_formatted'] = $currency[$type_total['currency']]['obj']->format(number_format($data['total']['earn']['original_currency'], 0, '.', ''));
+
+//            $data['total']['ils'] += $data['total']['ils'];
+
+//            $total_earn_ils = $currency['ILS']['obj']->format(number_format($total_earn_ils, 0, '.', ''));
+            $data['total']['earn']['ils_formatted'] = $currency['ILS']['obj']->format(number_format($data['total']['ils'], 0, '.', ''));
           }
 
-          // Summarize hours payed.
-          if ($type_total['rate'] != 0.00) {
-            $data['total']['hours_billed'] += $type_total['amount'];
-          }
+
         }
 
         $avg_per_hour = number_format($avg_per_hour);
@@ -213,6 +217,11 @@ function productivity_project_finance_report_data($year, $month) {
           [7 => isset($data['total']['scope'][$type_name]) ? "$scope_formatted/{$all_time_totals_formatted_}" : 0] +
           [2 => $type_total['amount']] +
           [8 => "$total_earn  ($total_earn_ils)"];
+      }
+      // End of type iterator.
+      // Summarize hours payed.
+      if ($type_total['rate'] != 0.00) {
+        $data['total']['hours_billed'] += $type_total['amount'];
       }
     }
   }

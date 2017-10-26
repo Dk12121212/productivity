@@ -139,9 +139,10 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE, $n
 
     // Issue data.
     $repo_id = $track_record['field_github_project_id_value'];
-    $estimate = $track_record['field_time_estimate_value'];
+    $estimate = (double) $track_record['field_time_estimate_value'];
     $issue_id = $track_record['field_issue_id_value'];
     $issue_status = $track_record['name'];
+    // Tracking item node.
     $nid = $track_record['nid'];
     $issue_title = "#$issue_id - {$track_record['body_value']}";
 
@@ -207,6 +208,10 @@ function productivity_tracking_burn_report($project_node, $work_type = FALSE, $n
 
       // Update overtime.
       $overtime = $totals[$nid] - $table['rows']["nid_" . $nid]['main']['data']['estimate'];
+      // Following https://stackoverflow.com/questions/17210787/php-float-calculation-error-when-subtracting
+      // we must pass the result through number_format to avoid result like
+      // // -8.881784197E-16
+      $overtime = number_format($overtime, 2);
 
       $table['rows']["nid_" . $nid]['main']['data']['overtime'] = array(
         'class' => ($overtime > 0 ? 'cell-bad-odd' : 'cell-ok-even'),

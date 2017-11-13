@@ -49,7 +49,6 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
     'support' => 'Support',
     'qa' => 'QA',
     'training' => 'Training',
-    'designer' => 'Designer',
   ];
 
   $variables['row_template'] = theme('productivity_tracking_table_row', [

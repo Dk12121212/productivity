@@ -11,6 +11,9 @@ default:
     Drupal\DrupalExtension:
       blackbox: ~
       api_driver: "drupal"
+      text:
+          username_field: "name"
+          password_field: "pass"
 
 imports:
   - behat.local.yml

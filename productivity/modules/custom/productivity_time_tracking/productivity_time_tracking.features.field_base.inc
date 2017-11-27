@@ -180,6 +180,7 @@ function productivity_time_tracking_field_default_field_bases() {
         'training' => 'Training',
         'deploy' => 'Deploy',
         'gizra' => 'Gizra',
+        'hosting' => 'Hosting',
       ),
       'allowed_values_function' => '',
       'profile2_private' => FALSE,

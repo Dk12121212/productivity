@@ -19,6 +19,12 @@ class FeatureContext extends DrupalContext implements SnippetAcceptingContext {
   protected $project_name;
 
   /**
+   * @var object
+   * The current logged in user.
+   */
+  protected $current_user;
+
+  /**
    * @When /^I login with user "([^"]*)"$/
    */
   public function iLoginWithUser($name) {
@@ -35,10 +41,10 @@ class FeatureContext extends DrupalContext implements SnippetAcceptingContext {
    *   The use password.
    */
   protected function loginUser($name, $password) {
-    $this->user = new stdClass();
-    $this->user->name = $name;
-    $this->user->pass = $password;
-    $this->login();
+    $this->current_user = new stdClass();
+    $this->current_user->name = $name;
+    $this->current_user->pass = $password;
+    $this->login($this->current_user);
   }
 
   /**

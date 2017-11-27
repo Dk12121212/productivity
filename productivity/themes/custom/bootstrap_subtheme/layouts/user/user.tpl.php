@@ -11,33 +11,15 @@
     <div class="main-box clearfix">
       <div class="tabs-wrapper profile-tabs">
         <ul class="nav nav-tabs">
-          <li class="active"><a href="#tab-tracking" data-toggle="tab">Tracking</a></li>
-          <li class=""><a href="#tab-calendar" data-toggle="tab">Timewatch</a></li>
+          <li class=""><a href="#tab-tracking" data-toggle="tab">Tracking</a></li>
+          <li class="active"><a href="#tab-attendence" data-toggle="tab">Timewatch</a></li>
         </ul>
         <div class="tab-content">
-          <div class="tab-pane fade in active" id="tab-tracking">
+          <div class="tab-pane fade in " id="tab-tracking">
             <?php print $content['tracking']; ?>
           </div>
-          <div class="tab-pane fade in active" id="tab-calendar">
+          <div class="tab-pane fade in active" id="tab-attendence">
             <?php print $content['attendance']; ?>
-              <!--    <form class="form-horizontal">-->
-              <!--        <fieldset>-->
-              <!-- Form Name -->
-              <!-- Select Basic -->
-              <!--        <div class="form-group">-->
-              <!--          <label class="col-md-4 control-label" for="selectbasic">Day type</label>-->
-              <!--          <div class="col-md-4">-->
-              <!--            <select id="selectbasic" name="selectbasic" class="form-control">-->
-              <!--              <option value="regular">Regular</option>-->
-              <!--              <option value="sick">Sick</option>-->
-              <!--              <option value="vacation">Vacation</option>-->
-              <!--              <option value="miluim">Miluim</option>-->
-              <!--              <option value="convention">Convention</option>-->
-              <!--            </select>-->
-              <!--          </div>-->
-              <!--        </div>-->
-              <!--        </fieldset>-->
-              <!--      </form>-->
           </div>
         </div>
       </div>

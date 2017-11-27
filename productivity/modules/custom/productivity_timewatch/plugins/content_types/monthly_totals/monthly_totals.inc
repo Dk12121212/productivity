@@ -42,7 +42,7 @@ function productivity_timewatch_monthly_totals_content_type_render($subtype, $co
   $content .= '</strong>';
 
   $block = new stdClass();
-  $block->module = 'productivity_tracking';
+  $block->module = 'productivity_timewatch';
   $block->title = 'Timewatch summary';
   $block->content = $content;
   return $block;

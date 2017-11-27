@@ -221,13 +221,13 @@ function productivity_timewatch_form_work_session_node_form_alter(&$form, &$form
  * @return $node_keys
  *  All the nodes return from the query.
  */
-function productivity_timewatch_get_user_sessions($uid, $year, $month, $non_regular_only = FALSE) {
+function productivity_timewatch_get_user_sessions($uid, $year, $month, $non_regular_only = FALSE, $day = FALSE) {
 
   if ($month == 'all') {
     $project_start_month = format_string("01-01-@year", array('@year' => $year));
     $project_end_month = format_string("01-01-@year", array('@year' => ($year + 1)));
   }
-  else {
+  elseif(!$day) {
     $project_start_month = format_string("01-@month-@year", array(
       '@year' => $year,
       '@month' => $month
@@ -236,6 +236,15 @@ function productivity_timewatch_get_user_sessions($uid, $year, $month, $non_regu
       '@year' => ($month == 12) ? $year+1 : $year,
       '@month' => ($month == 12) ? 1 : ($month + 1),
     ));
+  }
+  // Specific day
+  else  {
+    $project_start_month = format_string("@day-@month-@year", array(
+      '@year' => $year,
+      '@month' => $month,
+      '@day' => $day,
+    ));
+    $project_end_month = date('d-m-Y',strtotime($project_start_month . "+1 days"));
   }
 
   $query = new EntityFieldQuery();
@@ -340,8 +349,8 @@ function productivity_timewatch_get_fundays($year, $month) {
 /**
  * Create a nice reusable array with daily sessions.
  */
-function productivity_timewatch_get_employee_sessions($account, $month, $year) {
-  $node_keys = productivity_timewatch_get_user_sessions($account->uid, $year, $month);
+function productivity_timewatch_get_employee_sessions($account, $month, $year, $day = FALSE) {
+  $node_keys = productivity_timewatch_get_user_sessions($account->uid, $year, $month, FALSE, $day);
 
   // No working day return early.
   if (!$node_keys) {
@@ -357,22 +366,28 @@ function productivity_timewatch_get_employee_sessions($account, $month, $year) {
   );
 
   // Default to last day of the month
-  $endday =  date('t', strtotime('1.' . $month . '.' . $year));
+  if (!$day) {
+    $endday = date('t', strtotime('1.' . $month . '.' . $year));
 
-  // Case employee has stoped working, and we are on the month he stoped.
-  if ($account->field_date['und'][0]['value'] != $account->field_date['und'][0]['value2']
-    && "$month-$year" == date('n-Y', strtotime($account->field_date['und'][0]['value2']))) {
-    $endday = date('j', strtotime($account->field_date['und'][0]['value2']));
-    $summary['6.potential']['name'] = t('Potential (For partial month)');
+    // Case employee has stoped working, and we are on the month he stoped.
+    if ($account->field_date['und'][0]['value'] != $account->field_date['und'][0]['value2']
+      && "$month-$year" == date('n-Y', strtotime($account->field_date['und'][0]['value2']))
+    ) {
+      $endday = date('j', strtotime($account->field_date['und'][0]['value2']));
+      $summary['6.potential']['name'] = t('Potential (For partial month)');
+    }
+    // Case we are in the middle of current month, or if employee is leaving in
+    // the current month but todays date id before that.
+    if ("$month-$year" == date('n-Y') && (!$endday || $endday > date('j'))) {
+      $endday = date('j');
+      $summary['6.potential']['name'] = t('Potential (until today)');
+    }
   }
-  // Case we are in the middle of current month, or if employee is leaving in
-  // the current month but todays date id before that.
-  if ("$month-$year" == date('n-Y') && (!$endday || $endday > date('j'))) {
-    $endday = date('j');
-    $summary['6.potential']['name'] = t('Potential (until today)');
+  else {
+    $endday = $day;
   }
 
-  $month_array = productivity_timewatch_build_month_skeleton($month, $year, $summary['6.potential']['total_minutes'], $endday);
+  $month_array = productivity_timewatch_build_month_skeleton($month, $year, $summary['6.potential']['total_minutes'], $endday, $day);
   // Get all sessions for the project.
   $madaan = array();
   $results = productivity_timewatch_create_sessions_array($node_keys, $summary, $madaan, $month_array, $endday);
@@ -392,7 +407,7 @@ function productivity_timewatch_get_employee_sessions($account, $month, $year) {
  *   end of the month of if we are in is the middle of the current month.
  *
  */
-function productivity_timewatch_build_month_skeleton($month, $year, &$potentials, $last_day_this_month) {
+function productivity_timewatch_build_month_skeleton($month, $year, &$potentials, $last_day_this_month, $start_day = 1) {
   // Get Holidays.
   $globals = productivity_holiday_per_month($month, $year);
   $fundays = productivity_timewatch_get_fundays($year, $month);
@@ -407,7 +422,7 @@ function productivity_timewatch_build_month_skeleton($month, $year, &$potentials
   $array = array();
 
   // Loop into the days of the month.
-  for ($day = 1; $day <= $last_day_this_month; $day++) {
+  for ($day = $start_day; $day <= $last_day_this_month; $day++) {
     // Add leading zeros.
     $day_key = str_pad($day, 2, '0', STR_PAD_LEFT);
     $key = $day_key. '_0';

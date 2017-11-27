@@ -42,11 +42,12 @@ function productivity_tracking_tracking_form_content_type_render($subtype, $conf
   // TODO: Set this to be dynamic and per project.
   $variables['types'] = [
     'dev' => 'Development',
-    'qa' => 'QA',
+    'deploy' => 'Deploy',
+    'installation_setup' => 'Installation',
+    'gizra' => 'Gizra',
     'management' => 'Management',
-    'designer' => 'Designer',
-    'installation_setup' => 'Installation Setup',
     'support' => 'Support',
+    'qa' => 'QA',
     'training' => 'Training',
   ];
 

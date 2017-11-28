@@ -773,28 +773,27 @@ function productivity_timewatch_punch($account, $project_madaan_nid) {
  * @param $project_madaan_nid
  *   Pass a maddan project.
  */
-function productivity_timewatch_punch_non_regular($account, $day_type, $timestamp) {
-    // When there's no open session, create a new one.
-    $values = array(
-      'type' => 'work_session',
-      'uid' => $account->uid,
-      'status' => NODE_PUBLISHED,
-    );
+function productivity_timewatch_punch_non_regular($account, $day_type, $timestamp, $half) {
+  // When there's no open session, create a new one.
+  $values = array(
+    'type' => 'work_session',
+    'uid' => $account->uid,
+    'status' => NODE_PUBLISHED,
+  );
 
-    $node = entity_create('node', $values);
-    $wrapper = entity_metadata_wrapper('node', $node);
-    $wrapper->field_employee->set($account->uid);
-    // Set to 9:00am
-    $wrapper->field_session_date->value->set($timestamp + 9 * 3600);
-    // Set to 18:00am
-    $wrapper->field_session_date->value2->set($timestamp + 18 * 3600);
-    $term = taxonomy_get_term_by_name($day_type, 'session_types');
+  $node = entity_create('node', $values);
+  $wrapper = entity_metadata_wrapper('node', $node);
+  $wrapper->field_employee->set($account->uid);
+  // Set to 9:00am
+  $wrapper->field_session_date->value->set($timestamp + 9 * 3600);
+  // Set to 18:00am
+  $end_time = $half ? 13.5 : 18;
+  $wrapper->field_session_date->value2->set($timestamp + $end_time * 3600);
+  $term = taxonomy_get_term_by_name($day_type, 'session_types');
 
-    if (!empty($term)) {
-      $term = array_pop($term);
-      $wrapper->field_session_type->set($term->tid);
-    }
-
-
+  if (!empty($term)) {
+    $term = array_pop($term);
+    $wrapper->field_session_type->set($term->tid);
+  }
   return $wrapper->save();
 }

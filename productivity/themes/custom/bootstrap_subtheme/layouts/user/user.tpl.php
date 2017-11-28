@@ -11,14 +11,14 @@
     <div class="main-box clearfix">
       <div class="tabs-wrapper profile-tabs">
         <ul class="nav nav-tabs">
-          <li class="<?php isset($_GET['tab-active-attendance']) ? '' : print "active"; ?>"><a href="#tab-tracking" data-toggle="tab">Tracking</a></li>
-          <li class="<?php !isset($_GET['tab-active-attendance']) ? '' : print "active"; ?>"><a href="#tab-attendence" data-toggle="tab">Timewatch</a></li>
+          <li class="<?php print (!isset($_GET['active_tab']) || ($_GET['active_tab'] == 'tracking')) ? 'active' : ''; ?>"><a href="#tab-tracking" data-toggle="tab">Tracking</a></li>
+          <li class="<?php print (isset($_GET['active_tab']) && ($_GET['active_tab'] == 'timewatch')) ? 'active' : ''; ?>"><a href="#tab-attendence" data-toggle="tab">Timewatch</a></li>
         </ul>
         <div class="tab-content">
-          <div class="tab-pane fade in <?php isset($_GET['tab-active-attendance']) ? '' : print "active"; ?>" id="tab-tracking">
+          <div class="tab-pane fade in <?php print (!isset($_GET['active_tab']) || ($_GET['active_tab'] == 'tracking')) ? 'active' : ''; ?>" id="tab-tracking">
             <?php print $content['tracking']; ?>
           </div>
-          <div class="tab-pane fade in <?php !isset($_GET['tab-active-attendance']) ? '' : print "active"; ?>"" id="tab-attendence">
+          <div class="tab-pane fade in <?php print (isset($_GET['active_tab']) && ($_GET['active_tab'] == 'timewatch')) ? 'active' : ''; ?>" id="tab-attendence">
             <?php print $content['attendance']; ?>
           </div>
         </div>

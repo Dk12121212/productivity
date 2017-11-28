@@ -27,6 +27,12 @@
               <option value="convention">Convention</option>
             </select>
           </div>
+          <div class="checkbox checkbox-nice">
+            <input type="checkbox" name="halfDay" value='1' id="halfday" />
+            <label for="halfday">
+              Half Day
+            </label>
+          </div>
           <button type="submit" class="btn btn-info">Submit</button>
         </form>
       </div>

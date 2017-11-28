@@ -60,7 +60,8 @@ function productivity_timewatch_punch_content_type_render($subtype, $conf, $args
       'uid' => $uid,
       'day' => date('d', $timestamp),
       'month' => date('m', $timestamp),
-      'year' => date('Y', $timestamp)
+      'year' => date('Y', $timestamp),
+      'tab-active-attendance' => '1',
     ]
   ]);
 

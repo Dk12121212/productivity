@@ -1,7 +1,7 @@
-<div class="row">
-  <div class="main-box">
+<div class="main-box">
+  <div class="row">
     <?php if($can_punch): ?>
-    <div class="col-lg-6">
+    <div class="col-lg-6 col-md-6">
         <div class="main-box-body clearfix">
           <form action="<?php print $self_url; ?>" method="post" class="form-inline" role="form">
             <div class="checkbox checkbox-nice">
@@ -16,7 +16,7 @@
 
         </div>
       </div>
-      <div class="col-lg-6">
+      <div class="col-lg-6 col-md-6">
         <form action="<?php print $self_url; ?>" method="post" class="form-inline" role="form">
           <div class="form-group">
             <?php print  "Mark $day/$month/$year as:";?>
@@ -30,9 +30,11 @@
           <button type="submit" class="btn btn-info">Submit</button>
         </form>
       </div>
+    </div>
 
     <?php endif; ?>
     <?php if($timewatch): ?>
+    <div class="row">
       <div class="col-lg-12">
         <header class="main-box-header clearfix">
           <h2 class="pull-left">Punches on <?php print "$day/$month/$year";?></h2>
@@ -54,7 +56,7 @@
                     <?php print $punch['03.entry']; ?>
                   </td>
                   <td class="text-center">
-                    <?php print $punch['04.exit']; ?>
+                    <?php print ($punch['05.total'] != '0:00') ? $punch['04.exit'] : t('Not punch yet'); ?>
                   </td>
                   <td class="text-center">
                     <span class="label label-success"><?php print $punch['06.project'] == 'Regular' ? 'NO' : 'YES'; ?></span>

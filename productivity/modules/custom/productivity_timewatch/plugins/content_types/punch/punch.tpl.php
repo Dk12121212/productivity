@@ -11,7 +11,7 @@
               </label>
             </div>
             <input type="hidden" name="dayType" value="regular">
-            <button type="submit" class="btn btn-success">Punch Now</button>
+            <button type="submit" class="btn btn-info"><i class="fa fa-gavel" aria-hidden="true"></i> Punch Now</button>
           </form>
 
         </div>

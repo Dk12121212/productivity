@@ -499,5 +499,5 @@ function _productivity_install_set_default_date_formats() {
  * Set default maddan.
  */
 function productivity_update_7000() {
-  variable_set('productivity_maddan_project_nid', 3111);
+  variable_set('productivity_maddan_project_nid', 33111);
 }

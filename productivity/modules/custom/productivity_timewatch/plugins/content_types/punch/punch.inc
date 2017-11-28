@@ -3,7 +3,7 @@
 /**
  * Plugin definition.
  *
- * Display the Live Auction Auctioneer Page.
+ * Display punch function.
  */
 $plugin = array(
   'title' => t('Timewatch punch in and out'),

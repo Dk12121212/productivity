@@ -509,7 +509,7 @@ function productivity_timewatch_create_sessions_array($node_keys, &$summary, &$m
     }
 
     $total_time = $end_time - $start_time;
-    $total_minutes = floor($total_time / 60);
+    $total_minutes = ceil($total_time / 60);
 
     // Day type (Global/Miluim/Regular) or project name (Madaan).
     $retro = FALSE;
@@ -787,6 +787,7 @@ function productivity_timewatch_punch_non_regular($account, $day_type, $timestam
     $wrapper->field_session_date->value->set($timestamp);
     $wrapper->field_session_date->value2->set($timestamp);
     $term = taxonomy_get_term_by_name($day_type, 'session_types');
+
     if (!empty($term)) {
       $term = array_pop($term);
       $wrapper->field_session_type->set($term->tid);

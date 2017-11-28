@@ -43,15 +43,15 @@
     <div class="row">
       <div class="col-lg-12">
         <header class="main-box-header clearfix">
-          <h2 class="pull-left">Punches on <?php print "$day/$month/$year";?></h2>
+          <h2 class="pull-left">Entries on the <?php print "$day/$month/$year";?></h2>
         </header>
         <div class="main-box-body clearfix">
           <div class="table-responsive">
             <table class="table">
               <thead>
                 <tr>
-                  <th>Time In</th>
-                  <th>Time Out</th>
+                  <th>Entry</th>
+                  <th>Exit</th>
                   <th class="text-center">Municipality</th>
                 </tr>
               </thead>
@@ -62,10 +62,10 @@
                     <?php print $punch['03.entry']; ?>
                   </td>
                   <td class="text-center">
-                    <?php print ($punch['05.total'] != '0:00') ? $punch['04.exit'] : t('Not punch yet'); ?>
+                    <?php print ($punch['05.total'] != '0:00') ? $punch['04.exit'] : t('Still working...'); ?>
                   </td>
                   <td class="text-center">
-                    <span class="label label-success"><?php print $punch['06.project'] == 'Regular' ? 'NO' : 'YES'; ?></span>
+                    <span class="label <?php print $punch['06.project'] == 'Regular' ? 'label-danger' : 'label-success'; ?>"><?php print $punch['06.project'] == 'Regular' ? 'NO' : 'YES'; ?></span>
                   </td>
                 </tr>
               <?php endforeach; ?>

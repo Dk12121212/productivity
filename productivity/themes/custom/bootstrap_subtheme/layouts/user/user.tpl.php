@@ -11,14 +11,14 @@
     <div class="main-box clearfix">
       <div class="tabs-wrapper profile-tabs">
         <ul class="nav nav-tabs">
-          <li class=""><a href="#tab-tracking" data-toggle="tab">Tracking</a></li>
-          <li class="active"><a href="#tab-attendence" data-toggle="tab">Timewatch</a></li>
+          <li class="active"><a href="#tab-tracking" data-toggle="tab">Tracking</a></li>
+          <li class=""><a href="#tab-attendence" data-toggle="tab">Timewatch</a></li>
         </ul>
         <div class="tab-content">
-          <div class="tab-pane fade in " id="tab-tracking">
+          <div class="tab-pane fade in active" id="tab-tracking">
             <?php print $content['tracking']; ?>
           </div>
-          <div class="tab-pane fade in active" id="tab-attendence">
+          <div class="tab-pane fade in" id="tab-attendence">
             <?php print $content['attendance']; ?>
           </div>
         </div>

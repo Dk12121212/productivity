@@ -52,6 +52,29 @@ function productivity_user_default_page_manager_handlers() {
   $display->content = array();
   $display->panels = array();
   $pane = new stdClass();
+  $pane->pid = 'new-80b6970a-b947-435c-ae7b-892ae14c3f60';
+  $pane->panel = 'attendance';
+  $pane->type = 'punch';
+  $pane->subtype = 'punch';
+  $pane->shown = TRUE;
+  $pane->access = array();
+  $pane->configuration = array(
+    'override_title' => 0,
+    'override_title_text' => '',
+    'override_title_heading' => 'h2',
+  );
+  $pane->cache = array();
+  $pane->style = array(
+    'settings' => NULL,
+  );
+  $pane->css = array();
+  $pane->extras = array();
+  $pane->position = 0;
+  $pane->locks = array();
+  $pane->uuid = '80b6970a-b947-435c-ae7b-892ae14c3f60';
+  $display->content['new-80b6970a-b947-435c-ae7b-892ae14c3f60'] = $pane;
+  $display->panels['attendance'][0] = 'new-80b6970a-b947-435c-ae7b-892ae14c3f60';
+  $pane = new stdClass();
   $pane->pid = 'new-2436f157-ecc0-482e-8fa3-bce5d3b81770';
   $pane->panel = 'bottom-left';
   $pane->type = 'monthly_totals';

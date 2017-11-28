@@ -30,7 +30,11 @@ function productivity_timewatch_monthly_totals_content_type_render($subtype, $co
     return;
   }
   $regular = productivity_timewatch_format_total($timewatch['summary']['1.Regular']['total_minutes'], TRUE, 0);
-  $percent = number_format(100 / $regular *  $total['sum']['month'], 1);
+  $devider = $regular *  $total['sum']['month'];
+  $percent = 0;
+  if ($devider) {
+    $percent = number_format(100 / $devider, 1);
+  }
 
   $content = productivity_timewatch_create_summary_table($timewatch['summary']);
   $content .= '<strong>';
@@ -42,7 +46,7 @@ function productivity_timewatch_monthly_totals_content_type_render($subtype, $co
   $content .= '</strong>';
 
   $block = new stdClass();
-  $block->module = 'productivity_tracking';
+  $block->module = 'productivity_timewatch';
   $block->title = 'Timewatch summary';
   $block->content = $content;
   return $block;

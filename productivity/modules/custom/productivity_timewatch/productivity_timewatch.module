@@ -221,13 +221,13 @@ function productivity_timewatch_form_work_session_node_form_alter(&$form, &$form
  * @return $node_keys
  *  All the nodes return from the query.
  */
-function productivity_timewatch_get_user_sessions($uid, $year, $month, $non_regular_only = FALSE) {
+function productivity_timewatch_get_user_sessions($uid, $year, $month, $non_regular_only = FALSE, $day = FALSE) {
 
   if ($month == 'all') {
     $project_start_month = format_string("01-01-@year", array('@year' => $year));
     $project_end_month = format_string("01-01-@year", array('@year' => ($year + 1)));
   }
-  else {
+  elseif(!$day) {
     $project_start_month = format_string("01-@month-@year", array(
       '@year' => $year,
       '@month' => $month
@@ -236,6 +236,15 @@ function productivity_timewatch_get_user_sessions($uid, $year, $month, $non_regu
       '@year' => ($month == 12) ? $year+1 : $year,
       '@month' => ($month == 12) ? 1 : ($month + 1),
     ));
+  }
+  // Specific day
+  else  {
+    $project_start_month = format_string("@day-@month-@year", array(
+      '@year' => $year,
+      '@month' => $month,
+      '@day' => $day,
+    ));
+    $project_end_month = date('d-m-Y',strtotime($project_start_month . "+1 days"));
   }
 
   $query = new EntityFieldQuery();
@@ -327,7 +336,7 @@ function productivity_timewatch_get_fundays($year, $month) {
     $day_key = str_pad($day, 2, '0', STR_PAD_LEFT);
     $bydate_result[$day_key]['type'] = 'global';
     $bydate_result[$day_key]['class'] = 'funday';
-    $bydate_result[$day_key]['title'] = $name = $wrapper->field_special_day_name->value() ? $name : $wrapper->field_session_type->label();
+    $bydate_result[$day_key]['title'] = $wrapper->field_special_day_name->value() ? $wrapper->field_special_day_name->value() : $wrapper->field_session_type->label();
     $bydate_result[$day_key]['start'] = $node->field_session_date['und'][0]['value'];
     $bydate_result[$day_key]['end'] = $node->field_session_date['und'][0]['value2'];
     $bydate_result[$day_key]['nid'] = $node->nid;
@@ -340,8 +349,8 @@ function productivity_timewatch_get_fundays($year, $month) {
 /**
  * Create a nice reusable array with daily sessions.
  */
-function productivity_timewatch_get_employee_sessions($account, $month, $year) {
-  $node_keys = productivity_timewatch_get_user_sessions($account->uid, $year, $month);
+function productivity_timewatch_get_employee_sessions($account, $month, $year, $day = FALSE) {
+  $node_keys = productivity_timewatch_get_user_sessions($account->uid, $year, $month, FALSE, $day);
 
   // No working day return early.
   if (!$node_keys) {
@@ -357,22 +366,30 @@ function productivity_timewatch_get_employee_sessions($account, $month, $year) {
   );
 
   // Default to last day of the month
-  $endday =  date('t', strtotime('1.' . $month . '.' . $year));
+  if (!$day) {
+    // Set start day.
+    $day = 1;
+    $endday = date('t', strtotime('1.' . $month . '.' . $year));
 
-  // Case employee has stoped working, and we are on the month he stoped.
-  if ($account->field_date['und'][0]['value'] != $account->field_date['und'][0]['value2']
-    && "$month-$year" == date('n-Y', strtotime($account->field_date['und'][0]['value2']))) {
-    $endday = date('j', strtotime($account->field_date['und'][0]['value2']));
-    $summary['6.potential']['name'] = t('Potential (For partial month)');
+    // Case employee has stoped working, and we are on the month he stoped.
+    if (isset($account->field_date['und']) && $account->field_date['und'][0]['value'] != $account->field_date['und'][0]['value2']
+      && "$month-$year" == date('n-Y', strtotime($account->field_date['und'][0]['value2']))
+    ) {
+      $endday = date('j', strtotime($account->field_date['und'][0]['value2']));
+      $summary['6.potential']['name'] = t('Potential (For partial month)');
+    }
+    // Case we are in the middle of current month, or if employee is leaving in
+    // the current month but todays date id before that.
+    if ("$month-$year" == date('n-Y') && (!$endday || $endday > date('j'))) {
+      $endday = date('j');
+      $summary['6.potential']['name'] = t('Potential (until today)');
+    }
   }
-  // Case we are in the middle of current month, or if employee is leaving in
-  // the current month but todays date id before that.
-  if ("$month-$year" == date('n-Y') && (!$endday || $endday > date('j'))) {
-    $endday = date('j');
-    $summary['6.potential']['name'] = t('Potential (until today)');
+  else {
+    $endday = $day;
   }
 
-  $month_array = productivity_timewatch_build_month_skeleton($month, $year, $summary['6.potential']['total_minutes'], $endday);
+  $month_array = productivity_timewatch_build_month_skeleton($month, $year, $summary['6.potential']['total_minutes'], $endday, $day);
   // Get all sessions for the project.
   $madaan = array();
   $results = productivity_timewatch_create_sessions_array($node_keys, $summary, $madaan, $month_array, $endday);
@@ -392,7 +409,7 @@ function productivity_timewatch_get_employee_sessions($account, $month, $year) {
  *   end of the month of if we are in is the middle of the current month.
  *
  */
-function productivity_timewatch_build_month_skeleton($month, $year, &$potentials, $last_day_this_month) {
+function productivity_timewatch_build_month_skeleton($month, $year, &$potentials, $last_day_this_month, $start_day = 1) {
   // Get Holidays.
   $globals = productivity_holiday_per_month($month, $year);
   $fundays = productivity_timewatch_get_fundays($year, $month);
@@ -407,7 +424,7 @@ function productivity_timewatch_build_month_skeleton($month, $year, &$potentials
   $array = array();
 
   // Loop into the days of the month.
-  for ($day = 1; $day <= $last_day_this_month; $day++) {
+  for ($day = $start_day; $day <= $last_day_this_month; $day++) {
     // Add leading zeros.
     $day_key = str_pad($day, 2, '0', STR_PAD_LEFT);
     $key = $day_key. '_0';
@@ -492,7 +509,7 @@ function productivity_timewatch_create_sessions_array($node_keys, &$summary, &$m
     }
 
     $total_time = $end_time - $start_time;
-    $total_minutes = floor($total_time / 60);
+    $total_minutes = ceil($total_time / 60);
 
     // Day type (Global/Miluim/Regular) or project name (Madaan).
     $retro = FALSE;
@@ -697,4 +714,86 @@ function productivity_timewatch_create_summary_table($summaries) {
     'header' => $header,
     'rows' => $summaries,
   ));
+}
+
+/**
+ * @param $account
+ *   The account to punch for.
+ * @param $project_madaan_nid
+ *   Pass a maddan project.
+ */
+function productivity_timewatch_punch($account, $project_madaan_nid) {
+  // Find an existing session with no end date, if regular.
+  $query = new EntityFieldQuery();
+  $result = $query
+    ->entityCondition('entity_type', 'node')
+    ->entityCondition('bundle', 'work_session')
+    ->propertyCondition('status', NODE_PUBLISHED)
+    ->fieldCondition('field_employee', 'target_id', $account->uid)
+    ->fieldCondition('field_session_date', 'value2', NULL)
+    ->range(0, 1)
+    ->execute();
+
+  // If no session
+  if (empty($result['node'])) {
+    // When there's no open session, create a new one.
+    $values = array(
+      'type' => 'work_session',
+      'uid' => $account->uid,
+      'status' => NODE_PUBLISHED,
+    );
+    $node = entity_create('node', $values);
+    $wrapper = entity_metadata_wrapper('node', $node);
+    $wrapper->field_employee->set($account->uid);
+    $wrapper->field_session_date->value->set(REQUEST_TIME);
+
+    $term = taxonomy_get_term_by_name('regular', 'session_types');
+    if (!empty($term)) {
+      $term = array_pop($term);
+      $wrapper->field_session_type->set($term->tid);
+    }
+
+  }
+  else {
+    // Otherwise set the end date of the open session.
+    $wrapper = entity_metadata_wrapper('node', key($result['node']));
+    $wrapper->field_session_date->value2->set(REQUEST_TIME);
+  }
+
+  if ($project_madaan_nid) {
+    $wrapper->field_project->set($project_madaan_nid);
+  }
+
+  return $wrapper->save();
+}
+
+/**
+ * @param $account
+ *   The account to punch for.
+ * @param $project_madaan_nid
+ *   Pass a maddan project.
+ */
+function productivity_timewatch_punch_non_regular($account, $day_type, $timestamp, $half) {
+  // When there's no open session, create a new one.
+  $values = array(
+    'type' => 'work_session',
+    'uid' => $account->uid,
+    'status' => NODE_PUBLISHED,
+  );
+
+  $node = entity_create('node', $values);
+  $wrapper = entity_metadata_wrapper('node', $node);
+  $wrapper->field_employee->set($account->uid);
+  // Set to 9:00am
+  $wrapper->field_session_date->value->set($timestamp + 9 * 3600);
+  // Set to 18:00am
+  $end_time = $half ? 13.5 : 18;
+  $wrapper->field_session_date->value2->set($timestamp + $end_time * 3600);
+  $term = taxonomy_get_term_by_name($day_type, 'session_types');
+
+  if (!empty($term)) {
+    $term = array_pop($term);
+    $wrapper->field_session_type->set($term->tid);
+  }
+  return $wrapper->save();
 }

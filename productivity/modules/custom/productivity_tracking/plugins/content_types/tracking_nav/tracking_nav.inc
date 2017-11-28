@@ -45,7 +45,8 @@ function productivity_tracking_tracking_nav_content_type_render($subtype, $conf,
         'uid' => $variables['uid'],
         'day' => date('d', $timestamp),
         'month' => date('m', $timestamp),
-        'year' => date('Y', $timestamp)
+        'year' => date('Y', $timestamp),
+        'active_tab' =>  $variables['active_tab'],
       ]
     ]);
   }
@@ -59,7 +60,8 @@ function productivity_tracking_tracking_nav_content_type_render($subtype, $conf,
         'uid' => $uid,
         'day' => date('d', $timestamp),
         'month' => date('m', $timestamp),
-        'year' => date('Y', $timestamp)
+        'year' => date('Y', $timestamp),
+        'active_tab' =>  $variables['active_tab'],
       ]
     ]);
   }

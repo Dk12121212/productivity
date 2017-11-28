@@ -213,6 +213,7 @@ function productivity_tracking_get_query_strings($args) {
   }
 
   $uid = isset($_GET['uid']) ? $_GET['uid'] : (isset($args[0]) ? $args[0] : FALSE);
+  $active_tab = isset($_GET['active_tab']) ? $_GET['active_tab'] : 'tracking';
 
   return [
   'day' => $day,
@@ -221,6 +222,7 @@ function productivity_tracking_get_query_strings($args) {
   'uid' => $uid,
   'date' => $date,
   'today' => ($day == date('d')),
+  'active_tab' => $active_tab,
   ];
 }
 

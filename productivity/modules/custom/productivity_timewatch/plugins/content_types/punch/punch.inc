@@ -35,9 +35,9 @@ function productivity_timewatch_punch_content_type_render($subtype, $conf, $args
       if ($_POST['dayType'] == 'regular') {
         $wrapper = productivity_timewatch_punch($account, $madan);
         $time = $wrapper->field_session_date->value();
-        drupal_set_message(t('Punched @type at @entry_time', [
+        drupal_set_message(t('Punched !type at @entry_time', [
           '@entry_time' =>  isset($time['value2']) ? date('H:i', $time['value2']) : date('H:i', $time['value']),
-          '@type' => isset($time['value2']) ? 'Exit' : 'Entry',
+          '!type' => isset($time['value2']) ? '<span style="color: red">Exit</span>' : 'Entry',
         ]));
       }
       else {

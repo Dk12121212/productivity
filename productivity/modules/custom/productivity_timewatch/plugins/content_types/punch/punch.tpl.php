@@ -52,7 +52,8 @@
                 <tr>
                   <th>Entry</th>
                   <th>Exit</th>
-                  <th class="text-center">Municipality</th>
+                  <th>Total</th>
+                  <th class="text-center">Type</th>
                 </tr>
               </thead>
               <tbody>
@@ -65,7 +66,10 @@
                     <?php print ($punch['05.total'] != '0:00') ? $punch['04.exit'] : t('Still working...'); ?>
                   </td>
                   <td class="text-center">
-                    <span class="label <?php print $punch['06.project'] == 'Regular' ? 'label-danger' : 'label-success'; ?>"><?php print $punch['06.project'] == 'Regular' ? 'NO' : 'YES'; ?></span>
+                    <?php print $punch['05.total']; ?>
+                  </td>
+                  <td class="text-center">
+                    <?php print $punch['06.project']; ?>
                   </td>
                 </tr>
               <?php endforeach; ?>

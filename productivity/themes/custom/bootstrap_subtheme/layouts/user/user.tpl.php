@@ -16,26 +16,22 @@
           <li class="<?php print (isset($_GET['active_tab']) && ($_GET['active_tab'] == 'totals')) ? 'active' : ''; ?>"><a href="#tab-totals" data-toggle="tab">Project totals</a></li>
         </ul>
         <div class="tab-content">
+
           <div class="tab-pane fade in <?php print (!isset($_GET['active_tab']) || ($_GET['active_tab'] == 'tracking')) ? 'active' : ''; ?>" id="tab-tracking">
             <?php print $content['tracking']; ?>
           </div>
+
           <div class="tab-pane fade in <?php print (isset($_GET['active_tab']) && ($_GET['active_tab'] == 'timewatch')) ? 'active' : ''; ?>" id="tab-attendence">
-            <?php print $content['attendance']; ?>
-            <div class="main-box-body emerald-box col-sm-6">
-              <?php print $content['attendance-left']; ?>
-            </div>
-            <div class="main-box-body emerald-box col-sm-6">
-              <?php print $content['attendance-right']; ?>
-            </div>
+            <div class="main-box-body emerald-box col-sm-12"><?php print $content['attendance']; ?></div>
+            <div class="main-box-body emerald-box col-sm-6"><?php print $content['attendance-left']; ?></div>
+            <div class="main-box-body emerald-box col-sm-6"><?php print $content['attendance-right']; ?></div>
           </div>
+
           <div class="tab-pane fade in <?php print (isset($_GET['active_tab']) && ($_GET['active_tab'] == 'totals')) ? 'active' : ''; ?>" id="tab-totals">
-            <div class="main-box-body emerald-box col-sm-6">
-              <?php print $content['totals-left']; ?>
-            </div>
-            <div class="main-box-body emerald-box col-sm-6">
-              <?php print $content['totals-right']; ?>
-            </div>
+            <div class="main-box-body emerald-box col-sm-6"><?php print $content['totals-left']; ?></div>
+            <div class="main-box-body emerald-box col-sm-6"><?php print $content['totals-right']; ?></div>
           </div>
+
         </div>
       </div>
     </div>

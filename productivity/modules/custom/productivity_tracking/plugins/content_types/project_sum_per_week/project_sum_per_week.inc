@@ -17,25 +17,32 @@ $plugin = array(
  */
 function productivity_tracking_project_sum_per_week_content_type_render($subtype, $conf, $args, $context) {
   $variables = productivity_tracking_get_query_strings($args);
-
+  // Get week number form query string, or default to current week.
+  $week = date('W', strtotime($variables['date']));
+  $week_year = $variables['year'];
   $uid = $variables['uid'];
 
-  $dates = [];
-  $dates['start']['month'] = $variables['month'];
-  $dates['start']['year'] = $variables['year'];
-  // Dummy for test, need to replace this start week date,
-  $dates['start']['day'] = 19;
+  $start_dto = new DateTime();
+  $end_dto = new DateTime();
+  $start_dto->setISODate($week_year, $week);
+  $end_dto->setISODate($week_year, $week);
+  $end_dto->modify('+8 days');
 
-  $dates['end']['month'] = $variables['month'];
-  $dates['end']['year'] = $variables['year'];
-  // Dummy for test, need to replace this end week date,
-  $dates['end']['day'] = 25;
+  $dates = [];
+  $dates['start']['month'] = $start_dto->format('m');
+  $dates['start']['year'] = $start_dto->format('Y');
+  $dates['start']['day'] = $start_dto->format('d');
+  $dates['end']['month'] = $end_dto->format('m');
+  $dates['end']['year'] = $end_dto->format('Y');
+  $dates['end']['day'] = $end_dto->format('d');
 
   $variables['tracking'] = productivity_tracking_get_tracking_totals($dates, $uid);
 
   $block = new stdClass();
   $block->module = 'productivity_tracking';
-  $block->title = 'Weekly project breakdown';
+  // Display date included.
+  $end_dto->modify('-1 days');
+  $block->title = "Weekly project breakdown - Week : $week -> {$start_dto->format('d.m.Y')} till {$end_dto->format('d.m.Y')}";
   $block->content = theme('productivity_tracking_project_sum_per_week', $variables);
   return $block;
 }

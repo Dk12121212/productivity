@@ -161,8 +161,10 @@ function productivity_project_finance_report_table($year, $month) {
       }
     }
   }
-
-  $total_hours = productivity_tracking_get_tracking_totals($month, $year, FALSE);
+  $dates = [];
+  $dates['start']['month'] = $month;
+  $dates['start']['year'] = $year;
+  $total_hours = productivity_tracking_get_tracking_totals($dates, FALSE);
   $not_billed = $total_hours['sum']['month'] - $total_hours_billed;
   $not_billed_percent = number_format(100 / $total_hours['sum']['month']  * $not_billed);
 

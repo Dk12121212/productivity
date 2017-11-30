@@ -11,6 +11,10 @@ $plugin = array(
     'bottom-right' => t('Bottom Right'),
     'bottom-left' => t('Bottom Left'),
     'attendance' => t('Attendance'),
+    'attendance-right' => t('Attendance Right'),
+    'attendance-left' => t('Attendance Left'),
     'tracking' => t('Tracking'),
+    'totals-right' => t('Totals Right'),
+    'totals-left' => t('Totals Left'),
   ),
 );

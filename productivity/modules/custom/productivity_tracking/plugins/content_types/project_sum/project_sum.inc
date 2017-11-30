@@ -19,10 +19,11 @@ function productivity_tracking_project_sum_content_type_render($subtype, $conf, 
   $variables = productivity_tracking_get_query_strings($args);
 
   $uid = $variables['uid'];
-  $year = $variables['year'];
-  $month = $variables['month'];
 
-  $variables['tracking'] = productivity_tracking_get_tracking_totals($month, $year, $uid);
+  $dates = [];
+  $dates['start']['month'] = $variables['month'];
+  $dates['start']['year'] = $variables['year'];
+  $variables['tracking'] = productivity_tracking_get_tracking_totals($dates, $uid);
 
   $block = new stdClass();
   $block->module = 'productivity_tracking';

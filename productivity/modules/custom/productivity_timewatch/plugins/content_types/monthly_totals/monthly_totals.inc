@@ -23,7 +23,11 @@ function productivity_timewatch_monthly_totals_content_type_render($subtype, $co
 
   $account = user_load($uid);
   $timewatch = productivity_timewatch_get_employee_sessions($account, $month, $year);
-  $total =  productivity_tracking_get_tracking_totals($month, $year, $uid);
+
+  $dates = [];
+  $dates['start']['month'] = $month;
+  $dates['start']['year'] = $year;
+  $total =  productivity_tracking_get_tracking_totals($dates, $uid);
 
   // Return early in of no tracking.
   if (!isset($timewatch['summary']['1.Regular'])) {

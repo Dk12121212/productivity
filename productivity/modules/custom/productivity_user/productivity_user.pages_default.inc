@@ -42,6 +42,11 @@ function productivity_user_default_page_manager_handlers() {
       'tracking' => NULL,
       'bottom-right' => NULL,
       'bottom-left' => NULL,
+      'totals' => NULL,
+      'totals-right' => NULL,
+      'totals-left' => NULL,
+      'attendance-right' => NULL,
+      'attendance-left' => NULL,
     ),
   );
   $display->cache = array();
@@ -52,7 +57,7 @@ function productivity_user_default_page_manager_handlers() {
   $display->content = array();
   $display->panels = array();
   $pane = new stdClass();
-  $pane->pid = 'new-80b6970a-b947-435c-ae7b-892ae14c3f60';
+  $pane->pid = 'new-944b021e-0656-4993-8b95-6248659ad9b3';
   $pane->panel = 'attendance';
   $pane->type = 'punch';
   $pane->subtype = 'punch';
@@ -71,12 +76,12 @@ function productivity_user_default_page_manager_handlers() {
   $pane->extras = array();
   $pane->position = 0;
   $pane->locks = array();
-  $pane->uuid = '80b6970a-b947-435c-ae7b-892ae14c3f60';
-  $display->content['new-80b6970a-b947-435c-ae7b-892ae14c3f60'] = $pane;
-  $display->panels['attendance'][0] = 'new-80b6970a-b947-435c-ae7b-892ae14c3f60';
+  $pane->uuid = '944b021e-0656-4993-8b95-6248659ad9b3';
+  $display->content['new-944b021e-0656-4993-8b95-6248659ad9b3'] = $pane;
+  $display->panels['attendance'][0] = 'new-944b021e-0656-4993-8b95-6248659ad9b3';
   $pane = new stdClass();
-  $pane->pid = 'new-2436f157-ecc0-482e-8fa3-bce5d3b81770';
-  $pane->panel = 'bottom-left';
+  $pane->pid = 'new-b9b1e897-9398-4660-a025-c8020915547e';
+  $pane->panel = 'attendance-right';
   $pane->type = 'monthly_totals';
   $pane->subtype = 'monthly_totals';
   $pane->shown = TRUE;
@@ -94,32 +99,9 @@ function productivity_user_default_page_manager_handlers() {
   $pane->extras = array();
   $pane->position = 0;
   $pane->locks = array();
-  $pane->uuid = '2436f157-ecc0-482e-8fa3-bce5d3b81770';
-  $display->content['new-2436f157-ecc0-482e-8fa3-bce5d3b81770'] = $pane;
-  $display->panels['bottom-left'][0] = 'new-2436f157-ecc0-482e-8fa3-bce5d3b81770';
-  $pane = new stdClass();
-  $pane->pid = 'new-0ea0b95c-adec-4fe2-9b70-388c7f65cf2e';
-  $pane->panel = 'bottom-right';
-  $pane->type = 'project_sum';
-  $pane->subtype = 'project_sum';
-  $pane->shown = TRUE;
-  $pane->access = array();
-  $pane->configuration = array(
-    'override_title' => 0,
-    'override_title_text' => '',
-    'override_title_heading' => 'h2',
-  );
-  $pane->cache = array();
-  $pane->style = array(
-    'settings' => NULL,
-  );
-  $pane->css = array();
-  $pane->extras = array();
-  $pane->position = 0;
-  $pane->locks = array();
-  $pane->uuid = '0ea0b95c-adec-4fe2-9b70-388c7f65cf2e';
-  $display->content['new-0ea0b95c-adec-4fe2-9b70-388c7f65cf2e'] = $pane;
-  $display->panels['bottom-right'][0] = 'new-0ea0b95c-adec-4fe2-9b70-388c7f65cf2e';
+  $pane->uuid = 'b9b1e897-9398-4660-a025-c8020915547e';
+  $display->content['new-b9b1e897-9398-4660-a025-c8020915547e'] = $pane;
+  $display->panels['attendance-right'][0] = 'new-b9b1e897-9398-4660-a025-c8020915547e';
   $pane = new stdClass();
   $pane->pid = 'new-1b6e3ba6-16bb-4a48-8a35-f438be61d566';
   $pane->panel = 'top';
@@ -162,6 +144,52 @@ function productivity_user_default_page_manager_handlers() {
   $pane->uuid = 'f0ea2851-c06b-4e90-a71d-faa1b15a0362';
   $display->content['new-f0ea2851-c06b-4e90-a71d-faa1b15a0362'] = $pane;
   $display->panels['top'][1] = 'new-f0ea2851-c06b-4e90-a71d-faa1b15a0362';
+  $pane = new stdClass();
+  $pane->pid = 'new-57a2022d-7626-458a-a75a-9483abd3908d';
+  $pane->panel = 'totals-left';
+  $pane->type = 'project_sum_per_week';
+  $pane->subtype = 'project_sum_per_week';
+  $pane->shown = TRUE;
+  $pane->access = array();
+  $pane->configuration = array(
+    'override_title' => 0,
+    'override_title_text' => '',
+    'override_title_heading' => 'h2',
+  );
+  $pane->cache = array();
+  $pane->style = array(
+    'settings' => NULL,
+  );
+  $pane->css = array();
+  $pane->extras = array();
+  $pane->position = 0;
+  $pane->locks = array();
+  $pane->uuid = '57a2022d-7626-458a-a75a-9483abd3908d';
+  $display->content['new-57a2022d-7626-458a-a75a-9483abd3908d'] = $pane;
+  $display->panels['totals-left'][0] = 'new-57a2022d-7626-458a-a75a-9483abd3908d';
+  $pane = new stdClass();
+  $pane->pid = 'new-a4207580-bc6c-4e0d-ac44-7733f62b2006';
+  $pane->panel = 'totals-right';
+  $pane->type = 'project_sum';
+  $pane->subtype = 'project_sum';
+  $pane->shown = TRUE;
+  $pane->access = array();
+  $pane->configuration = array(
+    'override_title' => 0,
+    'override_title_text' => '',
+    'override_title_heading' => 'h2',
+  );
+  $pane->cache = array();
+  $pane->style = array(
+    'settings' => NULL,
+  );
+  $pane->css = array();
+  $pane->extras = array();
+  $pane->position = 0;
+  $pane->locks = array();
+  $pane->uuid = 'a4207580-bc6c-4e0d-ac44-7733f62b2006';
+  $display->content['new-a4207580-bc6c-4e0d-ac44-7733f62b2006'] = $pane;
+  $display->panels['totals-right'][0] = 'new-a4207580-bc6c-4e0d-ac44-7733f62b2006';
   $pane = new stdClass();
   $pane->pid = 'new-7a848676-0f7d-47a1-be90-c01244c3f13c';
   $pane->panel = 'tracking';

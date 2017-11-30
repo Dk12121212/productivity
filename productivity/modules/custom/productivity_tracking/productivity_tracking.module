@@ -1701,9 +1701,8 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
  */
 function productivity_tracking_get_tracking_totals($dates, $uid = FALSE, $project_nid = FALSE) {
   // Static caching.
-  $month = $dates['start']['month'];
-  $year = $dates['start']['year'];
-  $cached_data = &drupal_static(__FUNCTION__ . "$year-$month-$uid-$project_nid");
+  $cid_date = serialize($dates);
+  $cached_data = &drupal_static(__FUNCTION__ . "$cid_date-$uid-$project_nid");
   if (isset($cached_data)) {
     return $cached_data;
   }

@@ -986,10 +986,7 @@ function productivity_tracking_get_tracking_total_estimate($project_nid) {
  * @return
  *   SelectQuery::execute();
  */
-function productivity_tracking_get_tracking_by_user($uid = FALSE, $year = FALSE, $month = 'all', $work_type = FALSE, $project_nid = FALSE) {
-  $dates = [];
-  $dates['start']['month'] = $month;
-  $dates['start']['year'] = $year;
+function productivity_tracking_get_tracking_by_user($uid, $dates, $work_type = FALSE, $project_nid = FALSE) {
   // List of issues for a project nid.
   $query = productivity_tracking_get_tracking_base_query($project_nid, $work_type, $dates);
 
@@ -1554,8 +1551,12 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
     }
   }
 
+  $dates = [];
+  $dates['start']['month'] = $month;
+  $dates['start']['year'] = $year;
+
   // Get tracking data.
-  $tracking = productivity_tracking_get_tracking_by_user($uid, $year, $month);
+  $tracking = productivity_tracking_get_tracking_by_user($uid, $dates);
 
   // Prepare table for tracking data.
   while($track_record = $tracking->fetchAssoc()) {
@@ -1698,8 +1699,10 @@ function productivity_tracking_get_month_structure($month, $year, $uid) {
  *
  * @return array|mixed
  */
-function productivity_tracking_get_tracking_totals($month, $year, $uid = FALSE, $project_nid = FALSE) {
+function productivity_tracking_get_tracking_totals($dates, $uid = FALSE, $project_nid = FALSE) {
   // Static caching.
+  $month = $dates['start']['month'];
+  $year = $dates['start']['year'];
   $cached_data = &drupal_static(__FUNCTION__ . "$year-$month-$uid-$project_nid");
   if (isset($cached_data)) {
     return $cached_data;
@@ -1714,7 +1717,7 @@ function productivity_tracking_get_tracking_totals($month, $year, $uid = FALSE, 
   );
 
   // Get tracking data.
-  $tracking = productivity_tracking_get_tracking_by_user($uid, $year, $month, $project_nid);
+  $tracking = productivity_tracking_get_tracking_by_user($uid, $dates, $project_nid);
 
   // Prepare table for tracking data.
   while ($track_record = $tracking->fetchAssoc()) {

@@ -121,6 +121,29 @@ function productivity_user_default_page_manager_handlers() {
   $display->content['new-0ea0b95c-adec-4fe2-9b70-388c7f65cf2e'] = $pane;
   $display->panels['bottom-right'][0] = 'new-0ea0b95c-adec-4fe2-9b70-388c7f65cf2e';
   $pane = new stdClass();
+  $pane->pid = 'new-e4433e14-b645-4cf7-b5cf-44e2cea56273';
+  $pane->panel = 'bottom-right';
+  $pane->type = 'project_sum_per_week';
+  $pane->subtype = 'project_sum_per_week';
+  $pane->shown = TRUE;
+  $pane->access = array();
+  $pane->configuration = array(
+    'override_title' => 0,
+    'override_title_text' => '',
+    'override_title_heading' => 'h2',
+  );
+  $pane->cache = array();
+  $pane->style = array(
+    'settings' => NULL,
+  );
+  $pane->css = array();
+  $pane->extras = array();
+  $pane->position = 1;
+  $pane->locks = array();
+  $pane->uuid = 'e4433e14-b645-4cf7-b5cf-44e2cea56273';
+  $display->content['new-e4433e14-b645-4cf7-b5cf-44e2cea56273'] = $pane;
+  $display->panels['bottom-right'][1] = 'new-e4433e14-b645-4cf7-b5cf-44e2cea56273';
+  $pane = new stdClass();
   $pane->pid = 'new-1b6e3ba6-16bb-4a48-8a35-f438be61d566';
   $pane->panel = 'top';
   $pane->type = 'tracking_admin';

@@ -613,7 +613,7 @@ class JewishCalendar extends NativeCalendar {
       'sukkot' =>             array('native' => 'סוכות',            'foreign' => t('Sukkot'),             'class' => 'shabat', 'is_day_off' => 1),
       'sukkot2' =>            array('native' => 'סוכות ב\' (גולה)', 'foreign' => t('Sukkot II (Diaspora)'), 'class' => 'shabat', 'is_day_off' => 0),
       'sukkotKholHaMoed' =>   array('native' => 'חול המועד סוכות',  'foreign' => t('Khol HaMoed Sukkot'),   'class' => 'khol', 'is_day_off' => 0),
-      'hoshanaRabba' =>       array('native' => 'הושענא רבה',       'foreign' => t('Hoshana Rabba'),      'class' => 'khol', 'is_day_off' => 0),
+      'hoshanaRabba' =>       array('native' => 'הושענא רבה',       'foreign' => t('Hoshana Rabba'),      'class' => 'khol', 'is_day_off' => 1),
       'sheminiAtseret' =>     array('native' => 'שמיני עצרת',       'foreign' => t('Shemini Atseret'),    'class' => 'shabat', 'is_day_off' => 1),
       'simkhatTora' =>        array('native' => 'שמחת תורה',        'foreign' => t('Simkhat Tora'),       'class' => 'shabat', 'is_day_off' => 1),
       'sukkotIsruKhag' =>     array('native' => 'אסרו חג',          'foreign' => t('Isru Khag Sukkot'),   'class' => 'khol', 'is_day_off' => 0),

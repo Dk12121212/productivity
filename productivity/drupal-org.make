@@ -159,6 +159,9 @@ projects[strongarm][version] = "2.0"
 projects[token][subdir] = "contrib"
 projects[token][version] = "1.6"
 
+projects[touch_icons][subdir] = "contrib"
+projects[touch_icons][version] = "1.0"
+
 projects[views][subdir] = "contrib"
 projects[views][version] = "3.13"
 

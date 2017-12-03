@@ -57,6 +57,7 @@ dependencies[] = smtp
 dependencies[] = strongarm
 dependencies[] = taxonomy
 dependencies[] = token
+dependencies[] = touch_icons
 dependencies[] = views
 dependencies[] = views_bulk_operations
 

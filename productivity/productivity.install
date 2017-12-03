@@ -501,3 +501,10 @@ function _productivity_install_set_default_date_formats() {
 function productivity_update_7000() {
   variable_set('productivity_maddan_project_nid', 33111);
 }
+
+/**
+ * Enable touch icons.
+ */
+function productivity_update_7001() {
+  module_enable(['touch_icons']);
+}

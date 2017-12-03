@@ -152,15 +152,19 @@ function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
           foreach ($data[$year][$rate_code]['total'] as &$total) {
             $total[1] = intval($type->field_scope->interval->value());
           }
-          ksort($data_type, SORT_NUMERIC);
+          if (!empty($data_type)) {
+            ksort($data_type, SORT_NUMERIC);
+          }
         }
         // Create estimate curve line data.
-        foreach ($data_issue_estimate[$rate_code] as $week_num => $issue_estimates) {
-          $data[$year][$rate_code]['estimate'][$week_num] = [
-            $week_num,
-            intval($issue_estimates['total'])
-          ];
-          ksort($data[$year][$rate_code]['estimate'], SORT_NUMERIC);
+        if (isset($data_issue_estimate[$rate_code])) {
+          foreach ($data_issue_estimate[$rate_code] as $week_num => $issue_estimates) {
+            $data[$year][$rate_code]['estimate'][$week_num] = [
+              $week_num,
+              intval($issue_estimates['total'])
+            ];
+            ksort($data[$year][$rate_code]['estimate'], SORT_NUMERIC);
+          }
         }
       }
 

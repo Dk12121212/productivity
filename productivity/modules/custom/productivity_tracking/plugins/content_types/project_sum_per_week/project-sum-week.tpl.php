@@ -8,7 +8,7 @@
     <?php endforeach; ?>
     <li class="list-group-item">
       <span class="badge badge-danger"><?php print $tracking['sum']['month']; ?></span>
-      Monthly total
+      Weekly total
     </li>
   </ul>
 </div>

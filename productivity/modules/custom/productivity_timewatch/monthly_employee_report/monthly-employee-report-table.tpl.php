@@ -18,6 +18,12 @@
       </div>
     </div>
   <?php endif; ?>
+
+
+  <div class="row">
+
+  </div>
+
   <h3>Signatures</h3>
   <div class="row">
     <div class="col-sm-6">
@@ -30,7 +36,6 @@
       <?php endif; ?>
     </div>
 
-
     <div class="col-sm-6">
       <?php print $fullname; ?>:
       <?php if ($date_sign): ?>
@@ -40,13 +45,13 @@
         <a href="<?php print $href_sign; ?>" class="btn btn-primary">Click to Sign</a>
       <?php endif; ?>
     </div>
-  </div>
 
-  <h3></h3>
-
-  <div class="row">
-    <div class="col-sm-12" style="text-align: right">
+    <h3></h3>
+    <div class="col-sm-10 .col-sm-push-1 .col-sm-pull-1" style="text-align: right">
       הריני מצהיר כי דו"ח שעות זה משקף את חלוקת שעות עבודתי במשימות השונות, וכי ידוע לי כי דוח זה ישמש לתביעת תמיכה כספית שתוגש ע"י החברה, ללשכת המדען הראשי, במשרד התעשייה המסחר והתעסוקה.
     </div>
   </div>
+
+  <h3></h3>
+  <span id="project-date"><?php print t('Printed date - @date', array('@date' => format_date(time()))); ?></span>
 </div>

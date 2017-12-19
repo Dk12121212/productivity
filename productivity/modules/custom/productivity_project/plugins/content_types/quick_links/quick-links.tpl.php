@@ -1,4 +1,4 @@
-<div class="main-box-body clearfix">
+<div class="main-box-body clearfix noprint">
   <div class="panel-group accordion" id="accordion">
     <div class="panel panel-default">
 

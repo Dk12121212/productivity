@@ -46,7 +46,12 @@
     margin-right: 10px;
     margin-bottom: 10px;
     margin-left: 10px; }
-  #search-filter, .page-header, #nav-col, #footer-copyright, .noprint, .sticky-header {
+  #search-filter,
+  .page-header,
+  #nav-col,
+  #footer-copyright,
+  .noprint,
+  .sticky-header {
     display: none; }
 
   a[href]:after {

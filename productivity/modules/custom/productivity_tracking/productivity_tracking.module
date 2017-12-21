@@ -620,7 +620,6 @@ function productivity_tracking_gh_payload($payload, $event) {
     }
     productivity_tracking_save_tracking($issue, $pr, $uid, $payload['sender']['login'], $payload['repository']);
   }
-
 }
 
 /**
@@ -644,9 +643,9 @@ function productivity_tracking_save_tracking($issue, $pr, $uid, $github_username
   }
 
   // In case we have a prefix, add it to the issue id.
-  $wapper_project = entity_metadata_wrapper('node', $project_nid);
-  if ($prefix = $wapper_project->field_issue_prefix->value()) {
-    $issue['issue'] = $prefix . $issue['issue'];
+  $wrapper_project = entity_metadata_wrapper('node', $project_nid);
+  if ($prefix = $wrapper_project->field_issue_prefix->value()) {
+    $issue['issue']['number']  = $prefix . $issue['issue']['number'];
   }
 
   $data_issue = [

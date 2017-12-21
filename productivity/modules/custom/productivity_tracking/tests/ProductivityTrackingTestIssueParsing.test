@@ -46,7 +46,7 @@ class ProductivityTrackingTestIssueParsing extends DrupalWebTestCase {
     }
   }
 
-  // Check the issue is can be parssed and saved to tracking node.
+  // Check the issue is can be parsed and saved to tracking node.
   public function testPayloadIssue() {
     $path = drupal_get_path('module', 'productivity_tracking') . '/tests/json/';
     $json = file_get_contents($path . 'issuePayload.json');

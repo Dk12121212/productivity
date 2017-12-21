@@ -605,7 +605,7 @@ Whether this project should be allowed as the project reference of a work sessio
         'display_label' => 1,
       ),
       'type' => 'options_onoff',
-      'weight' => 3,
+      'weight' => 4,
     ),
   );
 
@@ -704,7 +704,7 @@ Setting an end date, will make project invisible in some forms after the end dat
         'year_range' => '-3:+3',
       ),
       'type' => 'date_popup',
-      'weight' => 5,
+      'weight' => 6,
     ),
   );
 
@@ -845,6 +845,105 @@ Setting an end date, will make project invisible in some forms after the end dat
     ),
   );
 
+  // Exported field_instance: 'node-project-field_issue_prefix'.
+  $field_instances['node-project-field_issue_prefix'] = array(
+    'bundle' => 'project',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => 'This prefix will be added automatically to the issue number, to make the issue number unique in case you need separate tracking for the same issue on different project.
+For example, if I open 2 project for the same github repo, i will be able to separate same issue tracking for both project.
+Only fill this if the project is T&M, since it will change the tracking reports.',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'number',
+        'settings' => array(
+          'decimal_separator' => '.',
+          'prefix_suffix' => TRUE,
+          'scale' => 0,
+          'thousand_separator' => '',
+        ),
+        'type' => 'number_integer',
+        'weight' => 26,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_issue_prefix',
+    'label' => 'Issue prefix',
+    'required' => 0,
+    'settings' => array(
+      'max' => '',
+      'min' => '',
+      'prefix' => '',
+      'suffix' => '',
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 0,
+      'module' => 'number',
+      'settings' => array(),
+      'type' => 'number',
+      'weight' => 16,
+    ),
+  );
+
+  // Exported field_instance: 'node-project-field_office'.
+  $field_instances['node-project-field_office'] = array(
+    'bundle' => 'project',
+    'default_value' => array(
+      0 => array(
+        'target_id' => 329,
+      ),
+    ),
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'entityreference',
+        'settings' => array(
+          'link' => FALSE,
+        ),
+        'type' => 'entityreference_label',
+        'weight' => 24,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_office',
+    'label' => 'Office',
+    'required' => 1,
+    'settings' => array(
+      'behaviors' => array(
+        'autofill' => array(
+          'status' => 0,
+        ),
+        'taxonomy-index' => array(
+          'status' => TRUE,
+        ),
+      ),
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'options',
+      'settings' => array(),
+      'type' => 'options_select',
+      'weight' => 3,
+    ),
+  );
+
   // Exported field_instance: 'node-project-field_percentage_notification'.
   $field_instances['node-project-field_percentage_notification'] = array(
     'bundle' => 'project',
@@ -939,7 +1038,7 @@ Setting an end date, will make project invisible in some forms after the end dat
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => 14,
+      'weight' => 12,
     ),
   );
 
@@ -1065,7 +1164,7 @@ Setting an end date, will make project invisible in some forms after the end dat
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete_tags',
-      'weight' => 4,
+      'weight' => 5,
     ),
   );
 
@@ -1102,7 +1201,7 @@ Setting an end date, will make project invisible in some forms after the end dat
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_select',
-      'weight' => 6,
+      'weight' => 7,
     ),
   );
 
@@ -1115,6 +1214,8 @@ Setting an end date, will make project invisible in some forms after the end dat
   t('GH Milstone');
   t('Github repository name');
   t('If checked, don\'t allow tracking to the project anymore.');
+  t('Issue prefix');
+  t('Office');
   t('One name type is supported -> Account + Project name  (ie. Gizra/generator-hedley).');
   t('Override to default title, in the hour report.');
   t('Percentage notified');
@@ -1130,6 +1231,9 @@ Setting an end date, will make project invisible in some forms after the end dat
   t('The milestone to filter issues.');
   t('This means it\'s a Madaan project.
 Whether this project should be allowed as the project reference of a work session.');
+  t('This prefix will be added automatically to the issue number, to make the issue number unique in case you need separate tracking for the same issue on different project.
+For example, if I open 2 project for the same github repo, i will be able to separate same issue tracking for both project.
+Only fill this if the project is T&M, since it will change the tracking reports.');
   t('Total hours');
   t('Type');
   t('Work type');

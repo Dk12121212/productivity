@@ -23,9 +23,10 @@ function productivity_project_field_group_info() {
     'label' => 'Project triage filters',
     'weight' => '8',
     'children' => array(
-      0 => 'field_close_tracking',
-      1 => 'field_github_repository_name',
+      0 => 'field_github_repository_name',
+      1 => 'field_close_tracking',
       2 => 'field_gh_milestone',
+      3 => 'field_issue_prefix',
     ),
     'format_type' => 'fieldset',
     'format_settings' => array(
@@ -38,7 +39,7 @@ function productivity_project_field_group_info() {
       ),
     ),
   );
-  $field_groups['group_triage|node|project|form'] = $field_group;
+  $field_groups[''] = $field_group;
 
   // Translatables
   // Included for use with string extractors like potx.

@@ -643,6 +643,12 @@ function productivity_tracking_save_tracking($issue, $pr, $uid, $github_username
     return FALSE;
   }
 
+  // In case we have a prefix, add it to the issue id.
+  $wapper_project = entity_metadata_wrapper('node', $project_nid);
+  if ($prefix = $wapper_project->field_issue_prefix->value()) {
+    $issue['issue'] = $prefix . $issue['issue'];
+  }
+
   $data_issue = [
     'repo' => $repo['full_name'],
     'estimate' => $issue['estimate'],
@@ -650,6 +656,7 @@ function productivity_tracking_save_tracking($issue, $pr, $uid, $github_username
     'project' => $project_nid,
     'uid' => $uid,
   ];
+
 
   if(!$wrapper = productivity_tracking_get_tracking_node($data_issue, TRUE, $dont_create)) {
     // Case of race condition, or issue not found with just_update = true.
@@ -766,7 +773,7 @@ function productivity_tracking_get_project_by_repository($repository_info, $issu
     else {
       $key = 'none';
     }
-    // Need to make sure we select project with no misletone if exist.
+    // Need to make sure we select project with no milestone if exist.
     // Default to first match.
     if (isset($ms_mapping[$key])) {
       $nid = $ms_mapping[$key];

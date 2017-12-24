@@ -83,14 +83,13 @@ function productivity_timewatch_node_insert($node) {
     'Convention',
   ];
   if (in_array($wrapper->field_session_type->label(), $alert_days)) {
-    global $language;
     $params = [
       'name' => $wrapper->field_employee->name->value(),
       'uid' => $wrapper->field_employee->getIdentifier(),
       'seesion_type' => $wrapper->field_session_type->label(),
       'date' => $wrapper->field_session_date->value->value(),
     ];
-    drupal_mail('productivity_timewatch', 'alert_work_seesion', 'info@gizra.com', $language, $params, $from = 'productivity@gizra.com');
+    drupal_mail('productivity_timewatch', 'alert_work_seesion', 'info@gizra.com', language_default(), $params, 'productivity@gizra.com');
 
   }
 }

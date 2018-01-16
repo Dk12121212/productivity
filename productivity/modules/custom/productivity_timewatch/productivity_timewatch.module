@@ -66,6 +66,59 @@ function productivity_timewatch_ctools_plugin_directory($module, $plugin) {
   }
 }
 
+
+/**
+ * Implements hook_node_insert().
+ */
+function productivity_timewatch_node_insert($node) {
+  if ($node->type != 'work_session') {
+    return;
+  }
+
+  $wrapper = entity_metadata_wrapper('node', $node);
+  $alert_days = [
+    'Vacation',
+    'Miluim', 'session_types',
+    'Sick', 'session_types',
+    'Convention',
+  ];
+  if (in_array($wrapper->field_session_type->label(), $alert_days)) {
+    $params = [
+      'name' => $wrapper->field_employee->name->value(),
+      'uid' => $wrapper->field_employee->getIdentifier(),
+      'seesion_type' => $wrapper->field_session_type->label(),
+      'date' => $wrapper->field_session_date->value->value(),
+    ];
+    drupal_mail('productivity_timewatch', 'alert_work_seesion', 'info@gizra.com', language_default(), $params, 'productivity@gizra.com');
+
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function productivity_timewatch_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'alert_work_seesion':
+      // Set headers etc
+      $message['to'] = 'info@gizra.com';
+      $message['subject'] = t('@name added a @type day on the @date', [
+        '@name' => $params['name'],
+        '@type' => $params['seesion_type'],
+        '@date' => format_date($params['date']),
+      ]);
+      $message['body'][] = t('See details @here,', [
+        '@here' => l('here', 'user', [
+          'query' => [
+            'uid' => $params['uid'],
+            ],
+          'absolute' => TRUE,
+        ]),
+      ]);
+      break;
+  }
+}
+
 /**
  * Find a user by pincode.
  *

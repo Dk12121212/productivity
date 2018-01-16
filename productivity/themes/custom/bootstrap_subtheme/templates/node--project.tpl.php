@@ -176,8 +176,10 @@
   </div>
   <div class="col-xs-6">
     <div class="main-box infographic-box">
-      <h2>Team members</h2>
-      TBD
+        <h2><?php print $account_link; ?> Payment term</h2>
+      <?php print $payment_term_account; ?>
+        <h2>Project Payment term</h2>
+      <?php print $payment_term_project; ?>
     </div>
   </div>
   <div class="col-xs-6">

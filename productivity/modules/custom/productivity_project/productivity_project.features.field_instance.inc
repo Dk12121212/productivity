@@ -561,7 +561,7 @@ function productivity_project_field_default_field_instances() {
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_select',
-      'weight' => 2,
+      'weight' => 3,
     ),
   );
 
@@ -605,7 +605,7 @@ Whether this project should be allowed as the project reference of a work sessio
         'display_label' => 1,
       ),
       'type' => 'options_onoff',
-      'weight' => 4,
+      'weight' => 5,
     ),
   );
 
@@ -704,7 +704,7 @@ Setting an end date, will make project invisible in some forms after the end dat
         'year_range' => '-3:+3',
       ),
       'type' => 'date_popup',
-      'weight' => 6,
+      'weight' => 7,
     ),
   );
 
@@ -841,7 +841,7 @@ Setting an end date, will make project invisible in some forms after the end dat
       'module' => 'number',
       'settings' => array(),
       'type' => 'number',
-      'weight' => 10,
+      'weight' => 11,
     ),
   );
 
@@ -940,7 +940,46 @@ Only fill this if the project is T&M, since it will change the tracking reports.
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_select',
-      'weight' => 3,
+      'weight' => 4,
+    ),
+  );
+
+  // Exported field_instance: 'node-project-field_payment_terms'.
+  $field_instances['node-project-field_payment_terms'] = array(
+    'bundle' => 'project',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 27,
+      ),
+      'teaser' => array(
+        'label' => 'above',
+        'settings' => array(),
+        'type' => 'hidden',
+        'weight' => 0,
+      ),
+    ),
+    'entity_type' => 'node',
+    'field_name' => 'field_payment_terms',
+    'label' => 'Payment Terms',
+    'required' => FALSE,
+    'settings' => array(
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'module' => 'text',
+      'settings' => array(
+        'rows' => 5,
+      ),
+      'type' => 'text_textarea',
+      'weight' => 1,
     ),
   );
 
@@ -990,7 +1029,7 @@ Only fill this if the project is T&M, since it will change the tracking reports.
       'module' => 'number',
       'settings' => array(),
       'type' => 'number',
-      'weight' => 11,
+      'weight' => 12,
     ),
   );
 
@@ -1038,7 +1077,7 @@ Only fill this if the project is T&M, since it will change the tracking reports.
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete',
-      'weight' => 12,
+      'weight' => 13,
     ),
   );
 
@@ -1121,7 +1160,7 @@ Only fill this if the project is T&M, since it will change the tracking reports.
       'module' => 'multifield',
       'settings' => array(),
       'type' => 'multifield_default',
-      'weight' => 9,
+      'weight' => 10,
     ),
   );
 
@@ -1164,7 +1203,7 @@ Only fill this if the project is T&M, since it will change the tracking reports.
         'size' => 60,
       ),
       'type' => 'entityreference_autocomplete_tags',
-      'weight' => 5,
+      'weight' => 6,
     ),
   );
 
@@ -1201,7 +1240,7 @@ Only fill this if the project is T&M, since it will change the tracking reports.
       'module' => 'options',
       'settings' => array(),
       'type' => 'options_select',
-      'weight' => 7,
+      'weight' => 8,
     ),
   );
 
@@ -1218,6 +1257,7 @@ Only fill this if the project is T&M, since it will change the tracking reports.
   t('Office');
   t('One name type is supported -> Account + Project name  (ie. Gizra/generator-hedley).');
   t('Override to default title, in the hour report.');
+  t('Payment Terms');
   t('Percentage notified');
   t('Rate');
   t('Rate type');

@@ -281,6 +281,27 @@ function productivity_project_field_default_field_bases() {
     'type' => 'entityreference',
   );
 
+  // Exported field_base: 'field_payment_terms'.
+  $field_bases['field_payment_terms'] = array(
+    'active' => 1,
+    'cardinality' => 1,
+    'deleted' => 0,
+    'entity_types' => array(),
+    'field_name' => 'field_payment_terms',
+    'indexes' => array(
+      'format' => array(
+        0 => 'format',
+      ),
+    ),
+    'locked' => 0,
+    'module' => 'text',
+    'settings' => array(
+      'profile2_private' => FALSE,
+    ),
+    'translatable' => 0,
+    'type' => 'text_long',
+  );
+
   // Exported field_base: 'field_percentage_notification'.
   $field_bases['field_percentage_notification'] = array(
     'active' => 1,

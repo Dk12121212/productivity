@@ -54,6 +54,9 @@ function bootstrap_subtheme_preprocess_node__project__full(&$variables) {
   $variables['project_date_start'] = render($field);
 
   $variables['stakeholders'] = _bootstrap_subtheme_stakeholder_markup($wrapper);
+  $variables['payment_term_account'] = $wrapper->field_account->field_payment_terms->value();
+  $variables['payment_term_project'] = $wrapper->field_payment_terms->value();
+  $variables['account_link'] = l($wrapper->field_account->label(), 'node/' . $wrapper->field_account->getIdentifier());
 
 }
 
@@ -137,23 +140,29 @@ function _bootstrap_subtheme_burn_rate_chart($project_node, $wrapper) {
       foreach ($wrapper->field_table_rate as $type) {
         $rate_code = $type->field_issue_type->value();
         // Sort array by week number.
-        foreach ($data[$year][$rate_code] as $data_name => &$data_type) {
-          ksort($data_type, SORT_NUMERIC);
+        if (isset($data[$year][$rate_code])) {
+          foreach ($data[$year][$rate_code] as $data_name => &$data_type) {
+            ksort($data_type, SORT_NUMERIC);
+          }
         }
 
         // Convert actual totla to intval, we have to do this after total is done.
-        foreach ($data[$year][$rate_code]['actual'] as $week_num => &$actual_total) {
-          intval($actual_total[1]);
+        if (isset($data[$year][$rate_code]['actual'])) {
+          foreach ($data[$year][$rate_code]['actual'] as $week_num => &$actual_total) {
+            intval($actual_total[1]);
+          }
         }
 
         // Total lines
-        foreach ($data[$year][$rate_code] as $data_name => &$data_type) {
-          $data[$year][$rate_code]['total'] = $stub;
-          foreach ($data[$year][$rate_code]['total'] as &$total) {
-            $total[1] = intval($type->field_scope->interval->value());
-          }
-          if (!empty($data_type)) {
-            ksort($data_type, SORT_NUMERIC);
+        if (isset($data[$year][$rate_code])) {
+          foreach ($data[$year][$rate_code] as $data_name => &$data_type) {
+            $data[$year][$rate_code]['total'] = $stub;
+            foreach ($data[$year][$rate_code]['total'] as &$total) {
+              $total[1] = intval($type->field_scope->interval->value());
+            }
+            if (!empty($data_type)) {
+              ksort($data_type, SORT_NUMERIC);
+            }
           }
         }
         // Create estimate curve line data.

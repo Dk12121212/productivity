@@ -1386,17 +1386,23 @@ function productivity_tracking_set_tracking_data($data, $wrapper, $only_gh_data 
  * Get or create status term.
  */
 function productivity_tracking_get_term($name, $vocab_machine_name = 'issue_status') {
-  $vocab = taxonomy_vocabulary_machine_name_load($vocab_machine_name);
-  $term = taxonomy_get_term_by_name($name);
+  // Prevent duplicate term creation when 2 request for GH are sent at
+  // same time.
+  if (lock_acquire('productivity_tracking_get_term')) {
+    $vocab = taxonomy_vocabulary_machine_name_load($vocab_machine_name);
+    $term = taxonomy_get_term_by_name($name);
 
-  if (!$term) {
-    $term = new stdClass();
-    $term->name = $name;
-    $term->vid = $vocab->vid;
-    taxonomy_term_save($term);
-  }
-  else {
-    $term = reset($term);
+    if (!$term) {
+      $term = new stdClass();
+      $term->name = $name;
+      $term->vid = $vocab->vid;
+      taxonomy_term_save($term);
+    }
+    else {
+      $term = reset($term);
+    }
+    
+    lock_release('productivity_tracking_get_term');
   }
 
   return $term;

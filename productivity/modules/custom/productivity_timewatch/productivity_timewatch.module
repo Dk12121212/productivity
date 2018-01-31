@@ -612,7 +612,7 @@ function productivity_timewatch_create_sessions_array($node_keys, &$summary, &$m
           '05.total' => productivity_timewatch_format_total($total_minutes),
           '06.project' => $madaan_project ? $madaan_project : $day_name,
           // The source of the data, using time watch or from home (manual).
-          '07.source' => in_array('timewatch', $node_account->roles) ? 'timewatch' : 'manual',
+          '07.source' => $node_account->name,
           '08.retro' => $retro ? t('yes') : t('no'),
           '09.all day total' => productivity_timewatch_format_total($total_minutes),
         ) + $month_array[$day_key];

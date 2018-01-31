@@ -94,7 +94,7 @@ function productivity_timewatch_monthly_employee_report($account = FALSE, $year 
   $variables['no_result'] = FALSE;
   $variables['message'] = '';
   $variables['table'] = '';
-  $variables['year'] = !empty($year) ? $year : date('Y');
+  $variables['year'] = !empty($year) ? $year :  date('Y', strtotime("-1 month"));
   $variables['month'] = !empty($month) ? $month : date('m', strtotime("-1 month"));
   $variables['pdf_url'] = FALSE;
 

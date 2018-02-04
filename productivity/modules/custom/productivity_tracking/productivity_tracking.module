@@ -1129,12 +1129,12 @@ function productivity_tracking_get_tracking_base_query($project_nid = FALSE, $wo
   if ($dates && $dates['start']['year']) {
     // Show all year.
     if ($dates['start']['month'] == 'all') {
-      $project_start_month = format_string("@year-01-01", array('@year' => $dates['start']['year']));
-      $project_end_month = format_string("@year-12-31", array('@year' => $dates['start']['year']));
+      $project_start_month = format_string("@year-01-01 00:00:00", array('@year' => $dates['start']['year']));
+      $project_end_month = format_string("@year-12-31 24:59:59", array('@year' => $dates['start']['year']));
     }
     // Show specifc dates.
     else {
-      $project_start_month = format_string("@year-@month-@day", array(
+      $project_start_month = format_string("@year-@month-@day 00:00:00", array(
         '@year' => $dates['start']['year'],
         '@month' => $dates['start']['month'],
         '@day' => isset($dates['start']['day']) ? $dates['start']['day'] : 1,
@@ -1142,10 +1142,10 @@ function productivity_tracking_get_tracking_base_query($project_nid = FALSE, $wo
 
       // If no end month default to next month.
       if (!isset($dates['end']['month'])) {
-        $project_end_month = date("Y-m-d", strtotime($project_start_month . "+1 month"));
+        $project_end_month = date("Y-m-t 24:59:59", strtotime($project_start_month));
       }
       else {
-        $project_end_month = format_string("@year-@month-@day", array(
+        $project_end_month = format_string("@year-@month-@day 24:59:59", array(
           '@year' => $dates['end']['year'],
           '@month' => $dates['end']['month'],
           '@day' => isset($dates['end']['day']) ? $dates['end']['day'] : 1,
@@ -1155,7 +1155,7 @@ function productivity_tracking_get_tracking_base_query($project_nid = FALSE, $wo
 
     // Return all time.
     if ($dates['start']['year'] && $dates['start']['year'] != 'all') {
-      $end_operator = isset($dates['end']['operator']) ? $dates['end']['operator'] : '<';
+      $end_operator = isset($dates['end']['operator']) ? $dates['end']['operator'] : '<=';
       $query
         ->condition('date.field_track_date_value', $project_start_month, '>=')
         ->condition('date.field_track_date_value', $project_end_month, $end_operator);

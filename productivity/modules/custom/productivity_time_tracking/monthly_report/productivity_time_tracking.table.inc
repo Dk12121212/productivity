@@ -46,7 +46,6 @@ function productivity_time_tracking_issue_table($node = FALSE, $year = FALSE, $m
     $variables['date'] = date("F Y", strtotime("$year-$month-01"));
   }
 
-
   $variables['projects'] = productivity_project_get_all_projects();
   $variables['current_project_id'] = 0;
   $variables['project_title'] = 'Select a project';

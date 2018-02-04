@@ -13,7 +13,7 @@ function productivity_time_tracking_issue_table_callback($node = FALSE, $year = 
   $estimated_based = $estimated_based == 'false' ? FALSE : TRUE;
   $dates = [
     'start' => [
-      'year' =>  !empty($year) ? $year : date('Y'),
+      'year' =>  !empty($year) ? $year : date('Y', strtotime("-1 month")),
       'month' => !empty($month) ? $month : date('m', strtotime("-1 month")),
       'day' => !empty($day) ? $day : 1,
     ],
@@ -21,9 +21,9 @@ function productivity_time_tracking_issue_table_callback($node = FALSE, $year = 
   if($dates['start']['month'] != 'all') {
     $dates += [
       'end' => [
-        'year' => !empty($year_end) ? $year_end : date('Y'),
+        'year' => !empty($year_end) ? $year_end : date('Y', strtotime("-1 month")),
         'month' => !empty($month_end) ? $month_end : date('m', strtotime("-1 month")),
-        'day' => !empty($day_end) ? $day_end : date('t'),
+        'day' => !empty($day_end) ? $day_end : date('t', strtotime("-1 month")),
       ],
     ];
   }

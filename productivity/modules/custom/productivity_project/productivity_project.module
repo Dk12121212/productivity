@@ -60,14 +60,14 @@ function productivity_project_menu() {
     'file' => '/project_report.inc',
   );
 
-  $items['project-finance-report'] = array(
-    'title' => t('Finance report (summary)'),
-    'page callback' => 'productivity_project_finance_report_table',
-    'page arguments' => array(1, 2),
-    'access arguments' => array('project admin'),
-    'file path' => drupal_get_path('module', 'productivity_project') . '/project_finance_report',
-    'file' => 'project_finance_report.inc',
-  );
+//  $items['project-finance-report'] = array(
+//    'title' => t('Finance report (summary)'),
+//    'page callback' => 'productivity_project_finance_report_table',
+//    'page arguments' => array(1, 2),
+//    'access arguments' => array('project admin'),
+//    'file path' => drupal_get_path('module', 'productivity_project') . '/project_finance_report',
+//    'file' => 'project_finance_report.inc',
+//  );
 
   $items['node/%node/acceptance/post'] = array(
     'page callback' => 'productivity_project_page_acceptance_post',
@@ -178,11 +178,6 @@ function productivity_project_theme() {
       ),
       'path' => drupal_get_path('module', 'productivity_project'),
       'template' => 'acceptance_test',
-    ),
-    'productivity_project_finance_report' => array(
-      'variables' => array(),
-      'path' => drupal_get_path('module', 'productivity_project') . '/project_finance_report',
-      'template' => 'project_finance_report',
     ),
   );
 }

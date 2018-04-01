@@ -1,0 +1,47 @@
+<?php
+/**
+ * @file
+ * Code for the Productivity reports.
+ */
+/**
+ * Implements hook_menu().
+ */
+function productivity_reports_menu() {
+  $items['project-finance-report'] = [
+    'title' => t('Finance report (summary)'),
+    'page callback' => 'productivity_reports_finance_report_table',
+    'page arguments' => [1, 2],
+    'access arguments' => ['project admin'],
+    'file path' => drupal_get_path('module', 'productivity_reports') . '/project_finance_report',
+    'file' => 'project_finance_report.inc',
+  ];
+
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function productivity_reports_theme() {
+  return [
+    'productivity_reports_finance_report' => [
+      'variables' => [],
+      'path' => drupal_get_path('module', 'productivity_reports') . '/project_finance_report',
+      'template' => 'project_finance_report',
+    ],
+  ];
+}
+
+function productivity_reports_get_overhead_per_hour($year = 2018, $month = 1) {
+
+  // Salary cost.
+  $salarary_cost = 30000;
+
+  // Hours build
+  $hours_billed = 40;
+
+  // Month potential
+  $month_potential = 180;
+
+  
+}

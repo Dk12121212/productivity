@@ -8,18 +8,18 @@
  * Menu callback; display tracking table for issues.
  * Render callback;  Bidder page.
  */
-function productivity_project_finance_report_table($year, $month) {
+function productivity_reports_finance_report_table($year, $month) {
   global $base_url;
   // Add JavaScript file with the base url of the page.
-  drupal_add_js(drupal_get_path('module', 'productivity_project') . '/project_finance_report/project_finance_report.js');
-  drupal_add_css(drupal_get_path('module', 'productivity_project') . '/project_finance_report/project_finance_report.css');
+  drupal_add_js(drupal_get_path('module', 'productivity_reports') . '/project_finance_report/project_finance_report.js');
+  drupal_add_css(drupal_get_path('module', 'productivity_reports') . '/project_finance_report/project_finance_report.css');
   drupal_add_css("//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/css/select2.min.css", array('type' => 'external'));
   drupal_add_css('https://fonts.googleapis.com/css?family=Abril+Fatface', array('type' => 'external'));
   drupal_add_js("//cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/js/select2.min.js", array('type' => 'external'));
 
   $variables = array();
 
-//  $variables['projects'] = productivity_project_get_project_by_date($month, $year);
+//  $variables['projects'] = productivity_reports_get_project_by_date($month, $year);
   $variables['no_result'] = FALSE;
   $variables['message'] = '';
   $variables['month'] = $month;
@@ -183,7 +183,7 @@ function productivity_project_finance_report_table($year, $month) {
 
   // TODO: Cache data for graph.
 
-  return theme('productivity_project_finance_report', $variables);
+  return theme('productivity_reports_finance_report', $variables);
 }
 
 /**
@@ -208,7 +208,7 @@ function productivity_finance_reset_value(&$element, $value){
  * @return
  *   SelectQuery::execute();
  */
-function productivity_reports_finance_get_tracking($project_nid = FALSE, $work_type = FALSE, $year = FALSE, $month = FALSE) {
+function productivity_report_finance_get_tracking($project_nid = FALSE, $work_type = FALSE, $year = FALSE, $month = FALSE) {
   $dates = [];
   $dates['start']['month'] = $month;
   $dates['start']['year'] = $year;

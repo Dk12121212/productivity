@@ -1,1 +1,1 @@
-ngrok http -host-header=rewrite produtivity.local:80
+ngrok http -host-header=rewrite productivity.local:80

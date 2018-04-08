@@ -548,9 +548,14 @@ function productivity_tracking_payload() {
   $payload = json_decode($json, TRUE);
 
   switch ($event = strtolower($_SERVER['HTTP_X_GITHUB_EVENT'])) {
+    case 'ping':
+      echo 'pong';
+      die();
+      break;
     // Issue event https://developer.github.com/v3/activity/events/types/#issuesevent
     // https://developer.github.com/v3/activity/events/types/#pullrequestevent.
-    case 'issues' || 'pull_request':
+    case 'issues':
+    case 'pull_request':
       productivity_tracking_gh_payload($payload, $event);
       break;
     default:

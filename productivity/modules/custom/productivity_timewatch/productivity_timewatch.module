@@ -849,10 +849,10 @@ function productivity_timewatch_punch_non_regular($account, $day_type, $timestam
   $wrapper = entity_metadata_wrapper('node', $node);
   $wrapper->field_employee->set($account->uid);
   // Set to 9:00am
-  $wrapper->field_session_date->value->set($timestamp + $day_length * 3600);
-  // Set to end 9:00 + dayl length.
-  $end_time = $half ? 9 + ($day_length / 2) : 9 + $day_length;
-  $wrapper->field_session_date->value2->set($timestamp + $end_time * 3600);
+  $wrapper->field_session_date->value->set($timestamp + 9 * 3600);
+  // Set to end 9:00 + day length.
+  $end_time = $half ? ($day_length / 2) : $day_length;
+  $wrapper->field_session_date->value2->set($timestamp + ((9 + $end_time) * 3600));
   $term = taxonomy_get_term_by_name($day_type, 'session_types');
 
   if (!empty($term)) {

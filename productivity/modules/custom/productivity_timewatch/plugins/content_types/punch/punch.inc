@@ -43,7 +43,7 @@ function productivity_timewatch_punch_content_type_render($subtype, $conf, $args
       else {
         $timestamp = strtotime($variables['date']);
         $half = isset($_POST['halfDay']);
-        productivity_timewatch_punch_non_regular($account, $_POST['dayType'], $timestamp, $half);
+        productivity_timewatch_punch_non_regular($account, $_POST['dayType'], $timestamp, $half, $month, $year);
         drupal_set_message(t('Added @day_type day on @date', [
           '@date' => $variables['date'],
           '@day_type' => $_POST['dayType'],

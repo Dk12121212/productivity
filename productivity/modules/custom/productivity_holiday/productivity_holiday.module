@@ -93,7 +93,7 @@ function productivity_holiday_per_month_israel($month, $year) {
         }
       }
     }
-
   }
+
   return $holidays;
 }

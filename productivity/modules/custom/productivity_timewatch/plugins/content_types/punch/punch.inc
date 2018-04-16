@@ -52,7 +52,9 @@ function productivity_timewatch_punch_content_type_render($subtype, $conf, $args
     }
   }
 
-  $variables['can_punch'] = ($uid == $user->uid) || ($user->uid == 1);
+  // Give Orit(16) permission to punch.
+  // TODO: Add a real permission.
+  $variables['can_punch'] = ($uid == $user->uid) || ($user->uid == 1) || ($user->uid == 16);
 
   // URL for form submit.
   $timestamp = strtotime("$day.$month.$year");
